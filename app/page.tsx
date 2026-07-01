@@ -53,8 +53,10 @@ export default function MasjidApp() {
   const [toast, setToast] = useState({ isOpen: false, message: '' });
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('kahfi-theme');
-    if (savedTheme) setTheme(savedTheme);
+    const savedTheme = localStorage.getItem('kahfi-theme') || 'zamrud';
+    setTheme(savedTheme);
+    document.documentElement.classList.remove('theme-zamrud', 'theme-syafii', 'theme-kasturi', 'theme-zaitun', 'theme-raudhah');
+    document.documentElement.classList.add(`theme-${savedTheme}`);
 
     const timer = setInterval(() => {
       const now = new Date();
@@ -107,6 +109,8 @@ export default function MasjidApp() {
   const changeTheme = (newTheme: string) => {
     setTheme(newTheme);
     localStorage.setItem('kahfi-theme', newTheme);
+    document.documentElement.classList.remove('theme-zamrud', 'theme-syafii', 'theme-kasturi', 'theme-zaitun', 'theme-raudhah');
+    document.documentElement.classList.add(`theme-${newTheme}`);
     showToast(`Tema berhasil diubah!`);
     setIsThemeMenuOpen(false);
   };
@@ -138,7 +142,7 @@ export default function MasjidApp() {
   ];
 
   return (
-    <div className={`theme-${theme} bg-[var(--bg-body)] text-gray-800 transition-colors duration-500 min-h-screen flex flex-col font-sans`}>
+    <div className={`bg-[var(--bg-body)] text-gray-800 transition-colors duration-500 min-h-screen flex flex-col font-sans`}>
       
       {/* Top Banner */}
       <div className="bg-emerald-950 text-gold-100 py-2 px-4 text-xs font-medium border-b border-gold-500/20">
@@ -226,7 +230,7 @@ export default function MasjidApp() {
               
               {/* Hero */}
               <div className="relative min-h-[550px] lg:min-h-[650px] flex items-center text-white overflow-hidden border-b-4 border-gold-500">
-                <Image src="https://images.unsplash.com/photo-1759167633056-75c9c63ebc22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=80" alt="Hero" fill className="absolute inset-0 object-cover -z-10 opacity-40" />
+                <Image src="https://images.unsplash.com/photo-1759167633056-75c9c63ebc22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=80" alt="Hero" fill className="object-cover" referrerPolicy="no-referrer" priority />
                 <div className="absolute inset-0 bg-emerald-950/80 mix-blend-multiply z-0"></div>
                 <div className="absolute inset-0 opacity-10 islamic-pattern z-10"></div>
                 <div className="relative z-20 max-w-7xl mx-auto px-4 py-20 flex flex-col items-center text-center">
