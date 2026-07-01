@@ -132,7 +132,6 @@ export default function MasjidApp() {
     { id: 'tentang', label: 'Tentang' },
     { id: 'jadwal-sholat', label: 'Jadwal Sholat' },
     { id: 'kegiatan', label: 'Kegiatan' },
-    { id: 'pengumuman', label: 'Pengumuman' },
     { id: 'berita', label: 'Berita' },
     { id: 'galeri', label: 'Galeri' },
     { id: 'kontak', label: 'Kontak' }
@@ -227,8 +226,8 @@ export default function MasjidApp() {
               
               {/* Hero */}
               <div className="relative min-h-[550px] lg:min-h-[650px] flex items-center text-white overflow-hidden border-b-4 border-gold-500">
+                <Image src="https://images.unsplash.com/photo-1759167633056-75c9c63ebc22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=80" alt="Hero" fill className="absolute inset-0 object-cover -z-10 opacity-40" />
                 <div className="absolute inset-0 bg-emerald-950/80 mix-blend-multiply z-0"></div>
-                <Image src={galleryImages[0]} alt="Hero" fill className="absolute inset-0 object-cover -z-10" />
                 <div className="absolute inset-0 opacity-10 islamic-pattern z-10"></div>
                 <div className="relative z-20 max-w-7xl mx-auto px-4 py-20 flex flex-col items-center text-center">
                   <div className="w-16 h-1 bg-gold-500 mb-6"></div>

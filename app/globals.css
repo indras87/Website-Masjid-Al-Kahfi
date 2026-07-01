@@ -47,37 +47,63 @@
   --primary-950: #172554;
   --accent-50: #fffbeb;
   --accent-100: #fef3c7;
+  --accent-200: #fde68a;
+  --accent-300: #fcd34d;
+  --accent-400: #fbbf24;
   --accent-500: #d97706;
+  --accent-600: #b45309;
+  --accent-700: #78350f;
   --bg-body: #f8fafc;
 }
 .theme-kasturi {
   --primary-50: #fff1f2;
+  --primary-100: #ffe4e6;
   --primary-500: #e11d48;
   --primary-800: #9f1239;
   --primary-900: #881337;
   --primary-950: #4c0519;
   --accent-50: #fffbeb;
+  --accent-100: #fdf2e9;
+  --accent-200: #fed7aa;
+  --accent-300: #fdba74;
+  --accent-400: #f97316;
   --accent-500: #c2410c;
+  --accent-600: #9a3412;
+  --accent-700: #7c2d12;
   --bg-body: #fffafb;
 }
 .theme-zaitun {
   --primary-50: #f4f7f5;
+  --primary-100: #e2ebe5;
   --primary-500: #5f7a68;
   --primary-800: #4a5e50;
   --primary-900: #3c4e42;
   --primary-950: #232e27;
   --accent-50: #faf8f5;
+  --accent-100: #f2ede4;
+  --accent-200: #dfd4c1;
+  --accent-300: #cdbd9d;
+  --accent-400: #bda67b;
   --accent-500: #a48a5c;
+  --accent-600: #836b44;
+  --accent-700: #624e30;
   --bg-body: #fcfbfa;
 }
 .theme-raudhah {
   --primary-50: #f0fdfa;
+  --primary-100: #ccfbf1;
   --primary-500: #0d9488;
   --primary-800: #115e59;
   --primary-900: #134e4a;
   --primary-950: #042f2e;
   --accent-50: #fffafb;
+  --accent-100: #ffeedb;
+  --accent-200: #ffd3b3;
+  --accent-300: #ffbc8a;
+  --accent-400: #e0a96d;
   --accent-500: #c18c5d;
+  --accent-600: #a07248;
+  --accent-700: #7e5733;
   --bg-body: #f8faf9;
 }
 
