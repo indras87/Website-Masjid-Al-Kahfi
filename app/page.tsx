@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   HeartPulse, Menu, X, Clock, HandCoins, ArrowRight, ChevronRight, ZoomIn,
@@ -595,6 +596,9 @@ export default function MasjidApp() {
                 <button className="w-8 h-8 rounded-full bg-white/10 hover:bg-gold-500 hover:text-emerald-950 flex items-center justify-center text-sm transition"><Mail size={14}/></button>
               </div>
               <p className="text-[10px] text-emerald-200/60 leading-relaxed">&copy; 2026 DKM Masjid Al-Kahfi Cikoneng. <br/>All Rights Reserved. Membina Ummat Secara Istiqomah.</p>
+              <div className="mt-4">
+                 <Link href="/admin" className="text-xs text-gold-500/80 hover:text-gold-400 flex items-center gap-1 transition"><ChevronRight size={12}/> Login Administrator</Link>
+              </div>
             </div>
           </div>
         </div>
