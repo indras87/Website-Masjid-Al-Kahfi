@@ -48,6 +48,7 @@ export default function MasjidApp() {
   const [countdownText, setCountdownText] = useState('Menghitung mundur...');
   const [iqomahTime, setIqomahTime] = useState('00:00');
   const [filter, setFilter] = useState('semua');
+  const [selectedNews, setSelectedNews] = useState<any>(null);
   
   const [modal, setModal] = useState({ isOpen: false, title: '', desc: '' });
   const [lightbox, setLightbox] = useState({ isOpen: false, url: '' });
@@ -55,7 +56,9 @@ export default function MasjidApp() {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('kahfi-theme') || 'zamrud';
-    setTheme(savedTheme);
+    setTimeout(() => {
+      setTheme(savedTheme);
+    }, 0);
     document.documentElement.classList.remove('theme-zamrud', 'theme-syafii', 'theme-kasturi', 'theme-zaitun', 'theme-raudhah');
     document.documentElement.classList.add(`theme-${savedTheme}`);
 
@@ -156,7 +159,7 @@ export default function MasjidApp() {
                 transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
                 className="whitespace-nowrap text-xs"
               >
-                "Siapa yang membangun masjid karena Allah, maka Allah akan membangunkan baginya rumah di surga." (HR. Bukhari dan Muslim) — Selamat datang di Layanan Digital Masjid Al-Kahfi Cikoneng, Kabupaten Bandung.
+                &quot;Siapa yang membangun masjid karena Allah, maka Allah akan membangunkan baginya rumah di surga.&quot; (HR. Bukhari dan Muslim) — Selamat datang di Layanan Digital Masjid Al-Kahfi Cikoneng, Kabupaten Bandung.
               </motion.div>
             </div>
           </div>
@@ -290,8 +293,8 @@ export default function MasjidApp() {
                   </div>
                   <div className="bg-white rounded-2xl border border-gold-100 shadow-md hover:shadow-lg transition p-6 space-y-4">
                     <div className="w-12 h-12 bg-gold-50 rounded-xl flex items-center justify-center text-gold-600"><GraduationCap /></div>
-                    <h4 className="font-serif text-lg font-bold text-emerald-950">Taman Pendidikan Al-Qur'an (TPA)</h4>
-                    <p className="text-gray-600 text-sm leading-relaxed">Membina anak-anak dan remaja di lingkungan Cikoneng agar fasih membaca, menghafal, dan mengamalkan nilai-nilai luhur Al-Qur'an sejak dini.</p>
+                    <h4 className="font-serif text-lg font-bold text-emerald-950">Taman Pendidikan Al-Qur&apos;an (TPA)</h4>
+                    <p className="text-gray-600 text-sm leading-relaxed">Membina anak-anak dan remaja di lingkungan Cikoneng agar fasih membaca, menghafal, dan mengamalkan nilai-nilai luhur Al-Qur&apos;an sejak dini.</p>
                     <button onClick={() => handleNav('kegiatan')} className="text-xs text-emerald-900 font-bold hover:text-gold-600 transition flex items-center gap-1">Detail Kurikulum TPA <ChevronRight size={14}/></button>
                   </div>
                   <div className="bg-white rounded-2xl border border-gold-100 shadow-md hover:shadow-lg transition p-6 space-y-4">
@@ -300,6 +303,47 @@ export default function MasjidApp() {
                     <p className="text-gray-600 text-sm leading-relaxed">Bantuan ambulans gratis siaga 24 jam serta penyaluran santunan sembako berkala untuk keluarga pra-sejahtera dan dhuafa di wilayah Cikoneng.</p>
                     <button onClick={() => handleNav('kontak')} className="text-xs text-emerald-900 font-bold hover:text-gold-600 transition flex items-center gap-1">Hubungi Kontak Siaga <ChevronRight size={14}/></button>
                   </div>
+                </div>
+              </div>
+
+              {/* Banner Ajakan Donasi */}
+              <div className="bg-emerald-950 text-white relative overflow-hidden py-16">
+                <div className="absolute inset-0 opacity-10 islamic-pattern"></div>
+                <div className="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-6">
+                  <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
+                    Investasi Akhirat Terbaik, Alirkan Pahala Jariyah Anda
+                  </h3>
+                  <p className="text-emerald-100 font-light text-sm sm:text-base max-w-2xl mx-auto">
+                    Salurkan infaq, shodaqoh, dan zakat Anda untuk mendukung penuh operasional dawah, pendidikan santri TPA, dan peningkatan sarana ibadah di Masjid Al-Kahfi Cikoneng.
+                  </p>
+                  <div className="pt-2">
+                    <button onClick={() => handleNav('donasi')} className="bg-gold-500 hover:bg-gold-600 text-emerald-950 font-bold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition inline-flex items-center gap-2">
+                      <HeartPulse size={16} /> Mulai Berdonasi Sekarang
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Preview Galeri Foto */}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div className="flex flex-col sm:flex-row justify-between items-baseline mb-10 gap-2">
+                  <div>
+                    <span className="text-xs font-bold text-gold-600 uppercase tracking-widest">Dokumentasi</span>
+                    <h2 className="font-serif text-3xl font-bold text-emerald-950 mt-1">Galeri Foto Masjid</h2>
+                  </div>
+                  <button onClick={() => handleNav('galeri')} className="text-emerald-900 font-bold text-sm hover:text-gold-600 transition flex items-center gap-1">
+                    Lihat Seluruh Foto <ArrowRight size={14}/>
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {galleryImages.slice(0, 4).map((img, idx) => (
+                    <div key={idx} onClick={() => setLightbox({ isOpen: true, url: img })} className="group relative overflow-hidden rounded-xl cursor-pointer h-40 sm:h-48">
+                      <Image src={img} alt={`Preview Galeri ${idx}`} fill className="object-cover group-hover:scale-105 transition duration-300" />
+                      <div className="absolute inset-0 bg-emerald-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                        <ZoomIn className="text-white w-8 h-8" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.section>
@@ -316,26 +360,113 @@ export default function MasjidApp() {
                 </div>
               </div>
               <div className="max-w-5xl mx-auto px-4 py-16 space-y-16">
-                <div className="bg-white rounded-2xl p-8 md:p-12 shadow-md border border-gold-100">
-                  <h3 className="font-serif text-2xl md:text-3xl font-bold text-emerald-950 mb-6 flex items-center gap-3">
-                    <HistoryIcon className="text-gold-500" /> Sejarah Masjid
+                {/* Struktur Kepengurusan */}
+                <div className="space-y-8">
+                  <h3 className="font-serif text-2xl md:text-3xl font-bold text-emerald-950 text-center">
+                    Pengurus DKM Al-Kahfi
                   </h3>
-                  <p className="text-gray-600 leading-relaxed mb-4">Masjid Al-Kahfi Cikoneng didirikan pada tahun 1998 atas swadaya gotong royong masyarakat Cikoneng dan para muhsinin. Pada mulanya berupa mushola kecil ukuran 8x8 meter, seiring bertambahnya jumlah penduduk dan pesatnya kegiatan keagamaan, masjid dideklarasikan sebagai Masjid Jami' pada tahun 2008.</p>
-                  <p className="text-gray-600 leading-relaxed">Saat ini, Masjid Al-Kahfi sedang terus berbenah secara infrastruktur maupun kualitas program pelayanan dakwah guna memenuhi kebutuhan bimbingan rohani bagi lebih dari 500 Kepala Keluarga di sekitar wilayah RW Cikoneng, Bojongsoang, Kabupaten Bandung.</p>
+                  <p className="text-center text-sm text-gray-500 -mt-6 mb-8">Masa Khidmat: 2024 - 2028</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
+                      <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500">
+                        <Image src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200&h=200" alt="H. Endang Wijaya" fill className="object-cover" />
+                      </div>
+                      <h4 className="font-bold text-emerald-950 text-base">H. Endang Wijaya, Lc.</h4>
+                      <p className="text-xs text-gold-600 font-semibold uppercase mt-1">Ketua Umum DKM</p>
+                      <p className="text-[10px] text-gray-400 mt-2 bg-gray-50 px-2 py-1 rounded inline-block">Periode 2024-2028</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
+                      <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500">
+                        <Image src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200" alt="H. Ridwan Kamil" fill className="object-cover" />
+                      </div>
+                      <h4 className="font-bold text-emerald-950 text-base">H. Ridwan Kamil, S.E.</h4>
+                      <p className="text-xs text-gold-600 font-semibold uppercase mt-1">Wakil Ketua</p>
+                      <p className="text-[10px] text-gray-400 mt-2 bg-gray-50 px-2 py-1 rounded inline-block">Periode 2024-2028</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
+                      <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500">
+                        <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200" alt="Bpk. Ahmad Fauzi" fill className="object-cover" />
+                      </div>
+                      <h4 className="font-bold text-emerald-950 text-base">Bpk. Ahmad Fauzi</h4>
+                      <p className="text-xs text-gold-600 font-semibold uppercase mt-1">Bendahara Ziswaf</p>
+                      <p className="text-[10px] text-gray-400 mt-2 bg-gray-50 px-2 py-1 rounded inline-block">Periode 2024-2028</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
+                      <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500">
+                        <Image src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200" alt="Ust. Syahrul Ramadhan" fill className="object-cover" />
+                      </div>
+                      <h4 className="font-bold text-emerald-950 text-base">Ust. Syahrul Ramadhan</h4>
+                      <p className="text-xs text-gold-600 font-semibold uppercase mt-1">Ketua Bidang Dakwah</p>
+                      <p className="text-[10px] text-gray-400 mt-2 bg-gray-50 px-2 py-1 rounded inline-block">Periode 2024-2028</p>
+                    </div>
+                  </div>
                 </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="bg-emerald-950 text-white rounded-2xl p-8 relative overflow-hidden border-b-4 border-gold-500 shadow-lg">
                     <div className="absolute top-0 right-0 opacity-10 islamic-pattern w-32 h-32"></div>
                     <h3 className="font-serif text-xl font-bold text-gold-300 mb-4 flex items-center gap-2"><Eye /> Visi Kami</h3>
-                    <p className="text-emerald-50 leading-relaxed font-light text-sm md:text-base">"Menjadi masjid yang mandiri, makmur, serta melahirkan generasi rabbani yang berilmu, bertaqwa, berakhlak mulia, dan bermanfaat sosial di Kabupaten Bandung."</p>
+                    <p className="text-emerald-50 leading-relaxed font-light text-sm md:text-base">&quot;Menjadi masjid yang mandiri, makmur, serta melahirkan generasi rabbani yang berilmu, bertaqwa, berakhlak mulia, dan bermanfaat sosial di Kabupaten Bandung.&quot;</p>
                   </div>
                   <div className="bg-white rounded-2xl p-8 border border-gold-200 shadow-md">
                     <h3 className="font-serif text-xl font-bold text-emerald-950 mb-4 flex items-center gap-2"><Target className="text-gold-500" /> Misi Kami</h3>
                     <ol className="space-y-3 text-sm text-gray-600">
-                      <li className="flex gap-2"><span className="text-gold-500 font-bold">1.</span><span>Menyelenggarakan kegiatan ibadah fardhu & sunnah secara istiqomah sesuai tuntunan Al-Qur'an dan Sunnah.</span></li>
+                      <li className="flex gap-2"><span className="text-gold-500 font-bold">1.</span><span>Menyelenggarakan kegiatan ibadah fardhu & sunnah secara istiqomah sesuai tuntunan Al-Qur&apos;an dan Sunnah.</span></li>
                       <li className="flex gap-2"><span className="text-gold-500 font-bold">2.</span><span>Menyelenggarakan pendidikan agama (TPA, Kajian, Tahsin) yang terarah bagi semua kalangan usia.</span></li>
                       <li className="flex gap-2"><span className="text-gold-500 font-bold">3.</span><span>Mengembangkan pengelolaan dana ziswaf yang produktif, transparan, dan berdaya guna tinggi bagi dhuafa.</span></li>
                     </ol>
+                  </div>
+                </div>
+
+                {/* Fasilitas Masjid */}
+                <div className="space-y-8">
+                  <div className="text-center">
+                    <span className="text-xs font-bold text-gold-600 uppercase tracking-widest">Sarana Prasarana</span>
+                    <h3 className="font-serif text-2xl md:text-3xl font-bold text-emerald-950 mt-2">Fasilitas Masjid Al-Kahfi</h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold-100 flex gap-4">
+                      <div className="text-gold-500 mt-1"><User size={24}/></div>
+                      <div>
+                        <h4 className="font-bold text-emerald-950 text-base">Ruang Utama Sholat</h4>
+                        <p className="text-gray-500 text-xs mt-1 leading-relaxed">Dilengkapi sajadah empuk, pendingin ruangan (AC), sound system berkualitas, menampung hingga 500 jamaah.</p>
+                      </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold-100 flex gap-4">
+                      <div className="text-gold-500 mt-1"><Droplet size={24}/></div>
+                      <div>
+                        <h4 className="font-bold text-emerald-950 text-base">Wudhu & Toilet Higienis</h4>
+                        <p className="text-gray-500 text-xs mt-1 leading-relaxed">Fasilitas bersuci terpisah permanen antara ikhwan dan akhwat, air bersih bersih langsung dari mata air sumur dalam.</p>
+                      </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold-100 flex gap-4">
+                      <div className="text-gold-500 mt-1"><Ambulance size={24}/></div>
+                      <div>
+                        <h4 className="font-bold text-emerald-950 text-base">Ambulans Gratis 24 Jam</h4>
+                        <p className="text-gray-500 text-xs mt-1 leading-relaxed">Siap siaga melayani kebutuhan gawat darurat dan pengantaran jenazah bagi warga Cikoneng tanpa biaya.</p>
+                      </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold-100 flex gap-4">
+                      <div className="text-gold-500 mt-1"><BookOpen size={24}/></div>
+                      <div>
+                        <h4 className="font-bold text-emerald-950 text-base">Ruang Belajar & TPA</h4>
+                        <p className="text-gray-500 text-xs mt-1 leading-relaxed">Wadah khusus pembelajaran TPA sore hari yang ramah anak, lengkap dengan koleksi kitab dan papan tulis interaktif.</p>
+                      </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold-100 flex gap-4">
+                      <div className="text-gold-500 mt-1"><Car size={24}/></div>
+                      <div>
+                        <h4 className="font-bold text-emerald-950 text-base">Area Parkir Ber-CCTV</h4>
+                        <p className="text-gray-500 text-xs mt-1 leading-relaxed">Lahan parkir kendaraan roda dua dan empat yang aman, dikontrol dengan kamera CCTV pengawas 24 jam penuh.</p>
+                      </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gold-100 flex gap-4">
+                      <div className="text-gold-500 mt-1"><Wifi size={24}/></div>
+                      <div>
+                        <h4 className="font-bold text-emerald-950 text-base">Akses Wifi Hotspot</h4>
+                        <p className="text-gray-500 text-xs mt-1 leading-relaxed">Layanan internet nirkabel gratis di area teras untuk mendukung operasional dawah digital dan administrasi santri.</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -447,10 +578,41 @@ export default function MasjidApp() {
                       </div>
                       <div className="p-6 pt-0 border-t border-gold-50/50 flex justify-between items-center text-xs text-gray-500 mt-4">
                         <span>{news.date}</span>
-                        <button onClick={() => setModal({ isOpen: true, title: news.title, desc: news.desc })} className="text-emerald-900 font-bold hover:text-gold-600 transition flex items-center gap-1">Baca <ArrowRight size={12}/></button>
+                        <button onClick={() => { setSelectedNews(news); handleNav('berita-detail'); }} className="text-emerald-900 font-bold hover:text-gold-600 transition flex items-center gap-1">Baca <ArrowRight size={12}/></button>
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </motion.section>
+          )}
+
+          {/* BERITA DETAIL */}
+          {activeTab === 'berita-detail' && selectedNews && (
+            <motion.section key="berita-detail" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }} className="pb-16">
+              <div className="bg-emerald-900 text-white py-16 text-center relative overflow-hidden border-b-4 border-gold-500">
+                <div className="absolute inset-0 opacity-15 islamic-pattern"></div>
+                <div className="relative z-10 max-w-7xl mx-auto px-4">
+                  <span className={`text-xs ${selectedNews.color} font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 inline-block`}>{selectedNews.tag}</span>
+                  <h2 className="font-serif text-3xl md:text-5xl font-bold max-w-4xl mx-auto leading-tight">{selectedNews.title}</h2>
+                  <p className="text-gold-300 mt-4 font-medium flex items-center justify-center gap-2">
+                    <CalendarCheck size={16} /> Dipublikasikan pada {selectedNews.date}
+                  </p>
+                </div>
+              </div>
+              <div className="max-w-4xl mx-auto px-4 py-16">
+                <button onClick={() => handleNav('berita')} className="mb-8 flex items-center gap-2 text-emerald-900 font-bold hover:text-gold-600 transition">
+                  <ArrowRight size={16} className="rotate-180" /> Kembali ke Daftar Berita
+                </button>
+                <div className="bg-white rounded-2xl overflow-hidden border border-gold-100 shadow-md">
+                  <div className="relative w-full h-[300px] md:h-[500px]">
+                    <Image src={selectedNews.img} alt={selectedNews.title} fill className="object-cover" />
+                  </div>
+                  <div className="p-8 md:p-12 space-y-6">
+                    <p className="text-gray-700 leading-loose text-lg font-light">
+                      {selectedNews.desc}
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.section>
