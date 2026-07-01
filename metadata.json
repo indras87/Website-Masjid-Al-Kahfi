@@ -1,0 +1,6 @@
+{
+  "name": "Masjid Al-Kahfi",
+  "description": "Pusat Pembinaan Keimanan, Pemberdayaan Sosial Ekonomi Umat, dan Pendidikan Karakter Islami di Wilayah Cikoneng, Kabupaten Bandung.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
