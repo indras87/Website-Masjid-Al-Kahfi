@@ -56,9 +56,20 @@ export default function Sidebar() {
              )
            })}
         </nav>
-        <div className="p-4 border-t border-emerald-900 shrink-0">
-           <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-900/40 text-red-300 hover:text-red-200 transition-colors">
-              <LogOut size={18} /> <span>Kembali ke Web</span>
+        <div className="p-4 border-t border-emerald-900 shrink-0 space-y-2">
+           <button 
+             onClick={() => {
+               if (confirm('Apakah Anda yakin ingin keluar dari panel admin?')) {
+                 localStorage.removeItem('admin_logged_in');
+                 window.location.reload();
+               }
+             }}
+             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-900/40 text-red-300 hover:text-red-200 transition-colors font-medium text-sm text-left"
+           >
+              <LogOut size={18} /> <span>Keluar / Logout</span>
+           </button>
+           <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-900/50 text-emerald-300 hover:text-emerald-200 transition-colors font-medium text-sm">
+              <LogOut size={18} className="rotate-180" /> <span>Kembali ke Web</span>
            </Link>
         </div>
       </aside>
