@@ -212,7 +212,7 @@ export default function AdminBerita() {
                   <tr key={item.id} className="hover:bg-emerald-50/30 transition">
                     <td className="px-6 py-3">
                       <div className="w-12 h-12 rounded-lg overflow-hidden relative bg-gray-100 border border-gray-200">
-                         <Image src={item.img} alt="thumb" fill className="object-cover" referrerPolicy="no-referrer" />
+                         <Image src={item.img} alt="thumb" fill sizes="48px" className="object-cover" referrerPolicy="no-referrer" />
                       </div>
                     </td>
                     <td className="px-6 py-4 font-semibold text-gray-900 whitespace-normal min-w-[200px]">{item.title}</td>

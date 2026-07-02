@@ -118,7 +118,7 @@ export default function AdminGaleri() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {filteredData.map(item => (
               <div key={item.id} className="group relative rounded-xl overflow-hidden border border-gray-200 aspect-square">
-                <Image src={item.img} alt={item.title} fill className="object-cover group-hover:scale-105 transition duration-500" referrerPolicy="no-referrer" />
+                <Image src={item.img} alt={item.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="object-cover group-hover:scale-105 transition duration-500" referrerPolicy="no-referrer" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col justify-end p-3">
                    <p className="text-white text-xs font-semibold truncate mb-2">{item.title}</p>
                    <button 

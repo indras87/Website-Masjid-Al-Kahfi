@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="id" className={`${playfair.variable} ${sora.variable} scroll-smooth`}>
+    <html lang="id" className={`${playfair.variable} ${sora.variable} scroll-smooth`} data-scroll-behavior="smooth">
       <body className="antialiased" suppressHydrationWarning>{children}</body>
     </html>
   );

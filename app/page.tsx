@@ -234,7 +234,7 @@ export default function MasjidApp() {
               
               {/* Hero */}
               <div className="relative min-h-[550px] lg:min-h-[650px] flex items-center text-white overflow-hidden border-b-4 border-gold-500">
-                <Image src="https://images.unsplash.com/photo-1759167633056-75c9c63ebc22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=80" alt="Hero" fill className="object-cover" referrerPolicy="no-referrer" priority />
+                <Image src="https://images.unsplash.com/photo-1759167633056-75c9c63ebc22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=80" alt="Hero" fill sizes="100vw" className="object-cover" referrerPolicy="no-referrer" priority />
                 <div className="absolute inset-0 bg-emerald-950/80 mix-blend-multiply z-0"></div>
                 <div className="absolute inset-0 opacity-10 islamic-pattern z-10"></div>
                 <div className="relative z-20 max-w-7xl mx-auto px-4 py-20 flex flex-col items-center text-center">
@@ -338,7 +338,7 @@ export default function MasjidApp() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {galleryImages.slice(0, 4).map((img, idx) => (
                     <div key={idx} onClick={() => setLightbox({ isOpen: true, url: img })} className="group relative overflow-hidden rounded-xl cursor-pointer h-40 sm:h-48">
-                      <Image src={img} alt={`Preview Galeri ${idx}`} fill className="object-cover group-hover:scale-105 transition duration-300" />
+                      <Image src={img} alt={`Preview Galeri ${idx}`} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition duration-300" />
                       <div className="absolute inset-0 bg-emerald-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                         <ZoomIn className="text-white w-8 h-8" />
                       </div>
@@ -369,7 +369,7 @@ export default function MasjidApp() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
                       <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500">
-                        <Image src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200&h=200" alt="H. Endang Wijaya" fill className="object-cover" />
+                        <Image src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200&h=200" alt="H. Endang Wijaya" fill sizes="80px" className="object-cover" />
                       </div>
                       <h4 className="font-bold text-emerald-950 text-base">H. Endang Wijaya, Lc.</h4>
                       <p className="text-xs text-gold-600 font-semibold uppercase mt-1">Ketua Umum DKM</p>
@@ -377,7 +377,7 @@ export default function MasjidApp() {
                     </div>
                     <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
                       <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500">
-                        <Image src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200" alt="H. Ridwan Kamil" fill className="object-cover" />
+                        <Image src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200" alt="H. Ridwan Kamil" fill sizes="80px" className="object-cover" />
                       </div>
                       <h4 className="font-bold text-emerald-950 text-base">H. Ridwan Kamil, S.E.</h4>
                       <p className="text-xs text-gold-600 font-semibold uppercase mt-1">Wakil Ketua</p>
@@ -385,7 +385,7 @@ export default function MasjidApp() {
                     </div>
                     <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
                       <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500">
-                        <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200" alt="Bpk. Ahmad Fauzi" fill className="object-cover" />
+                        <Image src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200" alt="Bpk. Ahmad Fauzi" fill sizes="80px" className="object-cover" />
                       </div>
                       <h4 className="font-bold text-emerald-950 text-base">Bpk. Ahmad Fauzi</h4>
                       <p className="text-xs text-gold-600 font-semibold uppercase mt-1">Bendahara Ziswaf</p>
@@ -393,7 +393,7 @@ export default function MasjidApp() {
                     </div>
                     <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
                       <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500">
-                        <Image src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200" alt="Ust. Syahrul Ramadhan" fill className="object-cover" />
+                        <Image src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200" alt="Ust. Syahrul Ramadhan" fill sizes="80px" className="object-cover" />
                       </div>
                       <h4 className="font-bold text-emerald-950 text-base">Ust. Syahrul Ramadhan</h4>
                       <p className="text-xs text-gold-600 font-semibold uppercase mt-1">Ketua Bidang Dakwah</p>
@@ -569,7 +569,7 @@ export default function MasjidApp() {
                   {newsData.map((news, idx) => (
                     <div key={idx} className="bg-white rounded-2xl overflow-hidden border border-gold-100 shadow-sm flex flex-col justify-between">
                       <div>
-                        <div className="relative w-full h-48"><Image src={news.img} alt={news.title} fill className="object-cover" /></div>
+                        <div className="relative w-full h-48"><Image src={news.img} alt={news.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" /></div>
                         <div className="p-6 space-y-3">
                           <span className={`text-[10px] ${news.color} font-bold px-2 py-0.5 rounded`}>{news.tag}</span>
                           <h4 className="font-serif text-lg font-bold text-emerald-950 leading-snug">{news.title}</h4>
@@ -606,7 +606,7 @@ export default function MasjidApp() {
                 </button>
                 <div className="bg-white rounded-2xl overflow-hidden border border-gold-100 shadow-md">
                   <div className="relative w-full h-[300px] md:h-[500px]">
-                    <Image src={selectedNews.img} alt={selectedNews.title} fill className="object-cover" />
+                    <Image src={selectedNews.img} alt={selectedNews.title} fill sizes="(max-width: 768px) 100vw, 80vw" className="object-cover" />
                   </div>
                   <div className="p-8 md:p-12 space-y-6">
                     <p className="text-gray-700 leading-loose text-lg font-light">
@@ -632,7 +632,7 @@ export default function MasjidApp() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {galleryImages.map((img, idx) => (
                     <div key={idx} onClick={() => setLightbox({ isOpen: true, url: img })} className="group relative overflow-hidden rounded-xl cursor-pointer h-40 sm:h-48">
-                      <Image src={img} alt={`Galeri ${idx}`} fill className="object-cover group-hover:scale-105 transition duration-300" />
+                      <Image src={img} alt={`Galeri ${idx}`} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition duration-300" />
                       <div className="absolute inset-0 bg-emerald-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                         <ZoomIn className="text-white w-8 h-8" />
                       </div>
@@ -685,7 +685,7 @@ export default function MasjidApp() {
                       <p className="text-emerald-50 text-xs leading-relaxed">Dukung kemudahan donasi instan melalui scan QRIS dari berbagai platform uang elektronik (GoPay, OVO, Dana, LinkAja, BCA Mobile, dll).</p>
                     </div>
                     <div className="bg-white p-4 rounded-xl max-w-[200px] mx-auto my-6 border-2 border-gold-400 shadow-xl relative h-48 w-48">
-                      <Image src="https://placehold.co/200x200/ffffff/064e3b?text=QRIS+AL-KAHFI" alt="QRIS Al Kahfi" fill className="object-contain rounded-lg" />
+                      <Image src="https://placehold.co/200x200/ffffff/064e3b?text=QRIS+AL-KAHFI" alt="QRIS Al Kahfi" fill sizes="192px" className="object-contain rounded-lg" />
                     </div>
                     <p className="text-center text-[10px] text-gold-300">Terverifikasi Bank Indonesia • QRIS ID: ID1023456789101</p>
                   </div>
@@ -810,7 +810,7 @@ export default function MasjidApp() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setLightbox({ isOpen: false, url: '' })} className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4">
             <button className="absolute top-6 right-6 text-white text-3xl hover:text-gold-300"><X size={32}/></button>
             <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }} className="relative w-full max-w-5xl h-[80vh]" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-              <Image src={lightbox.url} alt="Lightbox" fill className="object-contain" />
+              <Image src={lightbox.url} alt="Lightbox" fill sizes="100vw" className="object-contain" />
             </motion.div>
           </motion.div>
         )}
