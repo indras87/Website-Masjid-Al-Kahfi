@@ -1,0 +1,130 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+
+const localPrayers = {
+  subuh: "04:36",
+  terbit: "05:54",
+  dzuhur: "11:58",
+  ashar: "15:18",
+  maghrib: "17:58",
+  isya: "19:12",
+};
+
+export default function JadwalSholatPage() {
+  const [iqomahTime, setIqomahTime] = useState("00:00");
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      const currentMinTotal = now.getHours() * 60 + now.getMinutes();
+      const prayerMins = {
+        Subuh: 4 * 60 + 36,
+        Terbit: 5 * 60 + 54,
+        Dzuhur: 11 * 60 + 58,
+        Ashar: 15 * 60 + 18,
+        Maghrib: 17 * 60 + 58,
+        Isya: 19 * 60 + 12,
+      };
+
+      let nxt = "Subuh";
+      let nxtMin = prayerMins["Subuh"] + 24 * 60;
+
+      for (const [name, mins] of Object.entries(prayerMins)) {
+        if (mins > currentMinTotal) {
+          nxt = name;
+          nxtMin = mins;
+          break;
+        }
+      }
+
+      const diff = nxtMin - currentMinTotal;
+      const hLeft = Math.floor(diff / 60);
+      const mLeft = diff % 60;
+
+      let tStr =
+        hLeft > 0 ? `${hLeft} jam ${mLeft} menit lagi` : `${mLeft} menit lagi`;
+
+      let minsRem = 9 - (mLeft % 10);
+      let secsRem = 59 - now.getSeconds();
+      if (minsRem < 0) minsRem = 0;
+      setIqomahTime(
+        `${String(minsRem).padStart(2, "0")}:${String(secsRem).padStart(2, "0")}`,
+      );
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="pb-16">
+      <div className="bg-emerald-900 text-white py-16 text-center relative overflow-hidden border-b-4 border-gold-500">
+        <div className="absolute inset-0 opacity-15 islamic-pattern"></div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4">
+          <h2 className="font-serif text-4xl font-bold">
+            Jadwal Sholat & Ibadah
+          </h2>
+          <p className="text-gold-300 mt-2 font-medium">
+            Data real-time wilayah Cikoneng, Bojongsoang, Kab. Bandung
+          </p>
+        </div>
+      </div>
+      <div className="max-w-5xl mx-auto px-4 py-16 space-y-12">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          {Object.entries(localPrayers).map(([name, time]) => (
+            <div
+              key={name}
+              className={`rounded-xl p-4 text-center border shadow-sm ${name === "maghrib" ? "bg-emerald-50 border-emerald-500 ring-2 ring-emerald-900/15" : "bg-white border-gold-100"}`}
+            >
+              <p
+                className={`text-xs uppercase ${name === "maghrib" ? "text-emerald-800 font-bold tracking-wider" : "text-gray-500 font-semibold"}`}
+              >
+                {name}
+              </p>
+              <h4
+                className={`text-2xl font-bold mt-2 ${name === "maghrib" ? "text-emerald-950" : "text-emerald-900"}`}
+              >
+                {time}
+              </h4>
+            </div>
+          ))}
+        </div>
+        <div className="bg-emerald-950 text-white rounded-2xl p-6 sm:p-8 relative overflow-hidden border-b-4 border-gold-500 shadow-lg">
+          <div className="absolute inset-0 opacity-10 islamic-pattern"></div>
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="space-y-4">
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-gold-300">
+                Layanan Alert Adzan & Iqomah
+              </h3>
+              <p className="text-emerald-50 text-xs sm:text-sm leading-relaxed">
+                Fitur otomatisasi jam dinding pintar masjid mengacu pada
+                waktu digital di atas. Waktu jeda Iqomah rata-rata diset
+                10 menit setelah adzan berkumandang untuk sholat
+                rawatib.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <span className="bg-emerald-900 text-gold-300 px-3 py-1.5 rounded-full text-xs font-mono">
+                  GMT+07:00 Asia/Jakarta
+                </span>
+                <span className="bg-emerald-900 text-gold-300 px-3 py-1.5 rounded-full text-xs font-mono">
+                  Metode: KEMENAG RI
+                </span>
+              </div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 text-center">
+              <p className="text-xs text-gold-300 uppercase font-semibold tracking-wider">
+                Simulasi Timer Iqomah
+              </p>
+              <div className="font-mono text-4xl sm:text-5xl font-bold text-white my-3">
+                {iqomahTime}
+              </div>
+              <p className="text-xs text-emerald-200">
+                Menuju Iqomah Sholat Berikutnya
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
