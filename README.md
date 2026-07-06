@@ -53,6 +53,7 @@ Proyek ini dibangun menggunakan teknologi modern untuk memastikan performa yang 
 - Halaman utama dengan konten masjid, berita, kegiatan, galeri, dan info donasi/ziswaf.
 - Dashboard admin untuk mengelola berita, kegiatan, galeri, dan halaman "Tentang".
 - Manajemen data "Tentang" untuk pengurus, visi-misi, dan fasilitas masjid.
+- CMS singleton untuk mengelola halaman `Kontak` dan `Donasi / Infaq` dengan simpan, baca, dan reset data.
 - API route berbasis Next.js untuk CRUD data CMS.
 
 ## Cara Setup Project
@@ -105,12 +106,12 @@ Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode
    ```bash
    docker compose exec app npm run db:setup
    ```
-   *Perintah ini akan membuat tabel-tabel database via Drizzle (`drizzle-kit push`) dan memasukkan data default (`tsx lib/db/seed.ts`). Tabel yang dibuat mencakup `berita`, `kegiatan`, `galeri`, `pengurus`, `profil_masjid`, dan `fasilitas`.*
+   *Perintah ini akan membuat tabel-tabel database via Drizzle (`drizzle-kit push`) dan memasukkan data default (`tsx lib/db/seed.ts`). Tabel yang dibuat mencakup `berita`, `kegiatan`, `galeri`, `pengurus`, `profil_masjid`, `fasilitas`, `kontak`, dan `donasi`.*
 
 3. **Akses Aplikasi:**
    Buka browser Anda dan kunjungi:
    - Halaman Utama: [http://localhost:3000](http://localhost:3000)
-   - Halaman Admin (Kelola Berita/Kegiatan/Galeri/Tentang): [http://localhost:3000/admin](http://localhost:3000/admin)
+   - Halaman Admin (Kelola Berita/Kegiatan/Galeri/Tentang/Kontak/Donasi): [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ### Cara 2: Menjalankan Secara Manual (Development Lokal)
 

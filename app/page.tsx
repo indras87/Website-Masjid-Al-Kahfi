@@ -199,6 +199,22 @@ const FALLBACK_FASILITAS = [
   },
 ];
 
+const FALLBACK_KONTAK = {
+  alamat: "Jl. Cikoneng No.15, Bojongsoang, Kab. Bandung 40288",
+  hotline: "+62 812-3456-7890",
+  email: "alkahfi.cikoneng@gmail.com",
+  jamOperasional: "Setiap Hari: 08:00 - 20:00 WIB (Bada Isya)",
+  googleMapsUrl:
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15840.403487310565!2d107.65886676342774!3d-6.985587799999991!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68c22755e378c3%3A0xe5a363717dfbbf5e!2sCikoneng%2C%20Bojongsoang%2C%20Bandung%20Regency%2C%20West%20Java!5e0!3m2!1sen!2sid!4v1700000000000",
+};
+
+const FALLBACK_DONASI = {
+  namaRekening: "Bank Syariah Indonesia (BSI)",
+  nomorRekening: "7123-4567-89",
+  atasNamaRekening: "DKM AL-KAHFI CIKONENG",
+  qrisImage: "https://placehold.co/400x400/ffffff/064e3b?text=QRIS+AL-KAHFI",
+};
+
 const iconMap: Record<string, any> = {
   HeartPulse,
   Menu,
@@ -270,6 +286,8 @@ export default function MasjidApp() {
   const [pengurusData, setPengurusData] = useState<any[]>([]);
   const [visiMisi, setVisiMisi] = useState({ visi: "", misi: "" });
   const [fasilitasData, setFasilitasData] = useState<any[]>([]);
+  const [contactData, setContactData] = useState(FALLBACK_KONTAK);
+  const [donationData, setDonationData] = useState(FALLBACK_DONASI);
   const [dbLoading, setDbLoading] = useState(true);
 
   useEffect(() => {
@@ -389,6 +407,48 @@ export default function MasjidApp() {
           console.error("Gagal memuat fasilitas:", e);
           setFasilitasData(FALLBACK_FASILITAS);
         }
+
+        // Fetch kontak
+        try {
+          const kontakRes = await fetch("/api/kontak");
+          if (kontakRes.ok) {
+            const kontakJson = await kontakRes.json();
+            setContactData({
+              alamat: kontakJson.alamat || FALLBACK_KONTAK.alamat,
+              hotline: kontakJson.hotline || FALLBACK_KONTAK.hotline,
+              email: kontakJson.email || FALLBACK_KONTAK.email,
+              jamOperasional:
+                kontakJson.jamOperasional || FALLBACK_KONTAK.jamOperasional,
+              googleMapsUrl:
+                kontakJson.googleMapsUrl || FALLBACK_KONTAK.googleMapsUrl,
+            });
+          } else {
+            setContactData(FALLBACK_KONTAK);
+          }
+        } catch (e) {
+          console.error("Gagal memuat kontak:", e);
+          setContactData(FALLBACK_KONTAK);
+        }
+
+        // Fetch donasi
+        try {
+          const donasiRes = await fetch("/api/donasi");
+          if (donasiRes.ok) {
+            const donasiJson = await donasiRes.json();
+            setDonationData({
+              namaRekening: donasiJson.namaRekening || FALLBACK_DONASI.namaRekening,
+              nomorRekening: donasiJson.nomorRekening || FALLBACK_DONASI.nomorRekening,
+              atasNamaRekening:
+                donasiJson.atasNamaRekening || FALLBACK_DONASI.atasNamaRekening,
+              qrisImage: donasiJson.qrisImage || FALLBACK_DONASI.qrisImage,
+            });
+          } else {
+            setDonationData(FALLBACK_DONASI);
+          }
+        } catch (e) {
+          console.error("Gagal memuat donasi:", e);
+          setDonationData(FALLBACK_DONASI);
+        }
       } catch (error) {
         console.error("Error fetching landing page data:", error);
         setNewsData(FALLBACK_BERITA);
@@ -397,6 +457,8 @@ export default function MasjidApp() {
         setPengurusData(FALLBACK_PENGURUS);
         setVisiMisi(FALLBACK_VISI_MISI);
         setFasilitasData(FALLBACK_FASILITAS);
+        setContactData(FALLBACK_KONTAK);
+        setDonationData(FALLBACK_DONASI);
       } finally {
         setDbLoading(false);
       }
@@ -1356,45 +1418,24 @@ export default function MasjidApp() {
                       Al-Kahfi di bawah ini. Harap konfirmasi via WhatsApp
                       setelah transaksi agar pencatatan rapi.
                     </p>
-                    <div className="space-y-4">
-                      <div className="bg-gold-50/50 p-4 rounded-xl border border-gold-100 flex justify-between items-center">
-                        <div>
-                          <p className="text-xs font-bold text-emerald-900">
-                            Bank Syariah Indonesia (BSI)
-                          </p>
-                          <p className="font-mono text-base font-bold text-gray-800 mt-1">
-                            7123-4567-89
-                          </p>
-                          <p className="text-[10px] text-gray-400 mt-0.5">
-                            a.n DKM AL-KAHFI CIKONENG
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleCopy("7123456789")}
-                          className="bg-emerald-900 text-gold-100 hover:bg-gold-500 hover:text-emerald-950 font-bold px-3 py-1.5 rounded-lg text-xs transition"
-                        >
-                          Salin
-                        </button>
+                    <div className="bg-gold-50/50 p-4 rounded-xl border border-gold-100 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-xs font-bold text-emerald-900">
+                          {donationData.namaRekening}
+                        </p>
+                        <p className="font-mono text-base font-bold text-gray-800 mt-1">
+                          {donationData.nomorRekening}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">
+                          a.n {donationData.atasNamaRekening}
+                        </p>
                       </div>
-                      <div className="bg-gold-50/50 p-4 rounded-xl border border-gold-100 flex justify-between items-center">
-                        <div>
-                          <p className="text-xs font-bold text-emerald-900">
-                            Bank Mandiri Syariah
-                          </p>
-                          <p className="font-mono text-base font-bold text-gray-800 mt-1">
-                            131-00-9876543-2
-                          </p>
-                          <p className="text-[10px] text-gray-400 mt-0.5">
-                            a.n MASJID AL KAHFI CIKONENG
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleCopy("1310098765432")}
-                          className="bg-emerald-900 text-gold-100 hover:bg-gold-500 hover:text-emerald-950 font-bold px-3 py-1.5 rounded-lg text-xs transition"
-                        >
-                          Salin
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => handleCopy(donationData.nomorRekening)}
+                        className="bg-emerald-900 text-gold-100 hover:bg-gold-500 hover:text-emerald-950 font-bold px-3 py-1.5 rounded-lg text-xs transition"
+                      >
+                        Salin
+                      </button>
                     </div>
                   </div>
                   <div className="bg-emerald-950 text-white rounded-2xl p-6 sm:p-8 border-b-4 border-gold-500 shadow-md flex flex-col justify-between">
@@ -1408,12 +1449,12 @@ export default function MasjidApp() {
                         LinkAja, BCA Mobile, dll).
                       </p>
                     </div>
-                    <div className="bg-white p-4 rounded-xl max-w-[200px] mx-auto my-6 border-2 border-gold-400 shadow-xl relative h-48 w-48">
+                    <div className="bg-white p-4 rounded-xl max-w-[240px] mx-auto my-6 border-2 border-gold-400 shadow-xl relative h-56 w-56">
                       <Image
-                        src="https://placehold.co/200x200/ffffff/064e3b?text=QRIS+AL-KAHFI"
+                        src={donationData.qrisImage}
                         alt="QRIS Al Kahfi"
                         fill
-                        sizes="192px"
+                        sizes="224px"
                         className="object-contain rounded-lg"
                       />
                     </div>
@@ -1471,8 +1512,7 @@ export default function MasjidApp() {
                             Alamat Fisik
                           </p>
                           <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                            Jl. Cikoneng No.15, Bojongsoang, Kec. Bojongsoang,
-                            Kab. Bandung 40288
+                            {contactData.alamat}
                           </p>
                         </div>
                       </div>
@@ -1483,7 +1523,7 @@ export default function MasjidApp() {
                             Hotline DKM & Ambulans
                           </p>
                           <p className="text-xs text-emerald-950 font-bold mt-1">
-                            +62 812-3456-7890{" "}
+                            {contactData.hotline}{" "}
                             <span className="text-[10px] bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded ml-2 uppercase font-extrabold tracking-wider">
                               Siaga 24 Jam
                             </span>
@@ -1497,7 +1537,7 @@ export default function MasjidApp() {
                             Email Korespondensi
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
-                            alkahfi.cikoneng@gmail.com
+                            {contactData.email}
                           </p>
                         </div>
                       </div>
@@ -1508,7 +1548,7 @@ export default function MasjidApp() {
                             Jam Operasional Kantor
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
-                            Setiap Hari: 08:00 - 20:00 WIB (Bada Isya)
+                            {contactData.jamOperasional}
                           </p>
                         </div>
                       </div>
@@ -1516,7 +1556,7 @@ export default function MasjidApp() {
                   </div>
                   <div className="rounded-2xl overflow-hidden border-2 border-gold-200 lg:col-span-7 bg-gray-100 relative shadow-inner min-h-[400px]">
                     <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15840.403487310565!2d107.65886676342774!3d-6.985587799999991!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68c22755e378c3%3A0xe5a363717dfbbf5e!2sCikoneng%2C%20Bojongsoang%2C%20Bandung%20Regency%2C%20West%20Java!5e0!3m2!1sen!2sid!4v1700000000000"
+                      src={contactData.googleMapsUrl}
                       className="absolute inset-0 w-full h-full"
                       style={{ border: 0 }}
                       allowFullScreen

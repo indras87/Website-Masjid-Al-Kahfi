@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   Info,
+  HandCoins,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -25,6 +26,7 @@ export default function Sidebar() {
     { href: "/admin/berita", label: "Berita", icon: FileText },
     { href: "/admin/galeri", label: "Galeri", icon: ImageIcon },
     { href: "/admin/tentang", label: "Tentang", icon: Info },
+    { href: "/admin/kontak-donasi", label: "Kontak & Donasi", icon: HandCoins },
   ];
 
   return (

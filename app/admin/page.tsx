@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, BookOpen, FileText, Image as ImageIcon, TrendingUp, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { Users, BookOpen, FileText, Image as ImageIcon, TrendingUp, Calendar as CalendarIcon, Clock, HandCoins } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
@@ -93,6 +93,10 @@ export default function AdminDashboard() {
              <Link href="/admin/galeri" className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-purple-200 hover:bg-purple-50 hover:text-purple-700 transition group">
                 <div className="bg-white group-hover:bg-purple-100 p-2 rounded-lg transition"><ImageIcon size={20} /></div>
                 <span className="font-semibold text-sm">Unggah Foto Galeri</span>
+             </Link>
+             <Link href="/admin/kontak-donasi" className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-amber-200 hover:bg-amber-50 hover:text-amber-700 transition group">
+                <div className="bg-white group-hover:bg-amber-100 p-2 rounded-lg transition"><HandCoins size={20} /></div>
+                <span className="font-semibold text-sm">Edit Kontak & Donasi</span>
              </Link>
           </div>
         </div>

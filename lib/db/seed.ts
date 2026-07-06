@@ -1,8 +1,10 @@
 import { db } from "./index";
 import {
   berita,
+  donasi,
   kegiatan,
   galeri,
+  kontak,
   pengurus,
   profilMasjid,
   fasilitas,
@@ -72,6 +74,27 @@ const DEFAULT_FASILITAS = [
     title: "Akses Wifi Hotspot",
     desc: "Layanan internet nirkabel gratis di area teras untuk mendukung operasional dawah digital dan administrasi santri.",
     icon: "Wifi",
+  },
+];
+
+const DEFAULT_KONTAK = [
+  {
+    alamat: "Jl. Cikoneng No.15, Bojongsoang, Kab. Bandung 40288",
+    hotline: "+62 812-3456-7890",
+    email: "alkahfi.cikoneng@gmail.com",
+    jamOperasional: "Setiap Hari: 08:00 - 20:00 WIB (Bada Isya)",
+    googleMapsUrl:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15840.403487310565!2d107.65886676342774!3d-6.985587799999991!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68c22755e378c3%3A0xe5a363717dfbbf5e!2sCikoneng%2C%20Bojongsoang%2C%20Bandung%20Regency%2C%20West%20Java!5e0!3m2!1sen!2sid!4v1700000000000",
+  },
+];
+
+const DEFAULT_DONASI = [
+  {
+    namaRekening: "Bank Syariah Indonesia (BSI)",
+    nomorRekening: "7123-4567-89",
+    atasNamaRekening: "DKM AL-KAHFI CIKONENG",
+    qrisImage:
+      "https://placehold.co/400x400/ffffff/064e3b?text=QRIS+AL-KAHFI",
   },
 ];
 
@@ -183,6 +206,8 @@ async function main() {
   await db.delete(pengurus);
   await db.delete(profilMasjid);
   await db.delete(fasilitas);
+  await db.delete(kontak);
+  await db.delete(donasi);
 
   // Insert Berita
   console.log("Seeding berita...");
@@ -207,6 +232,14 @@ async function main() {
   // Insert Fasilitas
   console.log("Seeding fasilitas...");
   await db.insert(fasilitas).values(DEFAULT_FASILITAS);
+
+  // Insert Kontak
+  console.log("Seeding kontak...");
+  await db.insert(kontak).values(DEFAULT_KONTAK);
+
+  // Insert Donasi
+  console.log("Seeding donasi...");
+  await db.insert(donasi).values(DEFAULT_DONASI);
 
   console.log("Database seeded successfully!");
   process.exit(0);

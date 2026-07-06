@@ -56,3 +56,22 @@ export const fasilitas = pgTable("fasilitas", {
   icon: text("icon").notNull(), // Lucide icon names like "User", "Droplet", etc.
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const kontak = pgTable("kontak", {
+  id: serial("id").primaryKey(),
+  alamat: text("alamat").notNull(),
+  hotline: text("hotline").notNull(),
+  email: text("email").notNull(),
+  jamOperasional: text("jam_operasional").notNull(),
+  googleMapsUrl: text("google_maps_url").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const donasi = pgTable("donasi", {
+  id: serial("id").primaryKey(),
+  namaRekening: text("nama_rekening").notNull(),
+  nomorRekening: text("nomor_rekening").notNull(),
+  atasNamaRekening: text("atas_nama_rekening").notNull(),
+  qrisImage: text("qris_image").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
