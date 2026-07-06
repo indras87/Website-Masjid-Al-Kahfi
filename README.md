@@ -1,6 +1,6 @@
 # Website Profil Masjid Al-Kahfi
 
-Aplikasi ini adalah **Website Profil Resmi Masjid Al-Kahfi Cikoneng**, Kabupaten Bandung. Website ini dibangun untuk menyediakan informasi terpusat mengenai masjid kepada masyarakat luas, meliputi profil kepengurusan, jadwal sholat, dokumentasi kegiatan (kajian, TPA, dll), berita terbaru, galeri foto, hingga informasi donasi/ziswaf.
+Aplikasi ini adalah **Website Profil Resmi Masjid Al-Kahfi Cikoneng**, Kabupaten Bandung. Website ini dibangun untuk menyediakan informasi terpusat mengenai masjid kepada masyarakat luas, meliputi profil kepengurusan, visi-misi, fasilitas, jadwal sholat, dokumentasi kegiatan (kajian, TPA, dll), berita terbaru, galeri foto, hingga informasi donasi/ziswaf.
 
 Aplikasi ini dirancang dengan antarmuka yang modern, responsif, dan interaktif untuk memberikan pengalaman pengguna yang nyaman.
 
@@ -12,12 +12,14 @@ Aplikasi ini menggunakan framework **Next.js** dengan paradigma **App Router**. 
 website_masjid_alkahfi/
 ├── app/                  # Folder utama App Router Next.js
 │   ├── admin/            # Halaman dan komponen untuk dashboard admin (jika ada)
+│   ├── api/              # Route handler API untuk data CMS
 │   ├── globals.css       # Styling global termasuk variabel tema (CSS variables)
 │   ├── layout.tsx        # Layout utama aplikasi (HTML skeleton, fonts, meta tags)
 │   └── page.tsx          # Halaman utama aplikasi (Single Page Application view)
 ├── assets/               # Direktori untuk menyimpan aset statis lokal
 ├── hooks/                # Tempat menyimpan custom React hooks 
 ├── lib/                  # Fungsi-fungsi utility dan helper
+│   └── db/               # Skema, seed, dan koneksi database Drizzle
 ├── public/               # (Opsional) aset statis publik seperti favicon
 ├── .env.example          # Contoh variabel lingkungan (environment variables)
 ├── package.json          # Konfigurasi dependensi dan script npm
@@ -46,6 +48,13 @@ Proyek ini dibangun menggunakan teknologi modern untuk memastikan performa yang 
 - **`drizzle-orm` & `drizzle-kit`:** ORM untuk PostgreSQL yang cepat, ringan, dan fully type-safe.
 - **`postgres`:** Driver database PostgreSQL client untuk Drizzle.
 
+## Fitur Utama
+
+- Halaman utama dengan konten masjid, berita, kegiatan, galeri, dan info donasi/ziswaf.
+- Dashboard admin untuk mengelola berita, kegiatan, galeri, dan halaman "Tentang".
+- Manajemen data "Tentang" untuk pengurus, visi-misi, dan fasilitas masjid.
+- API route berbasis Next.js untuk CRUD data CMS.
+
 ## Cara Setup Project
 
 Ikuti langkah-langkah berikut untuk mengatur proyek di komputer lokal Anda:
@@ -62,7 +71,8 @@ Ikuti langkah-langkah berikut untuk mengatur proyek di komputer lokal Anda:
 
 3. **Konfigurasi Environment Variables:**
    - Salin file `.env.example` dan ubah namanya menjadi `.env.local`
-   - Isi variabel `DATABASE_URL` dengan alamat database PostgreSQL Anda (jika tidak menggunakan Docker, sesuaikan dengan database lokal Anda).
+   - Isi variabel `DATABASE_URL` dengan alamat database PostgreSQL Anda. Untuk setup lokal dan Docker host, gunakan port `5433`.
+   - Perintah `npm run db:setup` sekarang membaca `.env.local` secara otomatis.
    ```bash
    cp .env.example .env.local
    ```
@@ -79,6 +89,7 @@ Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode
    docker-compose up -d --build
    ```
    *Menggunakan flag `-d` (detached) agar kontainer berjalan di latar belakang (daemonize). Proses build akan sangat cepat karena melewati proses npm run build.*
+   Database Docker dapat diakses dari host lewat port `5433`.
 
    > **Tips Docker Berguna:**
    > * **Melihat log real-time:** `docker-compose logs -f app`
@@ -86,7 +97,7 @@ Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode
    > * **Mematikan kontainer:** `docker-compose down`
 
 2. **Migrasi dan Seed Database:**
-   Setelah kontainer database dan aplikasi menyala, Anda dapat mengisi data awal (berita, kegiatan, galeri) dengan menjalankan perintah ini:
+   Setelah kontainer database dan aplikasi menyala, Anda dapat mengisi data awal (berita, kegiatan, galeri, pengurus, profil, dan fasilitas) dengan menjalankan perintah ini:
    ```bash
    docker exec -it alkahfi_app npm run db:setup
    ```
@@ -94,17 +105,18 @@ Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode
    ```bash
    docker compose exec app npm run db:setup
    ```
-   *Perintah ini akan membuat tabel-tabel database via Drizzle (`drizzle-kit push`) dan memasukkan data default (`tsx lib/db/seed.ts`).*
+   *Perintah ini akan membuat tabel-tabel database via Drizzle (`drizzle-kit push`) dan memasukkan data default (`tsx lib/db/seed.ts`). Tabel yang dibuat mencakup `berita`, `kegiatan`, `galeri`, `pengurus`, `profil_masjid`, dan `fasilitas`.*
 
 3. **Akses Aplikasi:**
    Buka browser Anda dan kunjungi:
    - Halaman Utama: [http://localhost:3000](http://localhost:3000)
-   - Halaman Admin (Kelola Berita/Kegiatan/Galeri): [http://localhost:3000/admin](http://localhost:3000/admin)
+   - Halaman Admin (Kelola Berita/Kegiatan/Galeri/Tentang): [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ### Cara 2: Menjalankan Secara Manual (Development Lokal)
 
 1. **Jalankan Database PostgreSQL:**
-   Pastikan PostgreSQL berjalan lokal di komputer Anda di port `5432` dengan database `alkahfi_db` (atau sesuai konfigurasi di `.env.local`).
+   Pastikan PostgreSQL berjalan lokal di komputer Anda di port `5433` dengan database `alkahfi_db` (atau sesuai konfigurasi di `.env.local`).
+   Jika memakai Docker Compose, database juga diekspos ke host pada port `5433`.
 
 2. **Jalankan Migrasi & Seed:**
    ```bash

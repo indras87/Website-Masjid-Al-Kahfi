@@ -1,6 +1,10 @@
+import { config as loadEnv } from 'dotenv';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
+
+loadEnv({ path: '.env.local' });
+loadEnv({ path: '.env' });
 
 const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/alkahfi_db';
 
