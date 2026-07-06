@@ -11,13 +11,22 @@ Aplikasi ini menggunakan framework **Next.js** dengan paradigma **App Router**. 
 ```
 website_masjid_alkahfi/
 ├── app/                  # Folder utama App Router Next.js
-│   ├── admin/            # Halaman dan komponen untuk dashboard admin (jika ada)
+│   ├── admin/            # Halaman dan komponen untuk dashboard admin
 │   ├── api/              # Route handler API untuk data CMS
+│   ├── beranda/          # Halaman beranda (/beranda)
+│   ├── berita/           # Halaman berita (/berita)
+│   ├── donasi/           # Halaman donasi/infaq (/donasi)
+│   ├── galeri/           # Halaman galeri foto (/galeri)
+│   ├── jadwal-sholat/    # Halaman jadwal sholat (/jadwal-sholat)
+│   ├── kegiatan/         # Halaman kegiatan (/kegiatan)
+│   ├── kontak/           # Halaman kontak (/kontak)
+│   ├── tentang/          # Halaman tentang masjid (/tentang)
 │   ├── globals.css       # Styling global termasuk variabel tema (CSS variables)
 │   ├── layout.tsx        # Layout utama aplikasi (HTML skeleton, fonts, meta tags)
-│   └── page.tsx          # Halaman utama aplikasi (Single Page Application view)
+│   └── page.tsx          # Redirect root ke /beranda
 ├── assets/               # Direktori untuk menyimpan aset statis lokal
-├── hooks/                # Tempat menyimpan custom React hooks 
+├── components/           # Komponen React bersama (header, footer, theme settings)
+├── hooks/                # Tempat menyimpan custom React hooks
 ├── lib/                  # Fungsi-fungsi utility dan helper
 │   └── db/               # Skema, seed, dan koneksi database Drizzle
 ├── public/               # (Opsional) aset statis publik seperti favicon
@@ -28,7 +37,7 @@ website_masjid_alkahfi/
 └── tsconfig.json         # Konfigurasi TypeScript
 ```
 
-Pada versi saat ini, aplikasi menggunakan pendekatan *Single Page* yang dikelola melalui state di `app/page.tsx`, di mana semua tab (Beranda, Tentang, Jadwal Sholat, dll) dirender secara dinamis tanpa perpindahan rute aktual.
+Aplikasi ini menggunakan pendekatan **multi-route** dengan App Router Next.js. Setiap halaman utama (Beranda, Tentang, Jadwal Sholat, Kegiatan, Berita, Galeri, Kontak, Donasi) memiliki route tersendiri untuk meningkatkan SEO dan memudahkan navigasi. Komponen layout bersama (header, footer, theme settings) diekstrak ke direktori `components/`.
 
 ## Teknologi Stack
 
@@ -50,7 +59,8 @@ Proyek ini dibangun menggunakan teknologi modern untuk memastikan performa yang 
 
 ## Fitur Utama
 
-- Halaman utama dengan konten masjid, berita, kegiatan, galeri, dan info donasi/ziswaf.
+- Halaman beranda dengan konten masjid, berita, kegiatan, galeri, dan info donasi/ziswaf.
+- Route terpisah untuk setiap halaman: `/beranda`, `/tentang`, `/jadwal-sholat`, `/kegiatan`, `/berita`, `/galeri`, `/kontak`, `/donasi`.
 - Dashboard admin untuk mengelola berita, kegiatan, galeri, dan halaman "Tentang".
 - Manajemen data "Tentang" untuk pengurus, visi-misi, dan fasilitas masjid.
 - CMS singleton untuk mengelola halaman `Kontak` dan `Donasi / Infaq` dengan simpan, baca, dan reset data.
@@ -108,29 +118,29 @@ Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode
    ```
    *Perintah ini akan membuat tabel-tabel database via Drizzle (`drizzle-kit push`) dan memasukkan data default (`tsx lib/db/seed.ts`). Tabel yang dibuat mencakup `berita`, `kegiatan`, `galeri`, `pengurus`, `profil_masjid`, `fasilitas`, `kontak`, dan `donasi`.*
 
-3. **Akses Aplikasi:**
-   Buka browser Anda dan kunjungi:
-   - Halaman Utama: [http://localhost:3000](http://localhost:3000)
-   - Halaman Admin (Kelola Berita/Kegiatan/Galeri/Tentang/Kontak/Donasi): [http://localhost:3000/admin](http://localhost:3000/admin)
+ 3. **Akses Aplikasi:**
+    Buka browser Anda dan kunjungi:
+    - Halaman Utama: [http://localhost:3000/beranda](http://localhost:3000/beranda)
+    - Halaman Admin (Kelola Berita/Kegiatan/Galeri/Tentang/Kontak/Donasi): [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ### Cara 2: Menjalankan Secara Manual (Development Lokal)
 
-1. **Jalankan Database PostgreSQL:**
-   Pastikan PostgreSQL berjalan lokal di komputer Anda di port `5433` dengan database `alkahfi_db` (atau sesuai konfigurasi di `.env.local`).
-   Jika memakai Docker Compose, database juga diekspos ke host pada port `5433`.
+ 1. **Jalankan Database PostgreSQL:**
+    Pastikan PostgreSQL berjalan lokal di komputer Anda di port `5433` dengan database `alkahfi_db` (atau sesuai konfigurasi di `.env.local`).
+    Jika memakai Docker Compose, database juga diekspos ke host pada port `5433`.
 
-2. **Jalankan Migrasi & Seed:**
-   ```bash
-   npm run db:setup
-   ```
+ 2. **Jalankan Migrasi & Seed:**
+    ```bash
+    npm run db:setup
+    ```
 
-3. **Mulai Development Server:**
-   ```bash
-   npm run dev
-   ```
+ 3. **Mulai Development Server:**
+    ```bash
+    npm run dev
+    ```
 
-4. **Akses Aplikasi:**
-   Kunjungi [http://localhost:3000](http://localhost:3000)
+ 4. **Akses Aplikasi:**
+    Kunjungi [http://localhost:3000/beranda](http://localhost:3000/beranda)
 
 ---
 *Dibuat untuk kemaslahatan umat. Semoga menjadi amal jariyah.*
