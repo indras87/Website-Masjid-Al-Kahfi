@@ -13,31 +13,23 @@ website_masjid_alkahfi/
 ├── app/                  # Folder utama App Router Next.js
 │   ├── admin/            # Halaman dan komponen untuk dashboard admin
 │   ├── api/              # Route handler API untuk data CMS
-│   ├── beranda/          # Halaman beranda (/beranda)
-│   ├── berita/           # Halaman berita (/berita)
-│   ├── donasi/           # Halaman donasi/infaq (/donasi)
-│   ├── galeri/           # Halaman galeri foto (/galeri)
-│   ├── jadwal-sholat/    # Halaman jadwal sholat (/jadwal-sholat)
-│   ├── kegiatan/         # Halaman kegiatan (/kegiatan)
-│   ├── kontak/           # Halaman kontak (/kontak)
-│   ├── tentang/          # Halaman tentang masjid (/tentang)
+│   ├── (site)/           # Route group untuk halaman publik (tidak memiliki layout admin)
+│   │   ├── beranda/      # Halaman beranda (/beranda)
+│   │   ├── berita/       # Halaman berita (/berita)
+│   │   ├── donasi/       # Halaman donasi/infaq (/donasi)
+│   │   ├── galeri/       # Halaman galeri foto (/galeri)
+│   │   ├── jadwal-sholat/# Halaman jadwal sholat (/jadwal-sholat)
+│   │   ├── kegiatan/     # Halaman kegiatan (/kegiatan)
+│   │   ├── kontak/       # Halaman kontak (/kontak)
+│   │   ├── tentang/      # Halaman tentang masjid (/tentang)
+│   │   └── layout.tsx    # Layout bersama untuk halaman publik (header, footer, theme settings)
 │   ├── globals.css       # Styling global termasuk variabel tema (CSS variables)
 │   ├── layout.tsx        # Layout utama aplikasi (HTML skeleton, fonts, meta tags)
 │   └── page.tsx          # Redirect root ke /beranda
-├── assets/               # Direktori untuk menyimpan aset statis lokal
-├── components/           # Komponen React bersama (header, footer, theme settings)
-├── hooks/                # Tempat menyimpan custom React hooks
-├── lib/                  # Fungsi-fungsi utility dan helper
-│   └── db/               # Skema, seed, dan koneksi database Drizzle
-├── public/               # (Opsional) aset statis publik seperti favicon
-├── .env.example          # Contoh variabel lingkungan (environment variables)
-├── package.json          # Konfigurasi dependensi dan script npm
-├── next.config.ts        # File konfigurasi Next.js
-├── tailwind.config.ts    # (Terintegrasi di postcss/tailwind) Konfigurasi Tailwind CSS
-└── tsconfig.json         # Konfigurasi TypeScript
+├── assets/               ...
 ```
 
-Aplikasi ini menggunakan pendekatan **multi-route** dengan App Router Next.js. Setiap halaman utama (Beranda, Tentang, Jadwal Sholat, Kegiatan, Berita, Galeri, Kontak, Donasi) memiliki route tersendiri untuk meningkatkan SEO dan memudahkan navigasi. Komponen layout bersama (header, footer, theme settings) diekstrak ke direktori `components/`.
+Aplikasi ini menggunakan pendekatan **multi-route** dengan App Router Next.js. Halaman publik (Beranda, Tentang, Jadwal Sholat, Kegiatan, Berita, Galeri, Kontak, Donasi) ditempatkan dalam route group `(site)` yang membungkusnya dengan layout bersama (header, footer, tema). Halaman admin berada di luar kelompok ini dan menggunakan layout sendiri yang tidak menyertakan navbar situs, sehingga admin hanya memiliki sidebar dan header adminnya masing-masing.
 
 ## Teknologi Stack
 
