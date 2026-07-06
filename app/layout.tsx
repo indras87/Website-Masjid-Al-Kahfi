@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Sora } from "next/font/google";
-import { AppShell } from "@/components/app-shell";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -30,7 +29,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <body className="antialiased" suppressHydrationWarning>
-        <AppShell>{children}</AppShell>
+        {children}
       </body>
     </html>
   );
