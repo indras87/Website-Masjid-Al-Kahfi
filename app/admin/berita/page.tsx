@@ -36,6 +36,7 @@ const DEFAULT_BERITA = [
 
 export default function AdminBerita() {
   const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTag, setFilterTag] = useState('Semua');
 
@@ -50,27 +51,27 @@ export default function AdminBerita() {
   const [img, setImg] = useState('');
   const [desc, setDesc] = useState('');
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('kahfi_berita');
-    setTimeout(() => {
-      if (saved) {
-        try {
-          setData(JSON.parse(saved));
-        } catch (e) {
-          setData(DEFAULT_BERITA);
-        }
+  // Fetch data from API
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/berita');
+      if (res.ok) {
+        const json = await res.json();
+        setData(json);
       } else {
-        setData(DEFAULT_BERITA);
-        localStorage.setItem('kahfi_berita', JSON.stringify(DEFAULT_BERITA));
+        console.error('Failed to fetch berita');
       }
-    }, 0);
-  }, []);
-
-  const saveToStorage = (newData: any[]) => {
-    setData(newData);
-    localStorage.setItem('kahfi_berita', JSON.stringify(newData));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleOpenAdd = () => {
     setEditItem(null);
@@ -92,54 +93,66 @@ export default function AdminBerita() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus berita ini?')) {
-      const filtered = data.filter(item => item.id !== id);
-      saveToStorage(filtered);
+      try {
+        const res = await fetch(`/api/berita/${id}`, {
+          method: 'DELETE',
+        });
+        if (res.ok) {
+          setData(data.filter(item => item.id !== id));
+        } else {
+          alert('Gagal menghapus berita');
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !desc) {
       alert('Judul dan Isi Berita harus diisi!');
       return;
     }
 
-    const defaultImages = [
-      'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300',
-      'https://images.unsplash.com/photo-1576402187878-974f70c890a5?auto=format&fit=crop&q=80&w=300',
-      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=300'
-    ];
-    const finalImg = img.trim() || defaultImages[Math.floor(Math.random() * defaultImages.length)];
+    const payload = { title, tag, author, img, desc };
 
-    const options = { day: 'numeric', month: 'long', year: 'numeric' } as const;
-    const formattedDate = new Date().toLocaleDateString('id-ID', options);
-
-    if (editItem) {
-      // Update
-      const updated = data.map(item => {
-        if (item.id === editItem.id) {
-          return { ...item, title, tag, author, img: finalImg, desc };
+    try {
+      if (editItem) {
+        // Update
+        const res = await fetch(`/api/berita/${editItem.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          const updatedItem = await res.json();
+          setData(data.map(item => item.id === editItem.id ? updatedItem : item));
+          setIsModalOpen(false);
+        } else {
+          alert('Gagal memperbarui berita');
         }
-        return item;
-      });
-      saveToStorage(updated);
-    } else {
-      // Create
-      const newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;
-      const newItem = {
-        id: newId,
-        title,
-        tag,
-        author,
-        date: formattedDate,
-        img: finalImg,
-        desc
-      };
-      saveToStorage([...data, newItem]);
+      } else {
+        // Create
+        const res = await fetch('/api/berita', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          const newItem = await res.json();
+          setData([newItem, ...data]);
+          setIsModalOpen(false);
+        } else {
+          alert('Gagal membuat berita');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan koneksi server');
     }
-    setIsModalOpen(false);
   };
 
   // Filter and Search computation
@@ -207,7 +220,11 @@ export default function AdminBerita() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredData.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-gray-400">Memuat data berita...</td>
+                </tr>
+              ) : filteredData.length > 0 ? (
                 filteredData.map(item => (
                   <tr key={item.id} className="hover:bg-emerald-50/30 transition">
                     <td className="px-6 py-3">

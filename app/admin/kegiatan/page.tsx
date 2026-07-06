@@ -12,6 +12,7 @@ const DEFAULT_KEGIATAN = [
 
 export default function AdminKegiatan() {
   const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('Semua');
   
@@ -26,27 +27,27 @@ export default function AdminKegiatan() {
   const [ust, setUst] = useState('');
   const [status, setStatus] = useState('Aktif');
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('kahfi_kegiatan');
-    setTimeout(() => {
-      if (saved) {
-        try {
-          setData(JSON.parse(saved));
-        } catch (e) {
-          setData(DEFAULT_KEGIATAN);
-        }
+  // Fetch data
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/kegiatan');
+      if (res.ok) {
+        const json = await res.json();
+        setData(json);
       } else {
-        setData(DEFAULT_KEGIATAN);
-        localStorage.setItem('kahfi_kegiatan', JSON.stringify(DEFAULT_KEGIATAN));
+        console.error('Failed to fetch kegiatan');
       }
-    }, 0);
-  }, []);
-
-  const saveToStorage = (newData: any[]) => {
-    setData(newData);
-    localStorage.setItem('kahfi_kegiatan', JSON.stringify(newData));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleOpenAdd = () => {
     setEditItem(null);
@@ -68,36 +69,66 @@ export default function AdminKegiatan() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus kegiatan ini?')) {
-      const filtered = data.filter(item => item.id !== id);
-      saveToStorage(filtered);
+      try {
+        const res = await fetch(`/api/kegiatan/${id}`, {
+          method: 'DELETE',
+        });
+        if (res.ok) {
+          setData(data.filter(item => item.id !== id));
+        } else {
+          alert('Gagal menghapus kegiatan');
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !time || !ust) {
       alert('Harap isi semua kolom!');
       return;
     }
 
-    if (editItem) {
-      // Update
-      const updated = data.map(item => {
-        if (item.id === editItem.id) {
-          return { ...item, title, type, time, ust, status };
+    const payload = { title, type, time, ust, status };
+
+    try {
+      if (editItem) {
+        // Update
+        const res = await fetch(`/api/kegiatan/${editItem.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          const updatedItem = await res.json();
+          setData(data.map(item => item.id === editItem.id ? updatedItem : item));
+          setIsModalOpen(false);
+        } else {
+          alert('Gagal memperbarui kegiatan');
         }
-        return item;
-      });
-      saveToStorage(updated);
-    } else {
-      // Create
-      const newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;
-      const newItem = { id: newId, title, type, time, ust, status };
-      saveToStorage([...data, newItem]);
+      } else {
+        // Create
+        const res = await fetch('/api/kegiatan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          const newItem = await res.json();
+          setData([...data, newItem]);
+          setIsModalOpen(false);
+        } else {
+          alert('Gagal membuat kegiatan');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan koneksi server');
     }
-    setIsModalOpen(false);
   };
 
   // Filter and search computation
@@ -165,7 +196,11 @@ export default function AdminKegiatan() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredData.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-10 text-center text-gray-400">Memuat data kegiatan...</td>
+                </tr>
+              ) : filteredData.length > 0 ? (
                 filteredData.map(item => (
                   <tr key={item.id} className="hover:bg-emerald-50/30 transition">
                     <td className="px-6 py-4 font-semibold text-gray-900 whitespace-normal max-w-xs">{item.title}</td>

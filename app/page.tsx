@@ -13,7 +13,9 @@ import {
   Settings, CheckCircle2, History as HistoryIcon
 } from 'lucide-react';
 
-const galleryImages = [
+export const dynamic = 'force-dynamic';
+
+const FALLBACK_GALERI = [
   "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800",
   "https://images.unsplash.com/photo-1576402187878-974f70c890a5?auto=format&fit=crop&q=80&w=800",
   "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800",
@@ -24,18 +26,27 @@ const galleryImages = [
   "https://images.unsplash.com/photo-1590075865003-e48277faa558?auto=format&fit=crop&q=80&w=800"
 ];
 
-const activitiesData = [
+const FALLBACK_KEGIATAN = [
   { cat: 'harian', tag: 'Harian / Rutin', time: 'Setiap Hari (Bada Subuh)', title: 'Tahsin & Bimbingan Mengaji Quran Dewasa', desc: 'Program pengentasan buta aksara Quran yang diorientasikan bagi bapak-bapak dan remaja pria di lingkungan Cikoneng. Dibimbing langsung secara privat & kelompok.', ust: 'Ust. Sulaeman Al-Hafidz', note: 'Gratis & Terbuka', Icon: CircleUser, color: 'bg-emerald-50 text-emerald-800' },
   { cat: 'sholat-jumat', tag: 'Sholat Jum\'at', time: 'Setiap Jum\'at (11:55 WIB)', title: 'Pelaksanaan Sholat Jum\'at Berjamaah', desc: 'Jadwal bergilir penceramah/Khotib berkompeten yang mengedukasi jamaah secara moderat, membangkitkan ketaqwaan, dan bersandar pada keaslian literatur dalil shahih.', ust: 'Khotib Bergilir (DKM Al-Kahfi)', note: 'Lantai Utama', Icon: Mic, color: 'bg-gold-100 text-gold-800' },
   { cat: 'harian', tag: 'Harian / Rutin', time: 'Senin & Kamis (Bada Ashar)', title: 'Taman Pendidikan Al-Qur\'an (TPA) Anak', desc: 'Wadah belajar anak usia dini hingga sekolah dasar di lingkungan Cikoneng guna mendalami adab harian, hafalan doa pendek, juz amma, dan cara penulisan huruf hijaiyah.', ust: 'Ustadzah Khadijah & Tim', note: 'Khusus Anak-anak', Icon: GraduationCap, color: 'bg-emerald-50 text-emerald-800' },
   { cat: 'hari-besar', tag: 'Hari Besar (PHBI)', time: 'Tentative (Hari Raya)', title: 'Penyelenggaraan Qurban Al-Kahfi', desc: 'Program pengumpulan, penyembelihan, dan pendistribusian daging hewan kurban secara modern, steril, tertib administrasi, dan dijamin adil bagi dhuafa Cikoneng.', ust: 'Panitia Qurban Bersama', note: 'Halaman Samping', Icon: Gift, color: 'bg-emerald-900 text-gold-300' }
 ];
 
-const newsData = [
-  { img: galleryImages[0], tag: 'Sosial', title: 'Penyaluran Sembako Rutin Bulanan Bagi Janda dan Lansia Dhuafa Cikoneng', desc: 'Berkat kerjasama para muhsinin dan Baitul Mal Al-Kahfi, pekan lalu dKM telah berhasil mendistribusikan sebanyak 45 paket kebutuhan pokok untuk mengurangi beban perekonomian dhuafa di RT 03 dan RT 04 Cikoneng. Agenda rutin bulanan ini diharapkan mampu meringankan belanja sembako bulanan mereka di tengah inflasi harga sembako daerah Kabupaten Bandung. Pembagian berjalan dengan santun berkat bantuan para pemuda karang taruna dan panitia ikhwan DKM Al-Kahfi.', date: '15 Juni 2026', color: 'bg-emerald-50 text-emerald-800' },
-  { img: galleryImages[1], tag: 'Kebersihan', title: 'Sinergi Pemuda Cikoneng dalam Agenda Bersih-bersih Masjid dan Saluran', desc: 'DKM Al-Kahfi menggerakkan kerja bakti bersama puluhan pemuda lingkungan. Pembersihan difokuskan ke karpet utama ruang shalat serta parit luar guna mengantisipasi banjir genangan musim penghujan. Selain melatih kebersamaan antar warga dan pemuda, kebersihan fasilitas umum tempat beribadah diyakini membawa berkah ukhuwah serta menciptakan kenyamanan ekstra bagi para jamaah yang sholat.', date: '08 Juni 2026', color: 'bg-gold-50 text-gold-800' },
-  { img: galleryImages[2], tag: 'Tarbiyah', title: 'Kajian Akbar Keluarga Sakinah Sambut Tahun Baru Hijriyah', desc: 'Kajian spesial yang diselenggarakan DKM dihadiri oleh ratusan ibu-ibu dan bapak-bapak Cikoneng. Menghadirkan narasumber utama Dr. KH. Mulyana membahas cara membangun keharmonisan rumah tangga di tengah tantangan teknologi modern yang melingkupi keseharian anak-anak zaman sekarang.', date: '01 Juni 2026', color: 'bg-emerald-50 text-emerald-800' }
+const FALLBACK_BERITA = [
+  { img: FALLBACK_GALERI[0], tag: 'Sosial', title: 'Penyaluran Sembako Rutin Bulanan Bagi Janda dan Lansia Dhuafa Cikoneng', desc: 'Berkat kerjasama para muhsinin dan Baitul Mal Al-Kahfi, pekan lalu dKM telah berhasil mendistribusikan sebanyak 45 paket kebutuhan pokok untuk mengurangi beban perekonomian dhuafa di RT 03 dan RT 04 Cikoneng. Agenda rutin bulanan ini diharapkan mampu meringankan belanja sembako bulanan mereka di tengah inflasi harga sembako daerah Kabupaten Bandung. Pembagian berjalan dengan santun berkat bantuan para pemuda karang taruna dan panitia ikhwan DKM Al-Kahfi.', date: '15 Juni 2026', color: 'bg-emerald-50 text-emerald-800' },
+  { img: FALLBACK_GALERI[1], tag: 'Kebersihan', title: 'Sinergi Pemuda Cikoneng dalam Agenda Bersih-bersih Masjid dan Saluran', desc: 'DKM Al-Kahfi menggerakkan kerja bakti bersama puluhan pemuda lingkungan. Pembersihan difokuskan ke karpet utama ruang shalat serta parit luar guna mengantisipasi banjir genangan musim penghujan. Selain melatih kebersamaan antar warga dan pemuda, kebersihan fasilitas umum tempat beribadah diyakini membawa berkah ukhuwah serta menciptakan kenyamanan ekstra bagi para jamaah yang sholat.', date: '08 Juni 2026', color: 'bg-gold-50 text-gold-800' },
+  { img: FALLBACK_GALERI[2], tag: 'Tarbiyah', title: 'Kajian Akbar Keluarga Sakinah Sambut Tahun Baru Hijriyah', desc: 'Kajian spesial yang diselenggarakan DKM dihadiri oleh ratusan ibu-ibu dan bapak-bapak Cikoneng. Menghadirkan narasumber utama Dr. KH. Mulyana membahas cara membangun keharmonisan rumah tangga di tengah tantangan teknologi modern yang melingkupi keseharian anak-anak zaman sekarang.', date: '01 Juni 2026', color: 'bg-emerald-50 text-emerald-800' }
 ];
+
+const iconMap: Record<string, any> = {
+  HeartPulse, Menu, X, Clock, HandCoins, ArrowRight, ChevronRight, ZoomIn,
+  Eye, Target, User, Droplet, Ambulance, BookOpen, Car, Wifi,
+  Briefcase, ShieldCheck, Receipt, Presentation, CircleUser, Mic,
+  GraduationCap, Gift, AlertCircle, CalendarCheck, Landmark, QrCode,
+  MapPin, PhoneCall, Mail, Info, Youtube, Instagram, MessageCircle,
+  Settings, CheckCircle2, HistoryIcon
+};
 
 const localPrayers = { subuh: "04:36", terbit: "05:54", dzuhur: "11:58", ashar: "15:18", maghrib: "17:58", isya: "19:12" };
 
@@ -53,6 +64,87 @@ export default function MasjidApp() {
   const [modal, setModal] = useState({ isOpen: false, title: '', desc: '' });
   const [lightbox, setLightbox] = useState({ isOpen: false, url: '' });
   const [toast, setToast] = useState({ isOpen: false, message: '' });
+
+  const [activitiesData, setActivitiesData] = useState<any[]>([]);
+  const [newsData, setNewsData] = useState<any[]>([]);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [dbLoading, setDbLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLandingData = async () => {
+      try {
+        setDbLoading(true);
+        
+        // Fetch berita
+        const beritaRes = await fetch('/api/berita');
+        let finalBerita = [];
+        if (beritaRes.ok) {
+          const beritaJson = await beritaRes.json();
+          finalBerita = beritaJson.map((b: any) => ({
+            ...b,
+            color: b.tag === 'Sosial' ? 'bg-emerald-50 text-emerald-800' :
+                   b.tag === 'Kebersihan' ? 'bg-gold-50 text-gold-800' :
+                   'bg-emerald-50 text-emerald-800'
+          }));
+        } else {
+          finalBerita = FALLBACK_BERITA;
+        }
+        setNewsData(finalBerita);
+
+        // Fetch kegiatan
+        const kegiatanRes = await fetch('/api/kegiatan');
+        if (kegiatanRes.ok) {
+          const kegiatanJson = await kegiatanRes.json();
+          const activeKegiatan = kegiatanJson.filter((k: any) => k.status === 'Aktif');
+          
+          const mappedKegiatan = activeKegiatan.map((k: any) => {
+            const catMap: Record<string, string> = {
+              'Harian': 'harian',
+              "Jum'at": 'sholat-jumat',
+              'Hari Besar': 'hari-besar'
+            };
+            const tagMap: Record<string, string> = {
+              'Harian': 'Harian / Rutin',
+              "Jum'at": "Sholat Jum'at",
+              'Hari Besar': 'Hari Besar (PHBI)'
+            };
+            return {
+              cat: catMap[k.type] || 'harian',
+              tag: tagMap[k.type] || 'Harian / Rutin',
+              time: k.time,
+              title: k.title,
+              desc: k.desc || '',
+              ust: k.ust,
+              note: k.note || '',
+              Icon: iconMap[k.icon] || CircleUser,
+              color: k.color || 'bg-emerald-50 text-emerald-800'
+            };
+          });
+          setActivitiesData(mappedKegiatan);
+        } else {
+          setActivitiesData(FALLBACK_KEGIATAN);
+        }
+
+        // Fetch galeri
+        const galeriRes = await fetch('/api/galeri');
+        if (galeriRes.ok) {
+          const galeriJson = await galeriRes.json();
+          setGalleryImages(galeriJson.map((g: any) => g.img));
+        } else {
+          setGalleryImages(FALLBACK_GALERI);
+        }
+      } catch (error) {
+        console.error('Error fetching landing page data:', error);
+        setNewsData(FALLBACK_BERITA);
+        setActivitiesData(FALLBACK_KEGIATAN);
+        setGalleryImages(FALLBACK_GALERI);
+      } finally {
+        setDbLoading(false);
+      }
+    };
+
+    fetchLandingData();
+  }, []);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('kahfi-theme') || 'zamrud';

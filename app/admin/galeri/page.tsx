@@ -14,6 +14,7 @@ const DEFAULT_GALERI = [
 
 export default function AdminGaleri() {
   const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Modal / Upload State
@@ -21,27 +22,27 @@ export default function AdminGaleri() {
   const [title, setTitle] = useState('');
   const [img, setImg] = useState('');
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('kahfi_galeri');
-    setTimeout(() => {
-      if (saved) {
-        try {
-          setData(JSON.parse(saved));
-        } catch (e) {
-          setData(DEFAULT_GALERI);
-        }
+  // Fetch data
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/galeri');
+      if (res.ok) {
+        const json = await res.json();
+        setData(json);
       } else {
-        setData(DEFAULT_GALERI);
-        localStorage.setItem('kahfi_galeri', JSON.stringify(DEFAULT_GALERI));
+        console.error('Failed to fetch galeri');
       }
-    }, 0);
-  }, []);
-
-  const saveToStorage = (newData: any[]) => {
-    setData(newData);
-    localStorage.setItem('kahfi_galeri', JSON.stringify(newData));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleOpenAdd = () => {
     setTitle('');
@@ -49,34 +50,49 @@ export default function AdminGaleri() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus foto ini dari galeri?')) {
-      const filtered = data.filter(item => item.id !== id);
-      saveToStorage(filtered);
+      try {
+        const res = await fetch(`/api/galeri/${id}`, {
+          method: 'DELETE',
+        });
+        if (res.ok) {
+          setData(data.filter(item => item.id !== id));
+        } else {
+          alert('Gagal menghapus foto dari galeri');
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title) {
       alert('Judul foto wajib diisi!');
       return;
     }
 
-    const defaultImages = [
-      'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300',
-      'https://images.unsplash.com/photo-1576402187878-974f70c890a5?auto=format&fit=crop&q=80&w=300',
-      'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=300',
-      'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&q=80&w=300',
-      'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&q=80&w=300'
-    ];
-    const finalImg = img.trim() || defaultImages[Math.floor(Math.random() * defaultImages.length)];
+    const payload = { title, img };
 
-    const newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;
-    const newItem = { id: newId, title, img: finalImg };
-    
-    saveToStorage([newItem, ...data]);
-    setIsModalOpen(false);
+    try {
+      const res = await fetch('/api/galeri', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const newItem = await res.json();
+        setData([newItem, ...data]);
+        setIsModalOpen(false);
+      } else {
+        alert('Gagal mengunggah foto');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan koneksi server');
+    }
   };
 
   // Search Filter
@@ -114,7 +130,11 @@ export default function AdminGaleri() {
           <span className="text-xs text-gray-400 font-medium">Total: {filteredData.length} Foto</span>
         </div>
 
-        {filteredData.length > 0 ? (
+        {loading ? (
+          <div className="py-20 text-center text-gray-400">
+            Memuat data galeri...
+          </div>
+        ) : filteredData.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {filteredData.map(item => (
               <div key={item.id} className="group relative rounded-xl overflow-hidden border border-gray-200 aspect-square">

@@ -43,7 +43,8 @@ Proyek ini dibangun menggunakan teknologi modern untuk memastikan performa yang 
 - **`motion` (Framer Motion):** Digunakan untuk membuat animasi transisi antar halaman, elemen interaktif, dan efek visual yang halus.
 - **`lucide-react`:** Kumpulan ikon SVG modern dan ringan yang digunakan di seluruh antarmuka aplikasi.
 - **`clsx` & `tailwind-merge`:** Utility untuk memanipulasi dan menggabungkan class Tailwind secara dinamis tanpa konflik.
-- **`@hookform/resolvers`:** Digunakan jika ada implementasi form validasi kompleks (misalnya untuk halaman kontak atau donasi).
+- **`drizzle-orm` & `drizzle-kit`:** ORM untuk PostgreSQL yang cepat, ringan, dan fully type-safe.
+- **`postgres`:** Driver database PostgreSQL client untuk Drizzle.
 
 ## Cara Setup Project
 
@@ -51,39 +52,62 @@ Ikuti langkah-langkah berikut untuk mengatur proyek di komputer lokal Anda:
 
 1. **Pastikan Prasyarat Terpenuhi:**
    - Node.js (versi 20 atau lebih baru disarankan)
-   - Git
+   - Docker & Docker Compose (opsional jika ingin menjalankan via Docker)
 
-2. **Kloning Repositori (Jika belum ada):**
-   ```bash
-   git clone <url-repo-anda>
-   cd website_masjid_alkahfi
-   ```
-
-3. **Install Dependensi:**
+2. **Install Dependensi:**
    Buka terminal di dalam folder proyek, lalu jalankan:
    ```bash
    npm install
    ```
 
-4. **Konfigurasi Environment Variables:**
+3. **Konfigurasi Environment Variables:**
    - Salin file `.env.example` dan ubah namanya menjadi `.env.local`
-   - Isi variabel yang dibutuhkan, misalnya `GEMINI_API_KEY` (jika menggunakan fitur AI).
+   - Isi variabel `DATABASE_URL` dengan alamat database PostgreSQL Anda (jika tidak menggunakan Docker, sesuaikan dengan database lokal Anda).
    ```bash
    cp .env.example .env.local
    ```
 
 ## Cara Run Aplikasi
 
-Setelah setup selesai, Anda dapat menjalankan aplikasi di environment lokal (development):
+Aplikasi ini dapat dijalankan menggunakan dua cara:
 
-1. **Mulai Development Server:**
+### Cara 1: Menggunakan Docker Compose (Direkomendasikan)
+Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js secara otomatis di dalam kontainer Docker.
+
+1. **Jalankan Docker Compose:**
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Migrasi dan Seed Database:**
+   Setelah kontainer database dan aplikasi menyala, jalankan perintah ini di container aplikasi:
+   ```bash
+   docker compose exec app npm run db:setup
+   ```
+   *Perintah ini akan membuat tabel-tabel database via Drizzle (`drizzle-kit push`) dan memasukkan data default (`tsx lib/db/seed.ts`).*
+
+3. **Akses Aplikasi:**
+   Buka browser Anda dan kunjungi:
+   - Halaman Utama: [http://localhost:3000](http://localhost:3000)
+   - Halaman Admin: [http://localhost:3000/admin](http://localhost:3000/admin)
+
+### Cara 2: Menjalankan Secara Manual (Development Lokal)
+
+1. **Jalankan Database PostgreSQL:**
+   Pastikan PostgreSQL berjalan lokal di komputer Anda di port `5432` dengan database `alkahfi_db` (atau sesuai konfigurasi di `.env.local`).
+
+2. **Jalankan Migrasi & Seed:**
+   ```bash
+   npm run db:setup
+   ```
+
+3. **Mulai Development Server:**
    ```bash
    npm run dev
    ```
 
-2. **Akses Aplikasi:**
-   Buka browser web Anda dan kunjungi:
-   [http://localhost:3000](http://localhost:3000)
+4. **Akses Aplikasi:**
+   Kunjungi [http://localhost:3000](http://localhost:3000)
 
 ---
 *Dibuat untuk kemaslahatan umat. Semoga menjadi amal jariyah.*
