@@ -1,66 +1,68 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, Filter, X } from 'lucide-react';
-import Image from 'next/image';
+import React, { useState, useEffect } from "react";
+import { Plus, Pencil, Trash2, Search, Filter, X } from "lucide-react";
+import Image from "next/image";
+import ImageUpload from "@/app/admin/components/ImageUpload";
 
 const DEFAULT_BERITA = [
-  { 
-    id: 1, 
-    title: 'Penyaluran Sembako Rutin Bulanan Bagi Janda dan Lansia Dhuafa Cikoneng', 
-    date: '15 Juni 2026', 
-    author: 'Admin Sosial', 
-    tag: 'Sosial', 
-    img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300',
-    desc: 'Berkat kerjasama para muhsinin dan Baitul Mal Al-Kahfi, pekan lalu DKM telah berhasil mendistribusikan sebanyak 45 paket kebutuhan pokok untuk mengurangi beban perekonomian dhuafa di RT 03 dan RT 04 Cikoneng. Agenda rutin bulanan ini diharapkan mampu meringankan belanja sembako bulanan mereka di tengah inflasi harga sembako daerah Kabupaten Bandung. Pembagian berjalan dengan santun berkat bantuan para pemuda karang taruna dan panitia ikhwan DKM Al-Kahfi.'
+  {
+    id: 1,
+    title:
+      "Penyaluran Sembako Rutin Bulanan Bagi Janda dan Lansia Dhuafa Cikoneng",
+    date: "15 Juni 2026",
+    author: "Admin Sosial",
+    tag: "Sosial",
+    img: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300",
+    desc: "Berkat kerjasama para muhsinin dan Baitul Mal Al-Kahfi, pekan lalu DKM telah berhasil mendistribusikan sebanyak 45 paket kebutuhan pokok untuk mengurangi beban perekonomian dhuafa di RT 03 dan RT 04 Cikoneng. Agenda rutin bulanan ini diharapkan mampu meringankan belanja sembako bulanan mereka di tengah inflasi harga sembako daerah Kabupaten Bandung. Pembagian berjalan dengan santun berkat bantuan para pemuda karang taruna dan panitia ikhwan DKM Al-Kahfi.",
   },
-  { 
-    id: 2, 
-    title: 'Sinergi Pemuda Cikoneng dalam Agenda Bersih-bersih Masjid', 
-    date: '08 Juni 2026', 
-    author: 'Ketua Pemuda', 
-    tag: 'Kebersihan', 
-    img: 'https://images.unsplash.com/photo-1576402187878-974f70c890a5?auto=format&fit=crop&q=80&w=300',
-    desc: 'DKM Al-Kahfi menggerakkan kerja bakti bersama puluhan pemuda lingkungan. Pembersihan difokuskan ke karpet utama ruang shalat serta parit luar guna mengantisipasi banjir genangan musim penghujan. Selain melatih kebersamaan antar warga dan pemuda, kebersihan fasilitas umum tempat beribadah diyakini membawa berkah ukhuwah serta menciptakan kenyamanan ekstra bagi para jamaah yang sholat.'
+  {
+    id: 2,
+    title: "Sinergi Pemuda Cikoneng dalam Agenda Bersih-bersih Masjid",
+    date: "08 Juni 2026",
+    author: "Ketua Pemuda",
+    tag: "Kebersihan",
+    img: "https://images.unsplash.com/photo-1576402187878-974f70c890a5?auto=format&fit=crop&q=80&w=300",
+    desc: "DKM Al-Kahfi menggerakkan kerja bakti bersama puluhan pemuda lingkungan. Pembersihan difokuskan ke karpet utama ruang shalat serta parit luar guna mengantisipasi banjir genangan musim penghujan. Selain melatih kebersamaan antar warga dan pemuda, kebersihan fasilitas umum tempat beribadah diyakini membawa berkah ukhuwah serta menciptakan kenyamanan ekstra bagi para jamaah yang sholat.",
   },
-  { 
-    id: 3, 
-    title: 'Kajian Akbar Keluarga Sakinah Sambut Tahun Baru Hijriyah', 
-    date: '01 Juni 2026', 
-    author: 'Seksi Dakwah', 
-    tag: 'Tarbiyah', 
-    img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=300',
-    desc: 'Kajian spesial yang diselenggarakan DKM dihadiri oleh ratusan ibu-ibu dan bapak-bapak Cikoneng. Menghadirkan narasumber utama Dr. KH. Mulyana membahas cara membangun keharmonisan rumah tangga di tengah tantangan teknologi modern yang melingkupi keseharian anak-anak zaman sekarang.'
-  }
+  {
+    id: 3,
+    title: "Kajian Akbar Keluarga Sakinah Sambut Tahun Baru Hijriyah",
+    date: "01 Juni 2026",
+    author: "Seksi Dakwah",
+    tag: "Tarbiyah",
+    img: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=300",
+    desc: "Kajian spesial yang diselenggarakan DKM dihadiri oleh ratusan ibu-ibu dan bapak-bapak Cikoneng. Menghadirkan narasumber utama Dr. KH. Mulyana membahas cara membangun keharmonisan rumah tangga di tengah tantangan teknologi modern yang melingkupi keseharian anak-anak zaman sekarang.",
+  },
 ];
 
 export default function AdminBerita() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterTag, setFilterTag] = useState('Semua');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTag, setFilterTag] = useState("Semua");
 
   // Modal / Form state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
 
   // Form Fields
-  const [title, setTitle] = useState('');
-  const [tag, setTag] = useState('Sosial');
-  const [author, setAuthor] = useState('Admin');
-  const [img, setImg] = useState('');
-  const [desc, setDesc] = useState('');
+  const [title, setTitle] = useState("");
+  const [tag, setTag] = useState("Sosial");
+  const [author, setAuthor] = useState("Admin");
+  const [img, setImg] = useState("");
+  const [desc, setDesc] = useState("");
 
   // Fetch data from API
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/berita');
+      const res = await fetch("/api/berita");
       if (res.ok) {
         const json = await res.json();
         setData(json);
       } else {
-        console.error('Failed to fetch berita');
+        console.error("Failed to fetch berita");
       }
     } catch (e) {
       console.error(e);
@@ -75,11 +77,11 @@ export default function AdminBerita() {
 
   const handleOpenAdd = () => {
     setEditItem(null);
-    setTitle('');
-    setTag('Sosial');
-    setAuthor('Admin');
-    setImg('');
-    setDesc('');
+    setTitle("");
+    setTag("Sosial");
+    setAuthor("Admin");
+    setImg("");
+    setDesc("");
     setIsModalOpen(true);
   };
 
@@ -88,21 +90,21 @@ export default function AdminBerita() {
     setTitle(item.title);
     setTag(item.tag);
     setAuthor(item.author);
-    setImg(item.img || '');
-    setDesc(item.desc || '');
+    setImg(item.img || "");
+    setDesc(item.desc || "");
     setIsModalOpen(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Apakah Anda yakin ingin menghapus berita ini?')) {
+    if (confirm("Apakah Anda yakin ingin menghapus berita ini?")) {
       try {
         const res = await fetch(`/api/berita/${id}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
         if (res.ok) {
-          setData(data.filter(item => item.id !== id));
+          setData(data.filter((item) => item.id !== id));
         } else {
-          alert('Gagal menghapus berita');
+          alert("Gagal menghapus berita");
         }
       } catch (e) {
         console.error(e);
@@ -113,7 +115,7 @@ export default function AdminBerita() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !desc) {
-      alert('Judul dan Isi Berita harus diisi!');
+      alert("Judul dan Isi Berita harus diisi!");
       return;
     }
 
@@ -123,22 +125,24 @@ export default function AdminBerita() {
       if (editItem) {
         // Update
         const res = await fetch(`/api/berita/${editItem.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
         if (res.ok) {
           const updatedItem = await res.json();
-          setData(data.map(item => item.id === editItem.id ? updatedItem : item));
+          setData(
+            data.map((item) => (item.id === editItem.id ? updatedItem : item)),
+          );
           setIsModalOpen(false);
         } else {
-          alert('Gagal memperbarui berita');
+          alert("Gagal memperbarui berita");
         }
       } else {
         // Create
-        const res = await fetch('/api/berita', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("/api/berita", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
         if (res.ok) {
@@ -146,20 +150,21 @@ export default function AdminBerita() {
           setData([newItem, ...data]);
           setIsModalOpen(false);
         } else {
-          alert('Gagal membuat berita');
+          alert("Gagal membuat berita");
         }
       }
     } catch (err) {
       console.error(err);
-      alert('Terjadi kesalahan koneksi server');
+      alert("Terjadi kesalahan koneksi server");
     }
   };
 
   // Filter and Search computation
-  const filteredData = data.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.desc.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterTag === 'Semua' || item.tag === filterTag;
+  const filteredData = data.filter((item) => {
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.desc.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterTag === "Semua" || item.tag === filterTag;
     return matchesSearch && matchesFilter;
   });
 
@@ -168,9 +173,11 @@ export default function AdminBerita() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Kelola Berita</h2>
-          <p className="text-sm text-gray-500 mt-1">Daftar artikel, liputan acara, dan berita seputar masjid.</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Daftar artikel, liputan acara, dan berita seputar masjid.
+          </p>
         </div>
-        <button 
+        <button
           onClick={handleOpenAdd}
           className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-sm hover:shadow-md w-full sm:w-auto justify-center"
         >
@@ -182,27 +189,32 @@ export default function AdminBerita() {
         {/* Toolbar */}
         <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-50/50">
           <div className="relative w-full sm:w-72">
-             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-             <input 
-               type="text" 
-               placeholder="Cari berita..." 
-               value={searchQuery}
-               onChange={(e) => setSearchQuery(e.target.value)}
-               className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white" 
-             />
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="Cari berita..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white"
+            />
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
-             <span className="text-xs font-semibold text-gray-500 whitespace-nowrap">Filter Kategori:</span>
-             <select 
-               value={filterTag} 
-               onChange={(e) => setFilterTag(e.target.value)}
-               className="text-sm text-gray-600 bg-white border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/10 cursor-pointer"
-             >
-               <option value="Semua">Semua Kategori</option>
-               <option value="Sosial">Sosial</option>
-               <option value="Kebersihan">Kebersihan</option>
-               <option value="Tarbiyah">Tarbiyah</option>
-             </select>
+            <span className="text-xs font-semibold text-gray-500 whitespace-nowrap">
+              Filter Kategori:
+            </span>
+            <select
+              value={filterTag}
+              onChange={(e) => setFilterTag(e.target.value)}
+              className="text-sm text-gray-600 bg-white border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/10 cursor-pointer"
+            >
+              <option value="Semua">Semua Kategori</option>
+              <option value="Sosial">Sosial</option>
+              <option value="Kebersihan">Kebersihan</option>
+              <option value="Tarbiyah">Tarbiyah</option>
+            </select>
           </div>
         </div>
 
@@ -222,17 +234,34 @@ export default function AdminBerita() {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-gray-400">Memuat data berita...</td>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-10 text-center text-gray-400"
+                  >
+                    Memuat data berita...
+                  </td>
                 </tr>
               ) : filteredData.length > 0 ? (
-                filteredData.map(item => (
-                  <tr key={item.id} className="hover:bg-emerald-50/30 transition">
+                filteredData.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="hover:bg-emerald-50/30 transition"
+                  >
                     <td className="px-6 py-3">
                       <div className="w-12 h-12 rounded-lg overflow-hidden relative bg-gray-100 border border-gray-200">
-                         <Image src={item.img} alt="thumb" fill sizes="48px" className="object-cover" referrerPolicy="no-referrer" />
+                        <Image
+                          src={item.img}
+                          alt="thumb"
+                          fill
+                          sizes="48px"
+                          className="object-cover"
+                          referrerPolicy="no-referrer"
+                        />
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-semibold text-gray-900 whitespace-normal min-w-[200px]">{item.title}</td>
+                    <td className="px-6 py-4 font-semibold text-gray-900 whitespace-normal min-w-[200px]">
+                      {item.title}
+                    </td>
                     <td className="px-6 py-4">
                       <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
                         {item.tag}
@@ -242,16 +271,16 @@ export default function AdminBerita() {
                     <td className="px-6 py-4">{item.author}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <button 
+                        <button
                           onClick={() => handleOpenEdit(item)}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition" 
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition"
                           title="Edit"
                         >
                           <Pencil size={16} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDelete(item.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition" 
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition"
                           title="Hapus"
                         >
                           <Trash2 size={16} />
@@ -262,15 +291,20 @@ export default function AdminBerita() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-gray-400">Tidak ada berita ditemukan</td>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-10 text-center text-gray-400"
+                  >
+                    Tidak ada berita ditemukan
+                  </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-        
+
         <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center text-xs text-gray-500">
-           <span>Menampilkan {filteredData.length} entri</span>
+          <span>Menampilkan {filteredData.length} entri</span>
         </div>
       </div>
 
@@ -279,19 +313,26 @@ export default function AdminBerita() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="bg-emerald-850 text-white p-6 flex justify-between items-center shrink-0">
-              <h3 className="text-lg font-bold">{editItem ? 'Edit Berita Masjid' : 'Tulis Berita Baru'}</h3>
-              <button 
+              <h3 className="text-lg font-bold">
+                {editItem ? "Edit Berita Masjid" : "Tulis Berita Baru"}
+              </h3>
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition"
               >
                 <X size={20} />
               </button>
             </div>
-            
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+
+            <form
+              onSubmit={handleSubmit}
+              className="p-6 space-y-4 overflow-y-auto"
+            >
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Judul Berita</label>
-                <input 
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                  Judul Berita
+                </label>
+                <input
                   type="text"
                   required
                   placeholder="Contoh: Penyaluran Paket Makanan Jumat Berkah"
@@ -303,8 +344,10 @@ export default function AdminBerita() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Kategori Berita</label>
-                  <select 
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                    Kategori Berita
+                  </label>
+                  <select
                     value={tag}
                     onChange={(e) => setTag(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-none bg-white cursor-pointer"
@@ -315,8 +358,10 @@ export default function AdminBerita() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Penulis</label>
-                  <input 
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                    Penulis
+                  </label>
+                  <input
                     type="text"
                     required
                     placeholder="Contoh: Admin Sosial"
@@ -327,20 +372,17 @@ export default function AdminBerita() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">URL Gambar Thumbnail (Opsional)</label>
-                <input 
-                  type="text"
-                  placeholder="Isi untuk URL kustom atau kosongi untuk otomatis"
-                  value={img}
-                  onChange={(e) => setImg(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
+              <ImageUpload
+                value={img}
+                onChange={(url) => setImg(url)}
+                label="Foto Thumbnail Berita (Maksimal 2MB)"
+              />
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Isi Konten Berita</label>
-                <textarea 
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                  Isi Konten Berita
+                </label>
+                <textarea
                   required
                   rows={6}
                   placeholder="Tulis artikel atau liputan kegiatan selengkapnya disini..."
@@ -351,18 +393,18 @@ export default function AdminBerita() {
               </div>
 
               <div className="pt-4 flex justify-end gap-3 border-t border-gray-100 shrink-0">
-                <button 
+                <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
                 >
                   Batal
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition"
                 >
-                  {editItem ? 'Simpan Perubahan' : 'Terbitkan Berita'}
+                  {editItem ? "Simpan Perubahan" : "Terbitkan Berita"}
                 </button>
               </div>
             </form>

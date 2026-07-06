@@ -72,15 +72,25 @@ Ikuti langkah-langkah berikut untuk mengatur proyek di komputer lokal Anda:
 Aplikasi ini dapat dijalankan menggunakan dua cara:
 
 ### Cara 1: Menggunakan Docker Compose (Direkomendasikan)
-Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js secara otomatis di dalam kontainer Docker.
+Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode Development dengan Hot Reload** aktif) secara otomatis di dalam kontainer Docker.
 
 1. **Jalankan Docker Compose:**
    ```bash
-   docker-compose up --build
+   docker-compose up -d --build
    ```
+   *Menggunakan flag `-d` (detached) agar kontainer berjalan di latar belakang (daemonize). Proses build akan sangat cepat karena melewati proses npm run build.*
+
+   > **Tips Docker Berguna:**
+   > * **Melihat log real-time:** `docker-compose logs -f app`
+   > * **Melihat status kontainer:** `docker-compose ps`
+   > * **Mematikan kontainer:** `docker-compose down`
 
 2. **Migrasi dan Seed Database:**
-   Setelah kontainer database dan aplikasi menyala, jalankan perintah ini di container aplikasi:
+   Setelah kontainer database dan aplikasi menyala, Anda dapat mengisi data awal (berita, kegiatan, galeri) dengan menjalankan perintah ini:
+   ```bash
+   docker exec -it alkahfi_app npm run db:setup
+   ```
+   Atau jika menggunakan Docker Compose CLI baru:
    ```bash
    docker compose exec app npm run db:setup
    ```
@@ -89,7 +99,7 @@ Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js secara otomat
 3. **Akses Aplikasi:**
    Buka browser Anda dan kunjungi:
    - Halaman Utama: [http://localhost:3000](http://localhost:3000)
-   - Halaman Admin: [http://localhost:3000/admin](http://localhost:3000/admin)
+   - Halaman Admin (Kelola Berita/Kegiatan/Galeri): [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ### Cara 2: Menjalankan Secara Manual (Development Lokal)
 
