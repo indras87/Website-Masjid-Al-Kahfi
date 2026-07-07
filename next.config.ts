@@ -1,4 +1,7 @@
+import path from 'path';
 import type {NextConfig} from 'next';
+
+const workspaceRoot = path.resolve(__dirname, '..');
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -33,6 +36,7 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
   },
   output: 'standalone',
+  outputFileTracingRoot: workspaceRoot,
   transpilePackages: ['motion'],
   webpack: (config, {dev}) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.
