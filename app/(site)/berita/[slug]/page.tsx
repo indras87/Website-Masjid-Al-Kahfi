@@ -95,37 +95,35 @@ export default function BeritaDetailPage() {
 
   return (
     <div className="pb-16">
-      {/* Hero Image */}
-      <div className="relative w-full h-72 md:h-96">
-        <Image
-          src={data.img}
-          alt={data.title}
-          fill
-          sizes="100vw"
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-          <div className="max-w-4xl mx-auto">
-            <span
-              className={`text-[10px] md:text-xs ${data.color || "bg-emerald-50 text-emerald-800"} font-bold px-3 py-1 rounded-full mb-3 inline-block`}
-            >
-              {data.tag}
-            </span>
-            <h1 className="font-serif text-2xl md:text-4xl font-bold text-white leading-tight">
-              {data.title}
-            </h1>
+      <div className="max-w-4xl mx-auto px-4 pt-8">
+        {data.img && (
+          <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-8 border border-gray-100">
+            <Image
+              src={data.img}
+              alt={data.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 896px"
+              className="object-cover"
+              priority
+            />
           </div>
-        </div>
-      </div>
+        )}
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Meta Info */}
-        <div className="flex flex-wrap items-center gap-4 mb-8 text-sm text-gray-500 border-b border-gray-100 pb-6">
-          <span className="font-semibold text-gray-700">{data.author}</span>
-          <span className="text-gray-300">|</span>
-          <span>{data.date}</span>
+        {/* Header Info */}
+        <div className="mb-8">
+          <span
+            className={`text-[10px] md:text-xs ${data.color || "bg-emerald-50 text-emerald-800"} font-bold px-3 py-1 rounded-full mb-4 inline-block`}
+          >
+            {data.tag}
+          </span>
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-emerald-950 leading-tight mb-4">
+            {data.title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 border-b border-gray-100 pb-6">
+            <span className="font-semibold text-gray-700">{data.author}</span>
+            <span className="text-gray-300">|</span>
+            <span>{data.date}</span>
+          </div>
         </div>
 
         {/* Content */}

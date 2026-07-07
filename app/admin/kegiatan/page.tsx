@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, Filter, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Filter, X, Loader2 } from 'lucide-react';
 
 const DEFAULT_KEGIATAN = [
   { id: 1, title: 'Tahsin & Bimbingan Mengaji Quran Dewasa', type: 'Harian', time: 'Setiap Hari (Bada Subuh)', ust: 'Ust. Sulaeman Al-Hafidz', status: 'Aktif' },
@@ -19,13 +19,16 @@ export default function AdminKegiatan() {
   // Modal / Form state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<any>(null);
-  
+
   // Form fields
   const [title, setTitle] = useState('');
   const [type, setType] = useState('Harian');
   const [time, setTime] = useState('');
   const [ust, setUst] = useState('');
   const [status, setStatus] = useState('Aktif');
+
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // Fetch data
   const fetchData = async () => {
@@ -71,17 +74,23 @@ export default function AdminKegiatan() {
 
   const handleDelete = async (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus kegiatan ini?')) {
+      const snapshot = data;
+      setDeletingId(id);
+      setData(data.filter(item => item.id !== id));
       try {
         const res = await fetch(`/api/kegiatan/${id}`, {
           method: 'DELETE',
         });
-        if (res.ok) {
-          setData(data.filter(item => item.id !== id));
-        } else {
+        if (!res.ok) {
+          setData(snapshot);
           alert('Gagal menghapus kegiatan');
         }
       } catch (e) {
+        setData(snapshot);
         console.error(e);
+        alert('Terjadi kesalahan koneksi server');
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -96,6 +105,7 @@ export default function AdminKegiatan() {
     const payload = { title, type, time, ust, status };
 
     try {
+      setSubmitting(true);
       if (editItem) {
         // Update
         const res = await fetch(`/api/kegiatan/${editItem.id}`, {
@@ -128,6 +138,8 @@ export default function AdminKegiatan() {
     } catch (err) {
       console.error(err);
       alert('Terjadi kesalahan koneksi server');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -231,10 +243,15 @@ export default function AdminKegiatan() {
                         </button>
                         <button 
                           onClick={() => handleDelete(item.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition" 
+                          disabled={deletingId === item.id}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition disabled:opacity-60" 
                           title="Hapus"
                         >
-                          <Trash2 size={16} />
+                          {deletingId === item.id ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -342,9 +359,19 @@ export default function AdminKegiatan() {
                 </button>
                 <button 
                   type="submit"
-                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition disabled:opacity-60 flex items-center gap-2"
                 >
-                  {editItem ? 'Simpan Perubahan' : 'Tambah Kegiatan'}
+                  {submitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : editItem ? (
+                    'Simpan Perubahan'
+                  ) : (
+                    'Tambah Kegiatan'
+                  )}
                 </button>
               </div>
             </form>

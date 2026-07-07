@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Search, X } from "lucide-react";
+import { Plus, Trash2, Search, X, Loader2 } from "lucide-react";
 import Image from "next/image";
 import ImageUpload from "@/app/admin/components/ImageUpload";
 
@@ -43,6 +43,9 @@ export default function AdminGaleri() {
   const [title, setTitle] = useState("");
   const [img, setImg] = useState("");
 
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   // Fetch data
   const fetchData = async () => {
     try {
@@ -73,17 +76,23 @@ export default function AdminGaleri() {
 
   const handleDelete = async (id: number) => {
     if (confirm("Apakah Anda yakin ingin menghapus foto ini dari galeri?")) {
+      const snapshot = data;
+      setDeletingId(id);
+      setData(data.filter((item) => item.id !== id));
       try {
         const res = await fetch(`/api/galeri/${id}`, {
           method: "DELETE",
         });
-        if (res.ok) {
-          setData(data.filter((item) => item.id !== id));
-        } else {
+        if (!res.ok) {
+          setData(snapshot);
           alert("Gagal menghapus foto dari galeri");
         }
       } catch (e) {
+        setData(snapshot);
         console.error(e);
+        alert("Terjadi kesalahan koneksi server");
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -98,6 +107,7 @@ export default function AdminGaleri() {
     const payload = { title, img };
 
     try {
+      setSubmitting(true);
       const res = await fetch("/api/galeri", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,6 +123,8 @@ export default function AdminGaleri() {
     } catch (err) {
       console.error(err);
       alert("Terjadi kesalahan koneksi server");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -181,13 +193,18 @@ export default function AdminGaleri() {
                   <p className="text-white text-xs font-semibold truncate mb-2">
                     {item.title}
                   </p>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="bg-red-500 hover:bg-red-600 text-white p-2 rounded flex items-center justify-center transition w-8 h-8"
-                    title="Hapus Foto"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                   <button
+                     onClick={() => handleDelete(item.id)}
+                     disabled={deletingId === item.id}
+                     className="bg-red-500 hover:bg-red-600 text-white p-2 rounded flex items-center justify-center transition w-8 h-8 disabled:opacity-60"
+                     title="Hapus Foto"
+                   >
+                     {deletingId === item.id ? (
+                       <Loader2 size={14} className="animate-spin" />
+                     ) : (
+                       <Trash2 size={14} />
+                     )}
+                   </button>
                 </div>
               </div>
             ))}
@@ -244,9 +261,17 @@ export default function AdminGaleri() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition disabled:opacity-60 flex items-center gap-2"
                 >
-                  Unggah Foto
+                  {submitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    'Unggah Foto'
+                  )}
                 </button>
               </div>
             </form>

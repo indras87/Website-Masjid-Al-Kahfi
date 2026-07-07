@@ -57,6 +57,10 @@ Proyek ini dibangun menggunakan teknologi modern untuk memastikan performa yang 
 - Manajemen data "Tentang" untuk pengurus, visi-misi, dan fasilitas masjid.
 - CMS singleton untuk mengelola halaman `Kontak` dan `Donasi / Infaq` dengan simpan, baca, dan reset data.
 - API route berbasis Next.js untuk CRUD data CMS.
+- Halaman detail berita SEO-friendly di `/berita/[slug]-[id]` dengan tombol berbagi (Copy Link, WhatsApp, Twitter, Facebook).
+- Thumbnail berita ditampilkan sebagai gambar di atas konten pada halaman detail berita.
+- Loading state dengan spinner dan teks "Menyimpan..." / "Menghapus..." pada semua operasi CRUD di admin.
+- Optimistic delete pada daftar admin: item langsung dihapus dari UI lalu di-rollback jika API gagal.
 
 ## Cara Setup Project
 

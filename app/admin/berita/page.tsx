@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Search, Filter, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Filter, X, Loader2 } from "lucide-react";
 import Image from "next/image";
 import ImageUpload from "@/app/admin/components/ImageUpload";
 import RichTextEditor from "@/components/rich-text-editor";
@@ -55,6 +55,9 @@ export default function AdminBerita() {
   const [desc, setDesc] = useState("");
   const [content, setContent] = useState("");
 
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   // Fetch data from API
   const fetchData = async () => {
     try {
@@ -101,17 +104,23 @@ export default function AdminBerita() {
 
   const handleDelete = async (id: number) => {
     if (confirm("Apakah Anda yakin ingin menghapus berita ini?")) {
+      const snapshot = data;
+      setDeletingId(id);
+      setData(data.filter((item) => item.id !== id));
       try {
         const res = await fetch(`/api/berita/${id}`, {
           method: "DELETE",
         });
-        if (res.ok) {
-          setData(data.filter((item) => item.id !== id));
-        } else {
+        if (!res.ok) {
+          setData(snapshot);
           alert("Gagal menghapus berita");
         }
       } catch (e) {
+        setData(snapshot);
         console.error(e);
+        alert("Terjadi kesalahan koneksi server");
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -126,6 +135,7 @@ export default function AdminBerita() {
     const payload = { title, tag, author, img, desc, content };
 
     try {
+      setSubmitting(true);
       if (editItem) {
         // Update
         const res = await fetch(`/api/berita/${editItem.id}`, {
@@ -160,6 +170,8 @@ export default function AdminBerita() {
     } catch (err) {
       console.error(err);
       alert("Terjadi kesalahan koneksi server");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -284,10 +296,15 @@ export default function AdminBerita() {
                         </button>
                         <button
                           onClick={() => handleDelete(item.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition"
+                          disabled={deletingId === item.id}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition disabled:opacity-60"
                           title="Hapus"
                         >
-                          <Trash2 size={16} />
+                          {deletingId === item.id ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -403,9 +420,19 @@ export default function AdminBerita() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition disabled:opacity-60 flex items-center gap-2"
                 >
-                  {editItem ? "Simpan Perubahan" : "Terbitkan Berita"}
+                  {submitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : editItem ? (
+                    "Simpan Perubahan"
+                  ) : (
+                    "Terbitkan Berita"
+                  )}
                 </button>
               </div>
             </form>

@@ -290,8 +290,17 @@ export default function AdminKontakDonasi() {
                 disabled={savingContact}
                 className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-sm hover:shadow-md"
               >
-                {savingContact ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                Simpan Kontak
+                {savingContact ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    Simpan Kontak
+                  </>
+                )}
               </button>
               <button
                 type="button"
@@ -299,8 +308,17 @@ export default function AdminKontakDonasi() {
                 disabled={deletingContact}
                 className="bg-white border border-red-200 hover:bg-red-50 text-red-600 px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition disabled:opacity-60"
               >
-                {deletingContact ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                Hapus Kontak
+                {deletingContact ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Menghapus...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    Hapus Kontak
+                  </>
+                )}
               </button>
             </div>
           </form>
@@ -366,8 +384,17 @@ export default function AdminKontakDonasi() {
                 disabled={savingDonation}
                 className="bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-sm hover:shadow-md"
               >
-                {savingDonation ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                Simpan Donasi
+                {savingDonation ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    Simpan Donasi
+                  </>
+                )}
               </button>
               <button
                 type="button"
@@ -375,8 +402,17 @@ export default function AdminKontakDonasi() {
                 disabled={deletingDonation}
                 className="bg-white border border-red-200 hover:bg-red-50 text-red-600 px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition disabled:opacity-60"
               >
-                {deletingDonation ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                Hapus Donasi
+                {deletingDonation ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Menghapus...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 size={16} />
+                    Hapus Donasi
+                  </>
+                )}
               </button>
             </div>
           </form>

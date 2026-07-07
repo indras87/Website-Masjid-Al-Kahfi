@@ -34,6 +34,9 @@ export default function AdminTentang() {
   const [pPeriod, setPPeriod] = useState('Periode 2024-2028');
   const [pImg, setPImg] = useState('');
 
+  const [submittingPengurus, setSubmittingPengurus] = useState(false);
+  const [deletingPengurusId, setDeletingPengurusId] = useState<number | null>(null);
+
   // ==========================================
   // STATE VISI & MISI
   // ==========================================
@@ -49,6 +52,10 @@ export default function AdminTentang() {
   const [fTitle, setFTitle] = useState('');
   const [fDesc, setFDesc] = useState('');
   const [fIcon, setFIcon] = useState('User');
+
+  const [submittingFasilitas, setSubmittingFasilitas] = useState(false);
+  const [deletingFasilitasId, setDeletingFasilitasId] = useState<number | null>(null);
+  const [savingVisiMisi, setSavingVisiMisi] = useState(false);
 
   // ==========================================
   // LOAD ALL DATA
@@ -107,15 +114,21 @@ export default function AdminTentang() {
 
   const handleDeletePengurus = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus pengurus ini?')) return;
+    const snapshot = pengurusList;
+    setDeletingPengurusId(id);
+    setPengurusList(pengurusList.filter(item => item.id !== id));
     try {
       const res = await fetch(`/api/pengurus/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setPengurusList(pengurusList.filter(item => item.id !== id));
-      } else {
+      if (!res.ok) {
+        setPengurusList(snapshot);
         alert('Gagal menghapus pengurus');
       }
     } catch (err) {
+      setPengurusList(snapshot);
       console.error(err);
+      alert('Terjadi kesalahan koneksi server');
+    } finally {
+      setDeletingPengurusId(null);
     }
   };
 
@@ -129,6 +142,7 @@ export default function AdminTentang() {
     const payload = { name: pName, role: pRole, period: pPeriod, img: pImg };
 
     try {
+      setSubmittingPengurus(true);
       if (editPengurus) {
         // Update
         const res = await fetch(`/api/pengurus/${editPengurus.id}`, {
@@ -160,6 +174,8 @@ export default function AdminTentang() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setSubmittingPengurus(false);
     }
   };
 
@@ -174,6 +190,7 @@ export default function AdminTentang() {
     }
 
     try {
+      setSavingVisiMisi(true);
       const res = await fetch('/api/profil', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -186,6 +203,8 @@ export default function AdminTentang() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setSavingVisiMisi(false);
     }
   };
 
@@ -210,15 +229,21 @@ export default function AdminTentang() {
 
   const handleDeleteFasilitas = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus fasilitas ini?')) return;
+    const snapshot = fasilitasList;
+    setDeletingFasilitasId(id);
+    setFasilitasList(fasilitasList.filter(item => item.id !== id));
     try {
       const res = await fetch(`/api/fasilitas/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setFasilitasList(fasilitasList.filter(item => item.id !== id));
-      } else {
+      if (!res.ok) {
+        setFasilitasList(snapshot);
         alert('Gagal menghapus fasilitas');
       }
     } catch (err) {
+      setFasilitasList(snapshot);
       console.error(err);
+      alert('Terjadi kesalahan koneksi server');
+    } finally {
+      setDeletingFasilitasId(null);
     }
   };
 
@@ -232,6 +257,7 @@ export default function AdminTentang() {
     const payload = { title: fTitle, desc: fDesc, icon: fIcon };
 
     try {
+      setSubmittingFasilitas(true);
       if (editFasilitas) {
         // Update
         const res = await fetch(`/api/fasilitas/${editFasilitas.id}`, {
@@ -263,6 +289,8 @@ export default function AdminTentang() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setSubmittingFasilitas(false);
     }
   };
 
@@ -357,22 +385,27 @@ export default function AdminTentang() {
                         <p className="text-[10px] text-gray-400 mt-2 bg-gray-50 px-2.5 py-0.5 rounded-full inline-block">{item.period}</p>
                       </div>
 
-                      <div className="flex justify-center gap-2 mt-4 pt-3 border-t border-gray-50">
-                        <button
-                          onClick={() => handleOpenEditPengurus(item)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                          title="Edit"
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          onClick={() => handleDeletePengurus(item.id)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"
-                          title="Hapus"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
+                       <div className="flex justify-center gap-2 mt-4 pt-3 border-t border-gray-50">
+                         <button
+                           onClick={() => handleOpenEditPengurus(item)}
+                           className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                           title="Edit"
+                         >
+                           <Pencil size={15} />
+                         </button>
+                         <button
+                           onClick={() => handleDeletePengurus(item.id)}
+                           disabled={deletingPengurusId === item.id}
+                           className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-60"
+                           title="Hapus"
+                         >
+                           {deletingPengurusId === item.id ? (
+                             <Loader2 size={15} className="animate-spin" />
+                           ) : (
+                             <Trash2 size={15} />
+                           )}
+                         </button>
+                       </div>
                     </div>
                   ))
                 ) : (
@@ -426,8 +459,15 @@ export default function AdminTentang() {
                         >
                           Batal
                         </button>
-                        <button type="submit" className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition">
-                          Simpan
+                        <button type="submit" disabled={submittingPengurus} className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition disabled:opacity-60 flex items-center gap-2">
+                          {submittingPengurus ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin" />
+                              Menyimpan...
+                            </>
+                          ) : (
+                            'Simpan'
+                          )}
                         </button>
                       </div>
                     </form>
@@ -473,9 +513,19 @@ export default function AdminTentang() {
                 <div className="pt-6 border-t border-gray-100 flex justify-end">
                   <button
                     type="submit"
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-sm"
+                    disabled={savingVisiMisi}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-sm disabled:opacity-60"
                   >
-                    <Save size={18} /> Simpan Perubahan Visi Misi
+                    {savingVisiMisi ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        Menyimpan...
+                      </>
+                    ) : (
+                      <>
+                        <Save size={18} /> Simpan Perubahan Visi Misi
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
@@ -521,10 +571,15 @@ export default function AdminTentang() {
                         </button>
                         <button
                           onClick={() => handleDeleteFasilitas(item.id)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"
+                          disabled={deletingFasilitasId === item.id}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-60"
                           title="Hapus"
                         >
-                          <Trash2 size={15} />
+                          {deletingFasilitasId === item.id ? (
+                            <Loader2 size={15} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={15} />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -581,8 +636,15 @@ export default function AdminTentang() {
                         >
                           Batal
                         </button>
-                        <button type="submit" className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition">
-                          Simpan
+                        <button type="submit" disabled={submittingFasilitas} className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition disabled:opacity-60 flex items-center gap-2">
+                          {submittingFasilitas ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin" />
+                              Menyimpan...
+                            </>
+                          ) : (
+                            'Simpan'
+                          )}
                         </button>
                       </div>
                     </form>
