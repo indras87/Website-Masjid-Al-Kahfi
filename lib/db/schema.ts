@@ -8,6 +8,7 @@ export const berita = pgTable("berita", {
   date: text("date").notNull(),
   img: text("img").notNull(),
   desc: text("desc").notNull(),
+  content: text("content"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

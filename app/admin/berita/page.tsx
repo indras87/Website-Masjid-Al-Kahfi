@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search, Filter, X } from "lucide-react";
 import Image from "next/image";
 import ImageUpload from "@/app/admin/components/ImageUpload";
+import RichTextEditor from "@/components/rich-text-editor";
 
 const DEFAULT_BERITA = [
   {
@@ -52,6 +53,7 @@ export default function AdminBerita() {
   const [author, setAuthor] = useState("Admin");
   const [img, setImg] = useState("");
   const [desc, setDesc] = useState("");
+  const [content, setContent] = useState("");
 
   // Fetch data from API
   const fetchData = async () => {
@@ -82,6 +84,7 @@ export default function AdminBerita() {
     setAuthor("Admin");
     setImg("");
     setDesc("");
+    setContent("");
     setIsModalOpen(true);
   };
 
@@ -92,6 +95,7 @@ export default function AdminBerita() {
     setAuthor(item.author);
     setImg(item.img || "");
     setDesc(item.desc || "");
+    setContent(item.content || item.desc || "");
     setIsModalOpen(true);
   };
 
@@ -119,7 +123,7 @@ export default function AdminBerita() {
       return;
     }
 
-    const payload = { title, tag, author, img, desc };
+    const payload = { title, tag, author, img, desc, content };
 
     try {
       if (editItem) {
@@ -382,13 +386,10 @@ export default function AdminBerita() {
                 <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
                   Isi Konten Berita
                 </label>
-                <textarea
-                  required
-                  rows={6}
+                <RichTextEditor
+                  value={content}
+                  onChange={setContent}
                   placeholder="Tulis artikel atau liputan kegiatan selengkapnya disini..."
-                  value={desc}
-                  onChange={(e) => setDesc(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-none leading-relaxed"
                 />
               </div>
 

@@ -10,7 +10,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, tag, author, img, desc: description } = body;
+    const { title, tag, author, img, desc: description, content } = body;
 
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
@@ -24,6 +24,7 @@ export async function PUT(
         author,
         img,
         desc: description,
+        content: content || description,
       })
       .where(eq(berita.id, numericId))
       .returning();
