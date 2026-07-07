@@ -3,7 +3,7 @@
 import React, { useCallback, useState, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
+import { ImageResize } from "tiptap-extension-resize-image";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import {
@@ -58,9 +58,11 @@ export default function RichTextEditor({
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
       }),
-      Image.configure({
+      ImageResize.configure({
         inline: false,
         allowBase64: true,
+        minWidth: 100,
+        maxWidth: 800,
       }),
       Link.configure({
         openOnClick: false,

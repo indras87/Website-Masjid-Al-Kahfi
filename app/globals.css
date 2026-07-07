@@ -146,3 +146,28 @@
   padding-top: 0.5rem;
   margin-top: 0.5rem;
 }
+
+.tiptap-image-resize {
+  display: block;
+  max-width: 100%;
+}
+.tiptap-image-resize img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.tiptap-image-resize .image-left {
+  float: left;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+.tiptap-image-resize .image-right {
+  float: right;
+  margin-left: 1rem;
+  margin-bottom: 0.5rem;
+}
+.tiptap-image-resize .image-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
