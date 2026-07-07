@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { HeartPulse, QrCode, Landmark, X } from "lucide-react";
+import { HeartPulse, QrCode, Landmark } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const FALLBACK_GALERI = [
   "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800",
@@ -53,7 +54,7 @@ const FALLBACK_DONASI = {
 export default function BeritaPage() {
   const [newsData, setNewsData] = useState<any[]>([]);
   const [donationData, setDonationData] = useState(FALLBACK_DONASI);
-  const [selectedNews, setSelectedNews] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,7 +110,7 @@ export default function BeritaPage() {
             <div
               key={idx}
               className="bg-white rounded-2xl overflow-hidden border border-gold-100 shadow-sm flex flex-col justify-between cursor-pointer hover:shadow-md transition"
-              onClick={() => setSelectedNews(news)}
+              onClick={() => router.push(`/berita/${news.slug || news.id}`)}
             >
               <div>
                 <div className="relative w-full h-48">
@@ -145,45 +146,6 @@ export default function BeritaPage() {
           ))}
         </div>
       </div>
-
-      {/* News Detail Modal */}
-      {selectedNews && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl w-full max-w-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="bg-emerald-900 text-white p-6 flex justify-between items-center shrink-0">
-              <h3 className="text-lg font-bold">{selectedNews.title}</h3>
-              <button
-                onClick={() => setSelectedNews(null)}
-                className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto">
-              <div className="relative w-full h-[300px] md:h-[400px] mb-6">
-                <Image
-                  src={selectedNews.img}
-                  alt={selectedNews.title}
-                  fill
-                  sizes="100vw"
-                  className="object-cover rounded-xl"
-                />
-              </div>
-              <div className="flex items-center gap-4 mb-6">
-                <span className={`text-xs ${selectedNews.color} font-bold px-3 py-1 rounded-full`}>
-                  {selectedNews.tag}
-                </span>
-                <span className="text-xs text-gray-500">{selectedNews.date}</span>
-                <span className="text-xs text-gray-500">Oleh: {selectedNews.author}</span>
-              </div>
-              <div
-                className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl text-gray-700 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: selectedNews.content || selectedNews.desc }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

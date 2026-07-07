@@ -2,6 +2,35 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { berita } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { generateSlug } from '@/lib/slug';
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const numericId = parseInt(id, 10);
+
+    if (isNaN(numericId)) {
+      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+    }
+
+    const result = await db.select().from(berita).where(eq(berita.id, numericId)).limit(1);
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: 'Berita not found' }, { status: 404 });
+    }
+
+    const item = result[0];
+    const slug = item.slug || generateSlug(item.title, item.id);
+
+    return NextResponse.json({ ...item, slug });
+  } catch (error: any) {
+    console.error('Error fetching berita:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
 
 export async function PUT(
   request: Request,
@@ -17,6 +46,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
+    const slug = generateSlug(title, numericId);
+
     const result = await db.update(berita)
       .set({
         title,
@@ -25,6 +56,7 @@ export async function PUT(
         img,
         desc: description,
         content: content || description,
+        slug,
       })
       .where(eq(berita.id, numericId))
       .returning();

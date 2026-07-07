@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { berita } from '@/lib/db/schema';
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
+import { generateSlug } from '@/lib/slug';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +38,12 @@ export async function POST(request: Request) {
       date: formattedDate,
     }).returning();
 
-    return NextResponse.json(result[0], { status: 201 });
+    const inserted = result[0];
+    const slug = generateSlug(inserted.title, inserted.id);
+
+    await db.update(berita).set({ slug }).where(eq(berita.id, inserted.id));
+
+    return NextResponse.json({ ...inserted, slug }, { status: 201 });
   } catch (error: any) {
     console.error('Error creating berita:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });

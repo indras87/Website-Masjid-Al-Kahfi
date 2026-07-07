@@ -76,6 +76,7 @@ Ikuti langkah-langkah berikut untuk mengatur proyek di komputer lokal Anda:
    - Salin file `.env.example` dan ubah namanya menjadi `.env.local`
    - Isi variabel `DATABASE_URL` dengan alamat database PostgreSQL Anda. Untuk setup lokal dan Docker host, gunakan port `5433`.
    - Perintah `npm run db:setup` sekarang membaca `.env.local` secara otomatis.
+   - Next.js sudah dikonfigurasi dengan `outputFileTracingRoot` agar stabil saat workspace berisi banyak project.
    ```bash
    cp .env.example .env.local
    ```
@@ -110,29 +111,33 @@ Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode
    ```
    *Perintah ini akan membuat tabel-tabel database via Drizzle (`drizzle-kit push`) dan memasukkan data default (`tsx lib/db/seed.ts`). Tabel yang dibuat mencakup `berita`, `kegiatan`, `galeri`, `pengurus`, `profil_masjid`, `fasilitas`, `kontak`, dan `donasi`.*
 
- 3. **Akses Aplikasi:**
-    Buka browser Anda dan kunjungi:
-    - Halaman Utama: [http://localhost:3000/beranda](http://localhost:3000/beranda)
-    - Halaman Admin (Kelola Berita/Kegiatan/Galeri/Tentang/Kontak/Donasi): [http://localhost:3000/admin](http://localhost:3000/admin)
+3. **Akses Aplikasi:**
+   Buka browser Anda dan kunjungi:
+   - Halaman Utama: [http://localhost:3000/beranda](http://localhost:3000/beranda)
+   - Halaman Admin (Kelola Berita/Kegiatan/Galeri/Tentang/Kontak/Donasi): [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ### Cara 2: Menjalankan Secara Manual (Development Lokal)
 
- 1. **Jalankan Database PostgreSQL:**
-    Pastikan PostgreSQL berjalan lokal di komputer Anda di port `5433` dengan database `alkahfi_db` (atau sesuai konfigurasi di `.env.local`).
-    Jika memakai Docker Compose, database juga diekspos ke host pada port `5433`.
+1. **Jalankan Database PostgreSQL:**
+   Pastikan PostgreSQL berjalan lokal di komputer Anda di port `5433` dengan database `alkahfi_db` (atau sesuai konfigurasi di `.env.local`).
+   Jika memakai Docker Compose, database juga diekspos ke host pada port `5433`.
 
- 2. **Jalankan Migrasi & Seed:**
-    ```bash
-    npm run db:setup
-    ```
+2. **Jalankan Migrasi & Seed:**
+   ```bash
+   npm run db:setup
+   ```
 
- 3. **Mulai Development Server:**
-    ```bash
-    npm run dev
-    ```
+3. **Mulai Development Server:**
+   ```bash
+   npm run dev
+   ```
 
- 4. **Akses Aplikasi:**
-    Kunjungi [http://localhost:3000/beranda](http://localhost:3000/beranda)
+4. **Akses Aplikasi:**
+   Kunjungi [http://localhost:3000/beranda](http://localhost:3000/beranda)
+
+### Catatan Next.js Workspace
+
+Jika project ini berada di dalam folder workspace yang berisi banyak repository, Next.js dapat menampilkan warning tentang root inference dan file tracing. Konfigurasi `outputFileTracingRoot` di `next.config.ts` sudah diarahkan ke root workspace untuk menjaga build `standalone` tetap stabil.
 
 ---
 *Dibuat untuk kemaslahatan umat. Semoga menjadi amal jariyah.*

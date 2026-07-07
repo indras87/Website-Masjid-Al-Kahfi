@@ -31,8 +31,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       router.push("/beranda");
     } else if (tab === "donasi") {
       router.push("/donasi");
-    } else if (tab === "berita-detail") {
-      router.push("/berita");
     } else {
       router.push(`/${tab}`);
     }
