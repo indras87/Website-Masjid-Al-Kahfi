@@ -80,7 +80,6 @@ Ikuti langkah-langkah berikut untuk mengatur proyek di komputer lokal Anda:
    - Salin file `.env.example` dan ubah namanya menjadi `.env.local`
    - Isi variabel `DATABASE_URL` dengan alamat database PostgreSQL Anda. Untuk setup lokal dan Docker host, gunakan port `5433`.
    - Perintah `npm run db:setup` sekarang membaca `.env.local` secara otomatis.
-   - Next.js sudah dikonfigurasi dengan `outputFileTracingRoot` agar stabil saat workspace berisi banyak project.
    ```bash
    cp .env.example .env.local
    ```
@@ -139,9 +138,30 @@ Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode
 4. **Akses Aplikasi:**
    Kunjungi [http://localhost:3000/beranda](http://localhost:3000/beranda)
 
-### Catatan Next.js Workspace
+### Deploy Otomatis ke Dokku via GitHub Actions
 
-Jika project ini berada di dalam folder workspace yang berisi banyak repository, Next.js dapat menampilkan warning tentang root inference dan file tracing. Konfigurasi `outputFileTracingRoot` di `next.config.ts` sudah diarahkan ke root workspace untuk menjaga build `standalone` tetap stabil.
+Workflow deploy tersedia di `.github/workflows/deploy-dokku.yml`. Setiap push ke branch `main` akan memicu deploy ke Dokku melalui SSH, setara dengan perintah manual `git push dokku main:master`. Workflow ini sekarang memakai GitHub Environment `production`, jadi secrets bisa disimpan khusus untuk environment itu.
+
+Secrets GitHub yang perlu disiapkan:
+
+- `DOKKU_GIT_REMOTE`: remote Git Dokku lengkap, misalnya `dokku@178.128.86.13:al-kahfi`
+- `DOKKU_SSH_PRIVATE_KEY`: private key SSH yang sudah di-authorize ke user Dokku di server
+- `DOKKU_KNOWN_HOSTS`: isi baris `known_hosts` untuk server Dokku, misalnya hasil `ssh-keyscan -H 178.128.86.13`
+- `DOKKU_REMOTE_BRANCH`: opsional, default `master`
+
+Contoh setup secrets dari mesin lokal:
+
+```bash
+ssh-keyscan -H 178.128.86.13
+```
+
+Dengan pola ini, detail host, user, dan nama app tidak ditulis terpisah di repository. Semuanya dibungkus dalam secrets GitHub. Jika ingin lebih ketat lagi, simpan secrets tersebut di Environment `production` dan aktifkan required reviewers sebelum job deploy berjalan.
+
+Jika app Next.js berjalan di port internal `3000`, pastikan mapping proxy Dokku sesuai:
+
+```bash
+dokku proxy:ports-set al-kahfi http:80:3000 https:443:3000
+```
 
 ---
 *Dibuat untuk kemaslahatan umat. Semoga menjadi amal jariyah.*
