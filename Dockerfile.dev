@@ -1,0 +1,17 @@
+# Frontend Dockerfile - Development (hot reload enabled)
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+RUN npm ci --no-audit --no-fund
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+COPY . .
+
+EXPOSE 3000
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["npm", "run", "dev"]

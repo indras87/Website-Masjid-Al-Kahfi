@@ -1,23 +1,40 @@
-# Frontend Dockerfile - Development Optimized
-FROM node:20-alpine
+# Frontend Dockerfile - Production
+FROM node:20-alpine AS base
 
+# ---- deps stage ----
+FROM base AS deps
 WORKDIR /app
-
-# Copy package files
 COPY package.json package-lock.json* ./
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN npm ci --omit=dev --no-audit --no-fund
 
-# Install dependencies
-RUN npm ci
+# ---- build stage ----
+FROM base AS builder
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci --no-audit --no-fund
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+# ---- runner stage ----
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs \
+ && adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Copy source code
-COPY . .
-
-# Expose port
+USER nextjs
 EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
-# Run in development mode (hot reload enabled)
-CMD ["npm", "run", "dev"]
+CMD ["node", "server.js"]

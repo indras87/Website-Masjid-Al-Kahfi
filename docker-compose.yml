@@ -15,10 +15,9 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-      # target: dev  <--- BARIS INI DIHAPUS
+      dockerfile: Dockerfile.dev
     container_name: alkahfi_app
-    restart: always
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
@@ -26,6 +25,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+      - /app/.next
     depends_on:
       - db
 
