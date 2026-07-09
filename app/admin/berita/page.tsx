@@ -52,7 +52,6 @@ export default function AdminBerita() {
   const [tag, setTag] = useState("Sosial");
   const [author, setAuthor] = useState("Admin");
   const [img, setImg] = useState("");
-  const [desc, setDesc] = useState("");
   const [content, setContent] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
@@ -86,7 +85,6 @@ export default function AdminBerita() {
     setTag("Sosial");
     setAuthor("Admin");
     setImg("");
-    setDesc("");
     setContent("");
     setIsModalOpen(true);
   };
@@ -97,7 +95,6 @@ export default function AdminBerita() {
     setTag(item.tag);
     setAuthor(item.author);
     setImg(item.img || "");
-    setDesc(item.desc || "");
     setContent(item.content || item.desc || "");
     setIsModalOpen(true);
   };
@@ -127,12 +124,12 @@ export default function AdminBerita() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !desc) {
+    if (!title || !content) {
       alert("Judul dan Isi Berita harus diisi!");
       return;
     }
 
-    const payload = { title, tag, author, img, desc, content };
+    const payload = { title, tag, author, img, desc: content, content };
 
     try {
       setSubmitting(true);
