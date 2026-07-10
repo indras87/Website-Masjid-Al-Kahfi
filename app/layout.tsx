@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Sora } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/lib/auth-client";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -29,7 +30,9 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <body className="antialiased" suppressHydrationWarning>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
