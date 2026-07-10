@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "clean": "next clean",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx lib/db/seed.ts",
+    "db:seed": "DATABASE_URL='postgresql://postgres:12345678@localhost:5433/alkahfi_db' tsx lib/db/seed.ts",
     "db:setup": "drizzle-kit push && tsx lib/db/seed.ts"
   },
   "dependencies": {
@@ -21,7 +21,11 @@
     "@tiptap/extension-text-align": "^3.27.3",
     "@tiptap/react": "^3.27.3",
     "@tiptap/starter-kit": "^3.27.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.21",
+    "bcryptjs": "^3.0.3",
+    "better-auth": "^1.6.23",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
@@ -35,7 +39,8 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "tailwind-merge": "^3.3.1",
-    "tiptap-extension-resize-image": "^1.4.4"
+    "tiptap-extension-resize-image": "^1.4.4",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.11",
