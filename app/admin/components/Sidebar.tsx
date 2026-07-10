@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { signOut } from "@/lib/auth-client";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -14,11 +15,25 @@ import {
   X,
   Info,
   HandCoins,
+  Users,
 } from "lucide-react";
 
-export default function Sidebar() {
+interface User {
+  name?: string | null;
+  role?: string;
+}
+
+interface SidebarProps {
+  user?: User;
+}
+
+export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const isSuperadmin = user?.role === "superadmin";
 
   const links = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -27,7 +42,26 @@ export default function Sidebar() {
     { href: "/admin/galeri", label: "Galeri", icon: ImageIcon },
     { href: "/admin/tentang", label: "Tentang", icon: Info },
     { href: "/admin/kontak-donasi", label: "Kontak & Donasi", icon: HandCoins },
+    ...(isSuperadmin
+      ? [{ href: "/admin/users", label: "Manajemen User", icon: Users }]
+      : []),
   ];
+
+  const handleLogout = async () => {
+    if (confirm("Apakah Anda yakin ingin keluar dari panel admin?")) {
+      setIsLoggingOut(true);
+      try {
+        await signOut();
+        router.push("/admin/login");
+      } catch (error) {
+        console.error("Logout error:", error);
+        // Fallback: force reload
+        window.location.href = "/admin/login";
+      } finally {
+        setIsLoggingOut(false);
+      }
+    }
+  };
 
   return (
     <>
@@ -71,15 +105,11 @@ export default function Sidebar() {
         </nav>
         <div className="p-4 border-t border-emerald-900 shrink-0 space-y-2">
           <button
-            onClick={() => {
-              if (confirm("Apakah Anda yakin ingin keluar dari panel admin?")) {
-                localStorage.removeItem("admin_logged_in");
-                window.location.reload();
-              }
-            }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-900/40 text-red-300 hover:text-red-200 transition-colors font-medium text-sm text-left"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-900/40 text-red-300 hover:text-red-200 transition-colors font-medium text-sm text-left disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <LogOut size={18} /> <span>Keluar / Logout</span>
+            <LogOut size={18} /> <span>{isLoggingOut ? "Keluar..." : "Keluar / Logout"}</span>
           </button>
           <Link
             href="/"
