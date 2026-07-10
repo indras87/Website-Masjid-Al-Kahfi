@@ -8,7 +8,9 @@ import {
   pengurus,
   profilMasjid,
   fasilitas,
+  user,
 } from "./schema";
+import bcrypt from "bcryptjs";
 
 const DEFAULT_PENGURUS = [
   {
@@ -196,6 +198,18 @@ const DEFAULT_GALERI = [
   },
 ];
 
+const SUPERADMIN_USER = {
+  id: "superadmin-001",
+  email: "superadmin@masjidalkahfi.test",
+  name: "Superadmin DKM",
+  role: "superadmin" as const,
+  emailVerified: new Date(),
+};
+
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10);
+}
+
 async function main() {
   console.log("Seeding database...");
 
@@ -208,6 +222,15 @@ async function main() {
   await db.delete(fasilitas);
   await db.delete(kontak);
   await db.delete(donasi);
+  await db.delete(user);
+
+  // Seed superadmin user
+  console.log("Seeding superadmin user...");
+  const hashedPassword = await hashPassword("Superadmin123!");
+  await db.insert(user).values({
+    ...SUPERADMIN_USER,
+    password: hashedPassword,
+  }).onConflictDoNothing(); // Avoid duplicate on re-seed
 
   // Insert Berita
   console.log("Seeding berita...");
