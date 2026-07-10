@@ -54,6 +54,38 @@
 
 ---
 
+## ⚠️ CRITICAL: Better Auth v1.6.23 Schema Requirements
+
+**Before implementing, read this carefully:**
+
+Better Auth v1.6.23 has specific schema requirements that differ from typical auth setups. **Using the wrong schema will cause "Credential account not found" errors during login.**
+
+### Key Schema Requirements for Better Auth v1.6.23:
+
+1. **Account table must have:**
+   - `accountId` (NOT `providerAccountId`) - stores email for credential auth
+   - `providerId` (NOT `provider`) - stores provider name ("credential" for email/password)
+   - `password` field - **password is stored in account table for credential auth**
+   - OAuth fields: `accessToken`, `refreshToken`, `idToken`, etc.
+
+2. **Session table must have:**
+   - `token` field (unique)
+   - `ipAddress` and `userAgent` fields
+   - Proper indexes on `userId`
+
+3. **Column naming:**
+   - Database columns use **snake_case**: `created_at`, `updated_at`, `email_verified`
+   - Drizzle schema uses **camelCase** with mapping to snake_case in database
+
+4. **Seed script must:**
+   - Create both `user` record AND `account` record for credential authentication
+   - Store password in `account` table (not just `user` table)
+
+5. **Auth config must:**
+   - Pass `schema` to `drizzleAdapter` for relations to work
+
+---
+
 ## Task 1: Add better-auth Tables to Schema
 
 **Files:**
@@ -63,58 +95,96 @@
 - Consumes: nothing
 - Produces: `user`, `session`, `account`, `verification` tables for better-auth
 
-- [ ] **Step 1: Add pgEnum for user role and better-auth tables**
+- [ ] **Step 1: Add imports for better-auth schema**
 
-Add to `lib/db/schema.ts` after the imports and before existing tables:
+Update imports at the top of `lib/db/schema.ts`:
 
 ```typescript
-import { pgEnum, serial, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgEnum, serial, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+```
 
+- [ ] **Step 2: Add pgEnum for user role**
+
+Add after imports:
+
+```typescript
 // User role enum
 export const userRoleEnum = pgEnum("user_role", ["superadmin", "admin"]);
+```
 
-// Better-auth tables
+- [ ] **Step 3: Add better-auth tables (CORRECTED for v1.6.23)**
+
+Add to `lib/db/schema.ts` after the enum and before existing tables:
+
+```typescript
+// Better-auth tables (v1.6.23 compatible schema)
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
-  password: text("password").notNull(),
+  password: text("password"), // Optional - password mainly in account table for credential auth
   name: text("name"),
   image: text("image"),
   role: userRoleEnum("role").default("admin").notNull(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expiresAt").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
-});
+}, (table) => [
+  index("session_userId_idx").on(table.userId),
+]);
 
 export const account = pgTable("account", {
   id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(), // Email for credential auth
+  providerId: text("provider_id").notNull(), // "credential" for email/password
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  provider: text("provider").notNull(),
-  providerAccountId: text("providerAccountId").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
-});
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"), // Password stored here for credential auth
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [
+  index("account_userId_idx").on(table.userId),
+]);
 
 export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
-  token: text("token").notNull(),
-  expiresAt: timestamp("expiresAt").notNull(),
-});
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [
+  index("verification_identifier_idx").on(table.identifier),
+]);
 ```
+
+**⚠️ IMPORTANT:** Notice the differences from typical auth schemas:
+- `accountId` (not `providerAccountId`)
+- `providerId` (not `provider`)
+- `password` in account table
+- `value` in verification table (not just `token`)
+- All timestamps use snake_case
+- Proper indexes for performance
 
 Add relations after all table definitions:
 
@@ -174,7 +244,7 @@ git commit -m "feat: add better-auth tables to schema"
 - Consumes: `user`, `session`, `account`, `verification` tables from schema
 - Produces: `auth` server instance, `authClient` for client, `AuthProvider` component
 
-- [ ] **Step 1: Create server-side auth config**
+- [ ] **Step 1: Create server-side auth config (CRITICAL: pass schema)**
 
 Create `lib/auth.ts`:
 
@@ -182,10 +252,12 @@ Create `lib/auth.ts`:
 import { betterAuth } from "better-auth";
 import { db } from "./db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import * as schema from "./db/schema";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
+    schema, // ⚠️ CRITICAL: Must pass schema for relations to work!
   }),
   emailAndPassword: {
     enabled: true,
@@ -301,23 +373,27 @@ git commit -m "feat: add better-auth API handler"
 
 ---
 
-## Task 4: Add Superadmin Seed
+## Task 4: Add Superadmin Seed (CRITICAL: Create Account Record)
 
 **Files:**
 - Modify: `lib/db/seed.ts`
 
 **Interfaces:**
-- Consumes: `user` table, bcryptjs
-- Produces: Seeded superadmin user
+- Consumes: `user`, `account` tables, bcryptjs
+- Produces: Seeded superadmin user WITH credential account record
 
-- [ ] **Step 1: Add bcrypt hash function and superadmin seed**
+**⚠️ CRITICAL:** Better Auth v1.6.23 requires BOTH a `user` record AND an `account` record for email/password authentication. The password must be stored in the `account` table, not just the `user` table.
 
-Add to `lib/db/seed.ts` after imports:
+- [ ] **Step 1: Add imports**
+
+Add to `lib/db/seed.ts` after existing imports:
 
 ```typescript
 import bcrypt from "bcryptjs";
-import { user } from "./schema";
+import { user, account } from "./schema";
 ```
+
+- [ ] **Step 2: Add constants and helper function**
 
 Add before the `main()` function:
 
@@ -327,7 +403,6 @@ const SUPERADMIN_USER = {
   email: "superadmin@masjidalkahfi.test",
   name: "Superadmin DKM",
   role: "superadmin" as const,
-  emailVerified: new Date(),
 };
 
 async function hashPassword(password: string): Promise<string> {
@@ -335,36 +410,83 @@ async function hashPassword(password: string): Promise<string> {
 }
 ```
 
+- [ ] **Step 3: Add seeding logic inside main()**
+
 Add inside `main()` after cleaning tables and before inserting other data:
 
 ```typescript
 // Seed superadmin user
 console.log("Seeding superadmin user...");
 const hashedPassword = await hashPassword("Superadmin123!");
+
+// Create user record (without password - password goes in account table)
 await db.insert(user).values({
-  ...SUPERADMIN_USER,
-  password: hashedPassword,
+  id: SUPERADMIN_USER.id,
+  email: SUPERADMIN_USER.email,
+  name: SUPERADMIN_USER.name,
+  role: SUPERADMIN_USER.role,
+  emailVerified: true, // Set as boolean
+}).onConflictDoNothing(); // Avoid duplicate on re-seed
+
+// ⚠️ CRITICAL: Create credential account record
+// For Better Auth v1.6+, password is stored in account table for credential auth
+console.log("Seeding credential account for superadmin...");
+await db.insert(account).values({
+  id: `${SUPERADMIN_USER.id}-credential`,
+  accountId: SUPERADMIN_USER.email, // Account ID = email for credential auth
+  providerId: "credential", // Provider ID for email/password auth
+  userId: SUPERADMIN_USER.id,
+  password: hashedPassword, // Password stored in account table!
 }).onConflictDoNothing(); // Avoid duplicate on re-seed
 ```
 
-Add `user` to the imports at the top (already added above), and add to the clean section:
+**⚠️ IMPORTANT NOTES:**
+1. User record uses `emailVerified: true` as a **boolean** (not a Date)
+2. Password is stored in the **`account`** table, not the `user` table
+3. `accountId` = email (for credential authentication)
+4. `providerId` = "credential" (for email/password auth)
+
+Add to the cleanup section (before inserting data):
 
 ```typescript
 // In the clean tables section, add:
+await db.delete(account); // Clean account before user (foreign key constraint)
 await db.delete(user);
 ```
 
-- [ ] **Step 2: Run seed to verify**
+- [ ] **Step 4: Run seed to verify**
 
 Run: `DATABASE_URL='postgresql://postgres:12345678@localhost:5433/alkahfi_db' npm run db:seed`
 
-Expected: "Seeding superadmin user..." followed by "Database seeded successfully!"
+Expected output:
+```
+Seeding superadmin user...
+Seeding credential account for superadmin...
+Database seeded successfully!
+```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 5: Verify records in database**
+
+Run these SQL commands to verify:
+
+```sql
+-- Check user record
+SELECT id, email, name, role, email_verified FROM "user" WHERE id = 'superadmin-001';
+
+-- Check account record (CRITICAL - must exist!)
+SELECT id, account_id, provider_id, user_id, LENGTH(password) as pwd_length 
+FROM account WHERE user_id = 'superadmin-001';
+```
+
+Expected results:
+- User record with `email_verified = true`
+- Account record with `account_id = email`, `provider_id = credential`, and `password` length = 60 (bcrypt)
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add lib/db/seed.ts
-git commit -m "feat: add superadmin seed to database"
+git commit -m "feat: add superadmin seed with credential account"
 ```
 
 ---
@@ -1746,6 +1868,281 @@ Expected: Build succeeds with no errors
 ```bash
 git add .
 git commit -m "fix: any issues found during verification"
+```
+
+---
+
+## ⚠️ Troubleshooting Common Better Auth Issues
+
+This section documents common issues encountered during Better Auth v1.6.23 implementation and their solutions.
+
+### Issue: "Credential account not found"
+
+**Symptoms:**
+```
+[Better Auth]: Credential account not found
+POST /api/auth/sign-in/email 401
+```
+
+**Root Cause:** Better Auth cannot find the credential account record for the user.
+
+**Solution Steps:**
+
+1. **Check if account record exists:**
+```sql
+SELECT * FROM account WHERE user_id = 'superadmin-001';
+```
+
+2. **Verify account table schema:**
+```sql
+\d account
+```
+
+Expected columns:
+- `account_id` (NOT `providerAccountId`)
+- `provider_id` (NOT `provider`)
+- `password` (this is where the password is stored!)
+
+3. **Check seed script:**
+- Does seed create BOTH user AND account records?
+- Is password stored in `account` table?
+- Are you using correct field names (`accountId`, `providerId`)?
+
+**Common mistakes:**
+- Using `provider` instead of `providerId`
+- Using `providerAccountId` instead of `accountId`
+- Not creating an `account` record for credential auth
+- Storing password only in `user` table
+
+**Correct seed pattern:**
+```typescript
+// User record (minimal data)
+await db.insert(user).values({
+  id: userId,
+  email: email,
+  name: name,
+  role: role,
+  emailVerified: true,
+});
+
+// Account record (with password!)
+await db.insert(account).values({
+  id: `${userId}-credential`,
+  accountId: email,        // Email for credential auth
+  providerId: "credential", // Provider ID
+  userId: userId,
+  password: hashedPassword, // Password here!
+});
+```
+
+---
+
+### Issue: "relation X does not exist"
+
+**Symptoms:**
+```
+ERROR [Better Auth]: Failed query: select ... from "account" ...
+PostgresError: relation "account" does not exist
+```
+
+**Root Cause:** Better Auth tables don't exist in database.
+
+**Solution:**
+
+1. **Check schema definition in code:**
+- Are tables exported from `lib/db/schema.ts`?
+- Are relations defined?
+
+2. **Run database migration:**
+```bash
+npm run db:push
+```
+
+3. **Verify tables exist:**
+```sql
+SELECT tablename FROM pg_tables WHERE schemaname = 'public' 
+AND tablename IN ('user', 'session', 'account', 'verification');
+```
+
+---
+
+### Issue: Column "X" does not exist
+
+**Symptoms:**
+```
+PostgresError: column "email_verified" of relation "user" does not exist
+```
+
+**Root Cause:** Schema mismatch between code and database.
+
+**Solution:**
+
+1. **Check database column name:**
+```sql
+\d user
+```
+
+2. **Check schema definition:**
+- Drizzle uses camelCase in code (`emailVerified`)
+- Database should use snake_case (`email_verified`)
+
+3. **Update database columns:**
+```sql
+ALTER TABLE "user" ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "user" DROP COLUMN IF EXISTS "emailVerified";
+```
+
+---
+
+### Issue: Schema not passed to adapter
+
+**Symptoms:**
+- Relations not working
+- Better Auth can't find related data
+
+**Root Cause:** Schema not passed to `drizzleAdapter`.
+
+**Solution:**
+
+Update `lib/auth.ts`:
+```typescript
+import * as schema from "./db/schema";
+
+export const auth = betterAuth({
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema, // ✅ MUST pass schema!
+  }),
+```
+
+---
+
+### Issue: Wrong column names in account table
+
+**Symptoms:**
+- Better Auth queries fail
+- Can't find credential accounts
+
+**Root Cause:** Using old field names instead of Better Auth v1.6.23 field names.
+
+**Field Name Migration:**
+
+| Old (Wrong) | New (Correct) |
+|-------------|---------------|
+| `provider` | `providerId` |
+| `providerAccountId` | `accountId` |
+
+**SQL migration:**
+```sql
+ALTER TABLE account RENAME COLUMN provider TO provider_id_old;
+ALTER TABLE account ADD COLUMN provider_id TEXT NOT NULL DEFAULT 'credential';
+UPDATE account SET provider_id = provider_id_old;
+ALTER TABLE account ALTER COLUMN provider_id DROP DEFAULT;
+ALTER TABLE account DROP COLUMN provider_id_old;
+
+ALTER TABLE account RENAME COLUMN "providerAccountId" TO account_id_old;
+ALTER TABLE account ADD COLUMN account_id TEXT NOT NULL;
+UPDATE account SET account_id = account_id_old;
+ALTER TABLE account DROP COLUMN account_id_old;
+
+ALTER TABLE account ADD COLUMN password TEXT;
+-- Update password field from user table if needed
+```
+
+---
+
+### Issue: Session/Verification table missing fields
+
+**Symptoms:**
+```
+column "token" of relation "session" does not exist
+```
+
+**Root Cause:** Incomplete table schema.
+
+**Solution:**
+
+Drop and recreate with correct schema:
+```sql
+DROP TABLE IF EXISTS session CASCADE;
+
+CREATE TABLE session (
+  id TEXT PRIMARY KEY,
+  expires_at TIMESTAMP NOT NULL,
+  token TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  ip_address TEXT,
+  user_agent TEXT,
+  user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
+);
+
+CREATE INDEX session_userId_idx ON session(user_id);
+```
+
+---
+
+### Quick Verification Checklist
+
+If login is failing, check each of these:
+
+```sql
+-- 1. User record exists?
+SELECT id, email, email_verified FROM "user" WHERE email = 'superadmin@masjidalkahfi.test';
+
+-- 2. Account record exists with password?
+SELECT id, account_id, provider_id, LENGTH(password) > 0 as has_pwd 
+FROM account WHERE user_id = 'superadmin-001';
+
+-- 3. Correct column names?
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_name = 'account' 
+ORDER BY ordinal_position;
+
+-- 4. Schema passed to adapter?
+-- Check lib/auth.ts contains: schema, in drizzleAdapter call
+
+-- 5. Relations defined?
+-- Check lib/db/schema.ts has relations for user, session, account
+```
+
+---
+
+### Better Auth Schema Reference (v1.6.23)
+
+**Minimal working schema for email/password auth:**
+
+```typescript
+// User table (minimal)
+export const user = pgTable("user", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  password: text("password"), // Optional
+  name: text("name"),
+  emailVerified: boolean("email_verified").default(false),
+  role: userRoleEnum("role").default("admin"),
+  // ... timestamps
+});
+
+// Account table (CRITICAL)
+export const account = pgTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),  // Email
+  providerId: text("provider_id").notNull(), // "credential"
+  userId: text("user_id").references(() => user.id),
+  password: text("password"), // Password here!
+  // ... OAuth fields, timestamps
+});
+
+// Session table
+export const session = pgTable("session", {
+  id: text("id").primaryKey(),
+  token: text("token").notNull().unique(), // Required
+  expiresAt: timestamp("expires_at").notNull(),
+  userId: text("user_id").references(() => user.id),
+  // ... other fields, indexes
+});
 ```
 
 ---
