@@ -20,7 +20,7 @@ import {
 
 interface User {
   name?: string | null;
-  role?: string;
+  role?: string | null;
 }
 
 interface SidebarProps {

@@ -9,6 +9,7 @@ import {
   profilMasjid,
   fasilitas,
   user,
+  account,
 } from "./schema";
 import bcrypt from "bcryptjs";
 
@@ -222,6 +223,7 @@ async function main() {
   await db.delete(fasilitas);
   await db.delete(kontak);
   await db.delete(donasi);
+  await db.delete(account); // Clean account before user (foreign key constraint)
   await db.delete(user);
 
   // Seed superadmin user
@@ -229,7 +231,18 @@ async function main() {
   const hashedPassword = await hashPassword("Superadmin123!");
   await db.insert(user).values({
     ...SUPERADMIN_USER,
-    password: hashedPassword,
+    emailVerified: true, // Set as boolean
+  }).onConflictDoNothing(); // Avoid duplicate on re-seed
+
+  // Seed credential account for superadmin
+  // For Better Auth v1.6+, password is stored in account table for credential auth
+  console.log("Seeding credential account for superadmin...");
+  await db.insert(account).values({
+    id: `${SUPERADMIN_USER.id}-credential`,
+    accountId: SUPERADMIN_USER.email, // Account ID = email for credential auth
+    providerId: "credential", // Provider ID for email/password auth
+    userId: SUPERADMIN_USER.id,
+    password: hashedPassword, // Password stored in account table
   }).onConflictDoNothing(); // Avoid duplicate on re-seed
 
   // Insert Berita

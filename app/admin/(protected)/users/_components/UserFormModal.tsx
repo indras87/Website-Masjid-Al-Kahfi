@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { X, Mail, Lock, User, Shield } from "lucide-react";
 
-interface User {
+export interface User {
   id: string;
   email: string;
-  name: string;
+  name: string | null;
   role: "superadmin" | "admin";
-  createdAt: string;
+  createdAt: Date | string;
 }
 
 interface UserFormModalProps {
@@ -43,7 +43,7 @@ export default function UserFormModal({
   useEffect(() => {
     if (user) {
       setEmail(user.email);
-      setName(user.name);
+      setName(user.name || "");
       setRole(user.role);
       setPassword("");
     } else {

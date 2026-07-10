@@ -1,16 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Pencil, Trash2, Plus, Shield, User } from "lucide-react";
-import UserFormModal, { UserData } from "./UserFormModal";
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: "superadmin" | "admin";
-  createdAt: string;
-}
+import { Pencil, Trash2, Plus, Shield, User as UserIcon } from "lucide-react";
+import UserFormModal, { UserData, type User } from "./UserFormModal";
 
 interface UserClientPageProps {
   initialUsers: User[];
@@ -205,7 +197,7 @@ export default function UserClientPage({ initialUsers, currentUserId }: UserClie
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
                     <div className="flex flex-col items-center gap-2">
-                      <User size={32} className="text-gray-300" />
+                      <UserIcon size={32} className="text-gray-300" />
                       <span>Belum ada pengguna</span>
                     </div>
                   </td>

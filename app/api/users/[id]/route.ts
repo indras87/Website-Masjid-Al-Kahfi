@@ -131,9 +131,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Cannot delete your own account" }, { status: 400 });
     }
 
-    const deleted = await db.delete(user).where(eq(user.id, id)).returning({ id: true });
+    const deleted = await db.delete(user).where(eq(user.id, id));
 
-    if (!deleted[0]) {
+    if (deleted.rowCount === 0) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
