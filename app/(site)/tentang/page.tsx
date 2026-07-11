@@ -14,31 +14,20 @@ import {
   Wifi,
 } from "lucide-react";
 
-const FALLBACK_PENGURUS = [
-  {
-    name: "H. Endang Wijaya, Lc.",
-    role: "Ketua Umum DKM",
-    period: "Periode 2024-2028",
-    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200&h=200",
-  },
-  {
-    name: "H. Ridwan Kamil, S.E.",
-    role: "Wakil Ketua",
-    period: "Periode 2024-2028",
-    img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200",
-  },
-  {
-    name: "Bpk. Ahmad Fauzi",
-    role: "Bendahara Ziswaf",
-    period: "Periode 2024-2028",
-    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200",
-  },
-  {
-    name: "Ust. Syahrul Ramadhan",
-    role: "Ketua Bidang Dakwah",
-    period: "Periode 2024-2028",
-    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200",
-  },
+type Pengurus = {
+  id: number;
+  nama: string;
+  foto: string;
+  tingkat: "pembina" | "penasehat" | "pimpinan" | "idarah" | "imarah" | "riayah";
+  subBidang: string | null;
+  jabatan: string | null;
+  urutan: number;
+  periode: string;
+};
+
+const FALLBACK_PENGURUS: Pengurus[] = [
+  { id: 1, nama: "Budi Ramdani", foto: "https://placehold.co/200x200/064e3b/fbbf24?text=BR", tingkat: "pimpinan", subBidang: null, jabatan: "Ketua", urutan: 1, periode: "2024-2028" },
+  { id: 2, nama: "Idham Faisal", foto: "https://placehold.co/200x200/064e3b/fbbf24?text=IF", tingkat: "pimpinan", subBidang: null, jabatan: "Wakil Ketua", urutan: 2, periode: "2024-2028" },
 ];
 
 const FALLBACK_VISI_MISI = {
@@ -88,8 +77,81 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Wifi,
 };
 
+function groupPengurus(list: Pengurus[]) {
+  const byTingkat = (t: Pengurus["tingkat"]) =>
+    list.filter((p) => p.tingkat === t).sort((a, b) => a.urutan - b.urutan);
+
+  const topSection = {
+    pembina: byTingkat("pembina"),
+    penasehat: byTingkat("penasehat"),
+    pimpinan: byTingkat("pimpinan"),
+  };
+
+  const buildBidang = (t: "idarah" | "imarah" | "riayah") => {
+    const items = byTingkat(t);
+    const koordinator = items.find((p) => p.jabatan === "Koordinator Bidang") || null;
+    const rest = items.filter((p) => p.jabatan !== "Koordinator Bidang");
+    const subMap = new Map<string, Pengurus[]>();
+    for (const p of rest) {
+      const key = p.subBidang || "";
+      if (!subMap.has(key)) subMap.set(key, []);
+      subMap.get(key)!.push(p);
+    }
+    const subGroups = Array.from(subMap.entries()).map(([subBidang, members]) => ({
+      subBidang,
+      members,
+    }));
+    return { koordinator, subGroups, members: rest };
+  };
+
+  return {
+    topSection,
+    idarah: buildBidang("idarah"),
+    imarah: buildBidang("imarah"),
+    riayah: buildBidang("riayah"),
+  };
+}
+
+function PengurusCard({ p, priority = false }: { p: Pengurus; priority?: boolean }) {
+  const [imgError, setImgError] = useState(false);
+  const initials = p.nama
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const label = p.jabatan || p.subBidang || "Anggota";
+
+  return (
+    <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-gold-100 hover:shadow-md transition">
+      <div className="w-20 h-20 relative mx-auto mb-3 rounded-full overflow-hidden border-2 border-gold-500 bg-gray-50">
+        {imgError ? (
+          <div className="w-full h-full flex items-center justify-center bg-emerald-900 text-gold-300 font-bold text-xl">
+            {initials}
+          </div>
+        ) : (
+          <Image
+            src={p.foto}
+            alt={p.nama}
+            fill
+            sizes="80px"
+            priority={priority}
+            className="object-cover"
+            referrerPolicy="no-referrer"
+            onError={() => setImgError(true)}
+          />
+        )}
+      </div>
+      <h4 className="font-bold text-emerald-950 text-sm leading-tight">{p.nama}</h4>
+      <p className="text-[10px] text-gold-600 font-semibold uppercase mt-1">{label}</p>
+    </div>
+  );
+}
+
 export default function TentangPage() {
-  const [pengurusData, setPengurusData] = useState<any[]>([]);
+  const [pengurusData, setPengurusData] = useState<Pengurus[]>([]);
+  const [activeBidang, setActiveBidang] = useState<"idarah" | "imarah" | "riayah">("imarah");
   const [visiMisi, setVisiMisi] = useState({ visi: "", misi: "" });
   const [fasilitasData, setFasilitasData] = useState<any[]>([]);
 
@@ -164,37 +226,133 @@ export default function TentangPage() {
           <h3 className="font-serif text-2xl md:text-3xl font-bold text-emerald-950 text-center">
             Pengurus DKM Al-Kahfi
           </h3>
-          <p className="text-center text-sm text-gray-500 -mt-6 mb-8">
+          <p className="text-center text-sm text-gray-500 -mt-6 mb-4">
             Masa Khidmat: 2024 - 2028
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pengurusData.map((item, index) => (
-              <div
-                key={item.id || index}
-                className="bg-white rounded-xl p-6 text-center shadow-sm border border-gold-100 hover:shadow-md transition"
-              >
-                <div className="w-20 h-20 relative mx-auto mb-4 rounded-full overflow-hidden border-2 border-gold-500 bg-gray-50">
-                  <Image
-                    src={item.img}
-                    alt={item.name}
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                    referrerPolicy="no-referrer"
-                  />
+
+          {(() => {
+            const g = groupPengurus(pengurusData);
+            return (
+              <div className="space-y-10">
+                {/* TOP SECTION: selalu tampil */}
+                {g.topSection.pembina.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-serif text-lg font-bold text-emerald-900 border-b border-gold-200 pb-2">
+                      Pembina
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {g.topSection.pembina.map((p) => (
+                        <PengurusCard key={`pembina-${p.id}`} p={p} priority />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {g.topSection.penasehat.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-serif text-lg font-bold text-emerald-900 border-b border-gold-200 pb-2">
+                      Penasehat
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {g.topSection.penasehat.map((p) => (
+                        <PengurusCard key={`penasehat-${p.id}`} p={p} priority />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {g.topSection.pimpinan.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-serif text-lg font-bold text-emerald-900 border-b border-gold-200 pb-2">
+                      Pimpinan Inti
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {g.topSection.pimpinan.map((p) => (
+                        <PengurusCard key={`pimpinan-${p.id}`} p={p} priority />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* TABS: Idarah / Imarah / Ri'ayah */}
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {(["idarah", "imarah", "riayah"] as const).map((t) => {
+                      const label =
+                        t === "idarah" ? "Bidang Idarah" : t === "imarah" ? "Bidang Imarah" : "Bidang Ri'ayah";
+                      return (
+                        <button
+                          key={t}
+                          onClick={() => setActiveBidang(t)}
+                          className={`px-5 py-2 rounded-full text-sm font-semibold transition ${
+                            activeBidang === t
+                              ? "bg-emerald-900 text-gold-300 shadow-md"
+                              : "bg-white text-emerald-900 border border-emerald-200 hover:bg-emerald-50"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="bg-emerald-50/50 rounded-2xl p-6 space-y-6">
+                    {(() => {
+                      const bidang = g[activeBidang];
+                      return (
+                        <>
+                          {bidang.koordinator && (
+                            <div className="flex justify-center">
+                              <div className="bg-white rounded-xl p-4 text-center shadow-md border-2 border-gold-400 w-full max-w-xs">
+                                <div className="w-16 h-16 relative mx-auto mb-3 rounded-full overflow-hidden border-2 border-gold-500 bg-gray-50">
+                                  <Image
+                                    src={bidang.koordinator.foto}
+                                    alt={bidang.koordinator.nama}
+                                    fill
+                                    sizes="64px"
+                                    className="object-cover"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                </div>
+                                <p className="text-[10px] text-gold-600 font-bold uppercase">Koordinator Bidang</p>
+                                <h4 className="font-bold text-emerald-950 text-sm">
+                                  {bidang.koordinator.nama}
+                                </h4>
+                              </div>
+                            </div>
+                          )}
+
+                          {activeBidang === "idarah" ? (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                              {bidang.members.map((p) => (
+                                <PengurusCard key={`idarah-${p.id}`} p={p} />
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="space-y-6">
+                              {bidang.subGroups.map((sg) => (
+                                <div key={`${activeBidang}-${sg.subBidang}`} className="space-y-3">
+                                  <h5 className="font-semibold text-emerald-800 text-sm flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+                                    {sg.subBidang}
+                                  </h5>
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {sg.members.map((p) => (
+                                      <PengurusCard key={`${activeBidang}-${p.id}`} p={p} />
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                 </div>
-                <h4 className="font-bold text-emerald-950 text-base">
-                  {item.name}
-                </h4>
-                <p className="text-xs text-gold-600 font-semibold uppercase mt-1">
-                  {item.role}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-2 bg-gray-50 px-2 py-1 rounded inline-block">
-                  {item.period}
-                </p>
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
