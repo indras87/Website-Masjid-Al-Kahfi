@@ -5,9 +5,6 @@ import {
   Plus, Pencil, Trash2, Save, Users, Eye, Target, Sparkles,
   User, Droplet, Ambulance, BookOpen, Car, Wifi, Clock, HeartPulse, Loader2
 } from 'lucide-react';
-import Image from 'next/image';
-import ImageUpload from '@/app/admin/components/ImageUpload';
-
 const ICON_OPTIONS = [
   { value: 'User', label: 'Sajadah / Jamaah (User)' },
   { value: 'Droplet', label: 'Wudhu / Air (Droplet)' },
@@ -29,10 +26,12 @@ export default function AdminTentang() {
   const [pengurusList, setPengurusList] = useState<any[]>([]);
   const [isPengurusModalOpen, setIsPengurusModalOpen] = useState(false);
   const [editPengurus, setEditPengurus] = useState<any>(null);
-  const [pName, setPName] = useState('');
-  const [pRole, setPRole] = useState('');
-  const [pPeriod, setPPeriod] = useState('Periode 2024-2028');
-  const [pImg, setPImg] = useState('');
+  const [pNama, setPNama] = useState('');
+  const [pTingkat, setPTingkat] = useState<'pembina' | 'penasehat' | 'pimpinan' | 'idarah' | 'imarah' | 'riayah'>('pembina');
+  const [pJabatan, setPJabatan] = useState('');
+  const [pSubBidang, setPSubBidang] = useState('');
+  const [pUrutan, setPUrutan] = useState(0);
+  const [pFoto, setPFoto] = useState('');
 
   const [submittingPengurus, setSubmittingPengurus] = useState(false);
   const [deletingPengurusId, setDeletingPengurusId] = useState<number | null>(null);
@@ -96,19 +95,23 @@ export default function AdminTentang() {
   // ==========================================
   const handleOpenAddPengurus = () => {
     setEditPengurus(null);
-    setPName('');
-    setPRole('');
-    setPPeriod('Periode 2024-2028');
-    setPImg('');
+    setPNama('');
+    setPTingkat('pembina');
+    setPJabatan('');
+    setPSubBidang('');
+    setPUrutan(0);
+    setPFoto('');
     setIsPengurusModalOpen(true);
   };
 
   const handleOpenEditPengurus = (item: any) => {
     setEditPengurus(item);
-    setPName(item.name);
-    setPRole(item.role);
-    setPPeriod(item.period);
-    setPImg(item.img);
+    setPNama(item.nama);
+    setPTingkat(item.tingkat);
+    setPJabatan(item.jabatan || '');
+    setPSubBidang(item.subBidang || '');
+    setPUrutan(item.urutan ?? 0);
+    setPFoto(item.foto);
     setIsPengurusModalOpen(true);
   };
 
@@ -134,46 +137,44 @@ export default function AdminTentang() {
 
   const handleSubmitPengurus = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pName || !pRole || !pImg) {
-      alert('Semua bidang (Nama, Jabatan, Foto) harus diisi!');
+    if (!pNama || !pFoto || !pTingkat) {
+      alert('Nama, foto, dan tingkat wajib diisi');
       return;
     }
+    setSubmittingPengurus(true);
 
-    const payload = { name: pName, role: pRole, period: pPeriod, img: pImg };
+    const payload = {
+      nama: pNama,
+      tingkat: pTingkat,
+      jabatan: pJabatan || null,
+      subBidang: pSubBidang || null,
+      urutan: pUrutan,
+      foto: pFoto,
+    };
 
     try {
-      setSubmittingPengurus(true);
       if (editPengurus) {
-        // Update
         const res = await fetch(`/api/pengurus/${editPengurus.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        if (res.ok) {
-          const updated = await res.json();
-          setPengurusList(pengurusList.map(item => item.id === editPengurus.id ? updated : item));
-          setIsPengurusModalOpen(false);
-        } else {
-          alert('Gagal memperbarui pengurus');
-        }
+        if (!res.ok) throw new Error('Gagal mengupdate pengurus');
+        const updated = await res.json();
+        setPengurusList(pengurusList.map((p) => (p.id === updated.id ? updated : p)));
       } else {
-        // Create
         const res = await fetch('/api/pengurus', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        if (res.ok) {
-          const created = await res.json();
-          setPengurusList([...pengurusList, created]);
-          setIsPengurusModalOpen(false);
-        } else {
-          alert('Gagal menambah pengurus');
-        }
+        if (!res.ok) throw new Error('Gagal menambah pengurus');
+        const created = await res.json();
+        setPengurusList([...pengurusList, created]);
       }
-    } catch (err) {
-      console.error(err);
+      setIsPengurusModalOpen(false);
+    } catch (err: any) {
+      alert(err.message || 'Terjadi kesalahan');
     } finally {
       setSubmittingPengurus(false);
     }
@@ -372,44 +373,76 @@ export default function AdminTentang() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="space-y-6">
                 {pengurusList.length > 0 ? (
-                  pengurusList.map(item => (
-                    <div key={item.id} className="bg-white rounded-xl p-5 text-center shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition relative group">
-                      <div>
-                        <div className="w-20 h-20 relative mx-auto mb-3 rounded-full overflow-hidden border-2 border-emerald-500 bg-gray-50">
-                          <Image src={item.img} alt={item.name} fill sizes="80px" className="object-cover" referrerPolicy="no-referrer" />
-                        </div>
-                        <h4 className="font-bold text-gray-800 text-sm leading-snug">{item.name}</h4>
-                        <p className="text-xs text-emerald-600 font-semibold uppercase mt-1">{item.role}</p>
-                        <p className="text-[10px] text-gray-400 mt-2 bg-gray-50 px-2.5 py-0.5 rounded-full inline-block">{item.period}</p>
+                  (() => {
+                    const TINGKAT_LABEL: Record<string, string> = {
+                      pembina: 'Pembina',
+                      penasehat: 'Penasehat',
+                      pimpinan: 'Pimpinan Inti',
+                      idarah: 'Bidang Idarah',
+                      imarah: 'Bidang Imarah',
+                      riayah: "Bidang Ri'ayah",
+                    };
+                    const order = ['pembina', 'penasehat', 'pimpinan', 'idarah', 'imarah', 'riayah'];
+                    return (
+                      <div className="space-y-6">
+                        {order.map((t) => {
+                          const items = pengurusList
+                            .filter((p) => p.tingkat === t)
+                            .sort((a, b) => a.urutan - b.urutan);
+                          if (items.length === 0) return null;
+                          return (
+                            <div key={t} className="space-y-2">
+                              <h4 className="font-bold text-emerald-900 text-sm">
+                                {TINGKAT_LABEL[t]} <span className="text-gray-400">({items.length})</span>
+                              </h4>
+                              <div className="border rounded-lg overflow-hidden">
+                                <table className="w-full text-sm">
+                                  <thead className="bg-gray-50 text-left">
+                                    <tr>
+                                      <th className="p-2">Nama</th>
+                                      <th className="p-2">Jabatan</th>
+                                      <th className="p-2">Sub-Bidang</th>
+                                      <th className="p-2">Urutan</th>
+                                      <th className="p-2 text-right">Aksi</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {items.map((item) => (
+                                      <tr key={item.id} className="border-t">
+                                        <td className="p-2">{item.nama}</td>
+                                        <td className="p-2 text-gray-600">{item.jabatan || '-'}</td>
+                                        <td className="p-2 text-gray-600">{item.subBidang || '-'}</td>
+                                        <td className="p-2 text-gray-600">{item.urutan}</td>
+                                        <td className="p-2 text-right space-x-2">
+                                          <button
+                                            onClick={() => handleOpenEditPengurus(item)}
+                                            className="text-emerald-700 hover:underline"
+                                          >
+                                            Edit
+                                          </button>
+                                          <button
+                                            onClick={() => handleDeletePengurus(item.id)}
+                                            disabled={deletingPengurusId === item.id}
+                                            className="text-red-600 hover:underline disabled:opacity-50"
+                                          >
+                                            Hapus
+                                          </button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-
-                       <div className="flex justify-center gap-2 mt-4 pt-3 border-t border-gray-50">
-                         <button
-                           onClick={() => handleOpenEditPengurus(item)}
-                           className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                           title="Edit"
-                         >
-                           <Pencil size={15} />
-                         </button>
-                         <button
-                           onClick={() => handleDeletePengurus(item.id)}
-                           disabled={deletingPengurusId === item.id}
-                           className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-60"
-                           title="Hapus"
-                         >
-                           {deletingPengurusId === item.id ? (
-                             <Loader2 size={15} className="animate-spin" />
-                           ) : (
-                             <Trash2 size={15} />
-                           )}
-                         </button>
-                       </div>
-                    </div>
-                  ))
+                    );
+                  })()
                 ) : (
-                  <div className="col-span-full py-20 text-center text-gray-400 bg-white rounded-2xl border border-gray-100">
+                  <div className="py-20 text-center text-gray-400 bg-white rounded-2xl border border-gray-100">
                     Belum ada data pengurus dimasukkan.
                   </div>
                 )}
@@ -426,48 +459,96 @@ export default function AdminTentang() {
 
                     <form onSubmit={handleSubmitPengurus} className="p-6 space-y-4 overflow-y-auto max-h-[75vh]">
                       <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Lengkap & Gelar</label>
+                        <label className="block text-sm font-semibold mb-1">Nama</label>
                         <input
-                          type="text" required placeholder="Contoh: H. Endang Wijaya, Lc." value={pName}
-                          onChange={(e) => setPName(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Jabatan Kepengurusan</label>
-                        <input
-                          type="text" required placeholder="Contoh: Wakil Ketua" value={pRole}
-                          onChange={(e) => setPRole(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Masa Jabatan / Periode</label>
-                        <input
-                          type="text" required value={pPeriod}
-                          onChange={(e) => setPPeriod(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
+                          type="text"
+                          value={pNama}
+                          onChange={(e) => setPNama(e.target.value)}
+                          className="w-full border rounded-lg p-2"
+                          required
                         />
                       </div>
 
-                      <ImageUpload value={pImg} onChange={setPImg} label="Foto Profil Pengurus (Maksimal 2MB)" />
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">Tingkat</label>
+                        <select
+                          value={pTingkat}
+                          onChange={(e) => setPTingkat(e.target.value as any)}
+                          className="w-full border rounded-lg p-2"
+                        >
+                          <option value="pembina">Pembina</option>
+                          <option value="penasehat">Penasehat</option>
+                          <option value="pimpinan">Pimpinan Inti</option>
+                          <option value="idarah">Bidang Idarah</option>
+                          <option value="imarah">Bidang Imarah</option>
+                          <option value="riayah">Bidang Ri'ayah</option>
+                        </select>
+                      </div>
 
-                      <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">
+                          Jabatan <span className="text-gray-400 font-normal">(opsional, mis. Ketua / Sekretaris / Koordinator Bidang)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={pJabatan}
+                          onChange={(e) => setPJabatan(e.target.value)}
+                          className="w-full border rounded-lg p-2"
+                          placeholder="Kosongkan jika anggota biasa"
+                        />
+                      </div>
+
+                      {(pTingkat === 'imarah' || pTingkat === 'riayah') && (
+                        <div>
+                          <label className="block text-sm font-semibold mb-1">
+                            Sub-Bidang <span className="text-gray-400 font-normal">(opsional, mis. Syiar Islam / PHBI)</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={pSubBidang}
+                            onChange={(e) => setPSubBidang(e.target.value)}
+                            className="w-full border rounded-lg p-2"
+                            placeholder="Kosongkan jika koordinator/anggota langsung"
+                          />
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">Urutan</label>
+                        <input
+                          type="number"
+                          value={pUrutan}
+                          onChange={(e) => setPUrutan(parseInt(e.target.value) || 0)}
+                          className="w-full border rounded-lg p-2"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold mb-1">URL Foto</label>
+                        <input
+                          type="text"
+                          value={pFoto}
+                          onChange={(e) => setPFoto(e.target.value)}
+                          className="w-full border rounded-lg p-2"
+                          required
+                          placeholder="https://..."
+                        />
+                      </div>
+
+                      <div className="flex gap-2 pt-2">
                         <button
-                          type="button" onClick={() => setIsPengurusModalOpen(false)}
-                          className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+                          type="button"
+                          onClick={() => setIsPengurusModalOpen(false)}
+                          className="flex-1 border rounded-lg p-2"
                         >
                           Batal
                         </button>
-                        <button type="submit" disabled={submittingPengurus} className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 transition disabled:opacity-60 flex items-center gap-2">
-                          {submittingPengurus ? (
-                            <>
-                              <Loader2 size={16} className="animate-spin" />
-                              Menyimpan...
-                            </>
-                          ) : (
-                            'Simpan'
-                          )}
+                        <button
+                          type="submit"
+                          disabled={submittingPengurus}
+                          className="flex-1 bg-emerald-900 text-white rounded-lg p-2 disabled:opacity-50"
+                        >
+                          {submittingPengurus ? 'Menyimpan...' : 'Simpan'}
                         </button>
                       </div>
                     </form>
