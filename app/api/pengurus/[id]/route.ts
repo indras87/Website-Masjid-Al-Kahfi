@@ -3,18 +3,31 @@ import { db } from '@/lib/db';
 import { pengurus } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
+const VALID_TINGKAT = ['pembina', 'penasehat', 'pimpinan', 'idarah', 'imarah', 'riayah'] as const;
+
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, role, period, img } = body;
+    const { nama, foto, tingkat, jabatan, subBidang, urutan } = body;
 
-    if (!name || !role || !period || !img) {
-      return NextResponse.json({ error: 'Nama, jabatan, periode, dan foto wajib diisi' }, { status: 400 });
+    if (!nama || !foto || !tingkat) {
+      return NextResponse.json({ error: 'Nama, foto, dan tingkat wajib diisi' }, { status: 400 });
+    }
+
+    if (!VALID_TINGKAT.includes(tingkat)) {
+      return NextResponse.json({ error: 'Tingkat tidak valid' }, { status: 400 });
     }
 
     const result = await db.update(pengurus)
-      .set({ name, role, period, img })
+      .set({
+        nama,
+        foto,
+        tingkat,
+        jabatan: jabatan || null,
+        subBidang: subBidang || null,
+        urutan: typeof urutan === 'number' ? urutan : 0,
+      })
       .where(eq(pengurus.id, parseInt(id)))
       .returning();
 
