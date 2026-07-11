@@ -91,19 +91,15 @@ export async function PUT(
       .update(user)
       .set(updateData)
       .where(eq(user.id, id))
-      .returning({
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        updatedAt: true,
-      });
+      .returning();
 
     if (!updated[0]) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updated[0]);
+    // Return only the fields we want to expose
+    const { id, email, name, role, updatedAt } = updated[0];
+    return NextResponse.json({ id, email, name, role, updatedAt });
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
