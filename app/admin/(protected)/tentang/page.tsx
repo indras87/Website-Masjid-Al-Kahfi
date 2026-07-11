@@ -5,6 +5,7 @@ import {
   Plus, Pencil, Trash2, Save, Users, Eye, Target, Sparkles,
   User, Droplet, Ambulance, BookOpen, Car, Wifi, Clock, HeartPulse, Loader2
 } from 'lucide-react';
+import ImageUpload from "@/app/admin/components/ImageUpload";
 const ICON_OPTIONS = [
   { value: 'User', label: 'Sajadah / Jamaah (User)' },
   { value: 'Droplet', label: 'Wudhu / Air (Droplet)' },
@@ -523,17 +524,7 @@ export default function AdminTentang() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold mb-1">URL Foto</label>
-                        <input
-                          type="text"
-                          value={pFoto}
-                          onChange={(e) => setPFoto(e.target.value)}
-                          className="w-full border rounded-lg p-2"
-                          required
-                          placeholder="https://..."
-                        />
-                      </div>
+                      <ImageUpload value={pFoto} onChange={setPFoto} label="Foto" />
 
                       <div className="flex gap-2 pt-2">
                         <button
