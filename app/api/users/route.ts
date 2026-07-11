@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    const newUser = await db
+    const inserted = await db
       .insert(user)
       .values({
         id: userId,
@@ -79,15 +79,16 @@ export async function POST(request: NextRequest) {
         name,
         role,
       })
-      .returning({
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-      });
+      .returning();
 
-    return NextResponse.json(newUser[0], { status: 201 });
+    const newUser = inserted[0];
+    return NextResponse.json({
+      id: newUser.id,
+      email: newUser.email,
+      name: newUser.name,
+      role: newUser.role,
+      createdAt: newUser.createdAt,
+    }, { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
