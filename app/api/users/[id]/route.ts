@@ -98,8 +98,14 @@ export async function PUT(
     }
 
     // Return only the fields we want to expose
-    const { id, email, name, role, updatedAt } = updated[0];
-    return NextResponse.json({ id, email, name, role, updatedAt });
+    const userData = updated[0];
+    return NextResponse.json({
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      role: userData.role,
+      updatedAt: userData.updatedAt,
+    });
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
