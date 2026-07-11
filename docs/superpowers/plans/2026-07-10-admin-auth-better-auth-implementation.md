@@ -60,6 +60,58 @@
 
 Better Auth v1.6.23 has specific schema requirements that differ from typical auth setups. **Using the wrong schema will cause "Credential account not found" errors during login.**
 
+### 🔴 CRITICAL: Password Hashing Configuration
+
+**Issue:** Better Auth default uses `scrypt` for password hashing, but the seed script uses `bcryptjs`. These are **incompatible** - login will fail with "Invalid credentials" even with correct email/password.
+
+**Solution:** You MUST configure Better Auth to use `bcrypt` to match the seed script:
+
+```typescript
+// lib/auth.ts - CRITICAL CONFIGURATION
+import bcrypt from "bcryptjs";
+
+export const auth = betterAuth({
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema,
+  }),
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: true,
+    // ⚠️ MUST configure bcrypt to match seed script hashes
+    password: {
+      hash: async (password) => {
+        return await bcrypt.hash(password, 10);
+      },
+      verify: async ({ hash, password }) => {
+        return await bcrypt.compare(password, hash);
+      },
+    },
+  },
+  // ... rest of config
+});
+```
+
+**Why this matters:**
+- Seed script creates bcrypt hashes: `bcrypt.hash(password, 10)`
+- Better Auth default expects scrypt hashes
+- Without this config, login verification fails
+
+**Verification:** Test login after implementing:
+```bash
+curl -X POST http://localhost:3000/api/auth/sign-in/email \
+  -H "Content-Type: application/json" \
+  -d '{"email":"superadmin@masjidalkahfi.test","password":"Superadmin123!"}'
+```
+
+Expected: Returns session token + user data (NOT "Invalid credentials")
+
+---
+
+**Before implementing, read this carefully:**
+
+Better Auth v1.6.23 has specific schema requirements that differ from typical auth setups. **Using the wrong schema will cause "Credential account not found" errors during login.**
+
 ### Key Schema Requirements for Better Auth v1.6.23:
 
 1. **Account table must have:**

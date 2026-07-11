@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { db } from "./db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as schema from "./db/schema";
+import bcrypt from "bcryptjs";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -11,6 +12,16 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
+    // Configure bcrypt for password hashing and verification
+    // to match the hashes created in the seed script
+    password: {
+      hash: async (password) => {
+        return await bcrypt.hash(password, 10);
+      },
+      verify: async ({ hash, password }) => {
+        return await bcrypt.compare(password, hash);
+      },
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
