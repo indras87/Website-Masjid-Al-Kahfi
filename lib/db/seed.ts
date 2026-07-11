@@ -13,31 +13,104 @@ import {
 } from "./schema";
 import bcrypt from "bcryptjs";
 
-const DEFAULT_PENGURUS = [
-  {
-    name: "H. Endang Wijaya, Lc.",
-    role: "Ketua Umum DKM",
-    period: "Periode 2024-2028",
-    img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200&h=200",
-  },
-  {
-    name: "H. Ridwan Kamil, S.E.",
-    role: "Wakil Ketua",
-    period: "Periode 2024-2028",
-    img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200",
-  },
-  {
-    name: "Bpk. Ahmad Fauzi",
-    role: "Bendahara Ziswaf",
-    period: "Periode 2024-2028",
-    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200",
-  },
-  {
-    name: "Ust. Syahrul Ramadhan",
-    role: "Ketua Bidang Dakwah",
-    period: "Periode 2024-2028",
-    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200",
-  },
+// Helper: generate placeholder avatar URL dari inisial nama
+const avatar = (nama: string): string => {
+  const initials = nama
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+  return `https://placehold.co/200x200/064e3b/fbbf24?text=${encodeURIComponent(initials)}`;
+};
+
+// Struktur pengurus DKM Al-Kahfi periode 2024-2028
+// Field: nama, tingkat, jabatan?, subBidang?, urutan
+const DEFAULT_PENGURUS: Array<{
+  nama: string;
+  tingkat: "pembina" | "penasehat" | "pimpinan" | "idarah" | "imarah" | "riayah";
+  jabatan?: string;
+  subBidang?: string;
+  urutan: number;
+}> = [
+  // I. PEMBINA
+  { nama: "Brio Pradiko Pero", tingkat: "pembina", urutan: 1 },
+  { nama: "Kurnia Aji", tingkat: "pembina", urutan: 2 },
+  // II. PENASEHAT
+  { nama: "Cecep Hidayat", tingkat: "penasehat", urutan: 1 },
+  { nama: "Tresna Acip", tingkat: "penasehat", urutan: 2 },
+  { nama: "Ujang Saepudin", tingkat: "penasehat", urutan: 3 },
+  // III. PIMPINAN INTI
+  { nama: "Budi Ramdani", tingkat: "pimpinan", jabatan: "Ketua", urutan: 1 },
+  { nama: "Idham Faisal", tingkat: "pimpinan", jabatan: "Wakil Ketua", urutan: 2 },
+  // IV. BIDANG IDARAH
+  { nama: "Theo Ras Komara", tingkat: "idarah", jabatan: "Sekretaris", urutan: 1 },
+  { nama: "Ruhiyat", tingkat: "idarah", jabatan: "Bendahara", urutan: 2 },
+  { nama: "Khairul T S", tingkat: "idarah", jabatan: "Humas Eksternal", urutan: 3 },
+  { nama: "Fauzy Al Adam", tingkat: "idarah", jabatan: "Humas Internal", urutan: 4 },
+  { nama: "Ian Agung Prakoso", tingkat: "idarah", jabatan: "Humas Internal", urutan: 5 },
+  { nama: "Angga Dwi Kusumah", tingkat: "idarah", jabatan: "AMC (Al-Kahfi Media Center)", urutan: 6 },
+  { nama: "Rifan Sopian", tingkat: "idarah", jabatan: "AMC (Al-Kahfi Media Center)", urutan: 7 },
+  { nama: "Indra Gunawan W", tingkat: "idarah", jabatan: "SIMA (Sistem Informasi Masjid Al-Kahfi)", urutan: 8 },
+  { nama: "Agung Yuliaji", tingkat: "idarah", jabatan: "SIMA (Sistem Informasi Masjid Al-Kahfi)", urutan: 9 },
+  // V. BIDANG IMARAH
+  { nama: "Irfanudin Ma'sum", tingkat: "imarah", jabatan: "Koordinator Bidang", urutan: 1 },
+  { nama: "Dawam", tingkat: "imarah", subBidang: "Syiar Islam", urutan: 2 },
+  { nama: "Irfanudin Ma'sum", tingkat: "imarah", subBidang: "Syiar Islam", urutan: 3 },
+  { nama: "Abdul Malik Khusaeri", tingkat: "imarah", subBidang: "Syiar Islam", urutan: 4 },
+  { nama: "Fauzy Al Adam", tingkat: "imarah", subBidang: "PHBI", urutan: 5 },
+  { nama: "Abdul Malik Khusaeri", tingkat: "imarah", subBidang: "PHBI", urutan: 6 },
+  { nama: "Jagad Sidhayoda", tingkat: "imarah", subBidang: "PHBI", urutan: 7 },
+  { nama: "Sahdam Amir", tingkat: "imarah", subBidang: "PHBI", urutan: 8 },
+  { nama: "Caca Sukma", tingkat: "imarah", subBidang: "Pendidikan & TPQ", urutan: 9 },
+  { nama: "Raditiana Fatmasari", tingkat: "imarah", subBidang: "Pendidikan & TPQ", urutan: 10 },
+  { nama: "Irfanudin Ma'sum", tingkat: "imarah", subBidang: "Pendidikan & TPQ", urutan: 11 },
+  { nama: "Sri Nuryani Erwinsyah", tingkat: "imarah", subBidang: "Pendidikan & TPQ", urutan: 12 },
+  { nama: "Yunnie Cindo Raina Shari", tingkat: "imarah", subBidang: "Pendidikan & TPQ", urutan: 13 },
+  { nama: "Abdul Aziz", tingkat: "imarah", subBidang: "ZISWAF", urutan: 14 },
+  { nama: "Denny Jatnika", tingkat: "imarah", subBidang: "ZISWAF", urutan: 15 },
+  { nama: "Syahroni Noorman P", tingkat: "imarah", subBidang: "ZISWAF", urutan: 16 },
+  { nama: "Agus Sobirin", tingkat: "imarah", subBidang: "Cinta Qurban", urutan: 17 },
+  { nama: "Moch Rosin", tingkat: "imarah", subBidang: "Cinta Qurban", urutan: 18 },
+  { nama: "Sigit Jaelani", tingkat: "imarah", subBidang: "Cinta Qurban", urutan: 19 },
+  { nama: "Alief Muhammad", tingkat: "imarah", subBidang: "Cinta Qurban", urutan: 20 },
+  { nama: "Akhmad Syarif", tingkat: "imarah", subBidang: "Al-Kahfi Care", urutan: 21 },
+  { nama: "Dian Zaini Arief", tingkat: "imarah", subBidang: "Al-Kahfi Care", urutan: 22 },
+  { nama: "Tresna", tingkat: "imarah", subBidang: "Al-Kahfi Care", urutan: 23 },
+  { nama: "Sigit Jaelani", tingkat: "imarah", subBidang: "Al-Kahfi Care", urutan: 24 },
+  { nama: "Ruhiyat", tingkat: "imarah", subBidang: "Al-Kahfi Care", urutan: 25 },
+  { nama: "Muhammad Iqbal", tingkat: "imarah", subBidang: "Remaja Masjid", urutan: 26 },
+  { nama: "Rahma Sari Ridwan", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 27 },
+  { nama: "Putri Oviolanda Irianto", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 28 },
+  { nama: "Sri Nuryani Erwinsyah", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 29 },
+  { nama: "Maryana Saumi Ulfah", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 30 },
+  { nama: "Yunnie Cindo Raina Shari", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 31 },
+  { nama: "Astrylia Rosiana Wulansary", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 32 },
+  { nama: "Raditiana Fatmasari", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 33 },
+  { nama: "Rina Kartini", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 34 },
+  { nama: "Vita Indriani", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 35 },
+  { nama: "Fitriani", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 36 },
+  { nama: "Santi Nopita", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 37 },
+  { nama: "Neng Siti Nurmala", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 38 },
+  { nama: "Eva Nur'avyani", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 39 },
+  { nama: "Siska Rachman", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 40 },
+  { nama: "Lia Martiyanti", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 41 },
+  { nama: "Vena Monica", tingkat: "imarah", subBidang: "Majelis Taklim Al-Kahfi", urutan: 42 },
+  { nama: "Fahmi Gerald", tingkat: "imarah", subBidang: "BUMM (Bidang Usaha Milik Masjid)", urutan: 43 },
+  { nama: "Sigit Jaelani", tingkat: "imarah", subBidang: "BUMM (Bidang Usaha Milik Masjid)", urutan: 44 },
+  // VI. BIDANG RI'AYAH
+  { nama: "Dian Zaini Arief", tingkat: "riayah", jabatan: "Koordinator Bidang", urutan: 1 },
+  { nama: "Fahmi Gerald", tingkat: "riayah", subBidang: "Sarana & Prasarana (SARPAS)", urutan: 2 },
+  { nama: "Muhammad Zamzam", tingkat: "riayah", subBidang: "Sarana & Prasarana (SARPAS)", urutan: 3 },
+  { nama: "Irfan Januar", tingkat: "riayah", subBidang: "Kebersihan & Keindahan", urutan: 4 },
+  { nama: "Tedi Surahman", tingkat: "riayah", subBidang: "Kebersihan & Keindahan", urutan: 5 },
+  { nama: "Akhmad Syarif", tingkat: "riayah", subBidang: "Kebersihan & Keindahan", urutan: 6 },
+  { nama: "Aep S", tingkat: "riayah", subBidang: "Keamanan", urutan: 7 },
+  { nama: "Rian Sidik Permana", tingkat: "riayah", subBidang: "Keamanan", urutan: 8 },
+  { nama: "Rijal", tingkat: "riayah", subBidang: "Keamanan", urutan: 9 },
+  { nama: "Sinung Wahyono", tingkat: "riayah", subBidang: "Pengembangan Aset", urutan: 10 },
+  { nama: "Yogi Yogaswara", tingkat: "riayah", subBidang: "Pengembangan Aset", urutan: 11 },
 ];
 
 const DEFAULT_PROFIL = [
@@ -257,9 +330,18 @@ async function main() {
   console.log("Seeding galeri...");
   await db.insert(galeri).values(DEFAULT_GALERI);
 
-  // Insert Pengurus
+  // Insert Pengurus (struktur hierarki baru)
   console.log("Seeding pengurus...");
-  await db.insert(pengurus).values(DEFAULT_PENGURUS);
+  await db.insert(pengurus).values(
+    DEFAULT_PENGURUS.map((p) => ({
+      nama: p.nama,
+      foto: avatar(p.nama),
+      tingkat: p.tingkat,
+      jabatan: p.jabatan ?? null,
+      subBidang: p.subBidang ?? null,
+      urutan: p.urutan,
+    }))
+  );
 
   // Insert Profil
   console.log("Seeding profil...");
