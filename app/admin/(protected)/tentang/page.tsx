@@ -147,7 +147,7 @@ export default function AdminTentang() {
       nama: pNama,
       tingkat: pTingkat,
       jabatan: pJabatan || null,
-      subBidang: pSubBidang || null,
+      subBidang: pTingkat === "imarah" || pTingkat === "riayah" ? pSubBidang || null : null,
       urutan: pUrutan,
       foto: pFoto,
     };

@@ -149,6 +149,41 @@ function PengurusCard({ p, priority = false }: { p: Pengurus; priority?: boolean
   );
 }
 
+function KoordinatorCard({ p }: { p: Pengurus }) {
+  const [imgError, setImgError] = useState(false);
+  const initials = p.nama
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  return (
+    <div className="bg-white rounded-xl p-4 text-center shadow-md border-2 border-gold-400 w-full max-w-xs">
+      <div className="w-16 h-16 relative mx-auto mb-3 rounded-full overflow-hidden border-2 border-gold-500 bg-gray-50">
+        {imgError ? (
+          <div className="w-full h-full flex items-center justify-center bg-emerald-900 text-gold-300 font-bold text-lg">
+            {initials}
+          </div>
+        ) : (
+          <Image
+            src={p.foto}
+            alt={p.nama}
+            fill
+            sizes="64px"
+            className="object-cover"
+            referrerPolicy="no-referrer"
+            onError={() => setImgError(true)}
+          />
+        )}
+      </div>
+      <p className="text-[10px] text-gold-600 font-bold uppercase">Koordinator Bidang</p>
+      <h4 className="font-bold text-emerald-950 text-sm">{p.nama}</h4>
+    </div>
+  );
+}
+
 export default function TentangPage() {
   const [pengurusData, setPengurusData] = useState<Pengurus[]>([]);
   const [activeBidang, setActiveBidang] = useState<"idarah" | "imarah" | "riayah">("imarah");
@@ -303,22 +338,7 @@ export default function TentangPage() {
                         <>
                           {bidang.koordinator && (
                             <div className="flex justify-center">
-                              <div className="bg-white rounded-xl p-4 text-center shadow-md border-2 border-gold-400 w-full max-w-xs">
-                                <div className="w-16 h-16 relative mx-auto mb-3 rounded-full overflow-hidden border-2 border-gold-500 bg-gray-50">
-                                  <Image
-                                    src={bidang.koordinator.foto}
-                                    alt={bidang.koordinator.nama}
-                                    fill
-                                    sizes="64px"
-                                    className="object-cover"
-                                    referrerPolicy="no-referrer"
-                                  />
-                                </div>
-                                <p className="text-[10px] text-gold-600 font-bold uppercase">Koordinator Bidang</p>
-                                <h4 className="font-bold text-emerald-950 text-sm">
-                                  {bidang.koordinator.nama}
-                                </h4>
-                              </div>
+                              <KoordinatorCard p={bidang.koordinator} />
                             </div>
                           )}
 
