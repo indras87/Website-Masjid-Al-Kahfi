@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, boolean, index, integer } from "drizzle-orm/pg-core";
 import { pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -118,12 +118,25 @@ export const galeri = pgTable("galeri", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Enum tingkat hierarki pengurus DKM
+export const pengurusTingkatEnum = pgEnum("pengurus_tingkat", [
+  "pembina",
+  "penasehat",
+  "pimpinan",
+  "idarah",
+  "imarah",
+  "riayah",
+]);
+
 export const pengurus = pgTable("pengurus", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  role: text("role").notNull(),
-  period: text("period").notNull(), // e.g. "Periode 2024-2028"
-  img: text("img").notNull(),
+  nama: text("nama").notNull(),
+  foto: text("foto").notNull(),
+  tingkat: pengurusTingkatEnum("tingkat").notNull(),
+  subBidang: text("sub_bidang"), // nullable: null = anggota langsung tingkat/bidang
+  jabatan: text("jabatan"), // nullable: "Ketua","Sekretaris","Koordinator Bidang", null = anggota
+  urutan: integer("urutan").default(0).notNull(),
+  periode: text("periode").default("2024-2028").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
