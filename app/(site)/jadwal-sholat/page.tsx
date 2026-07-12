@@ -1,49 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-
-const localPrayers = {
-  subuh: "04:36",
-  terbit: "05:54",
-  dzuhur: "11:58",
-  ashar: "15:18",
-  maghrib: "17:58",
-  isya: "19:12",
-};
+import { usePrayerTimes } from "@/hooks/use-prayer-times";
+import { computeNextPrayer, computeCurrentPrayer } from "@/lib/prayer-times";
 
 export default function JadwalSholatPage() {
+  const { times, loading, source } = usePrayerTimes();
   const [iqomahTime, setIqomahTime] = useState("00:00");
 
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
+      const next = computeNextPrayer(times, now);
       const currentMinTotal = now.getHours() * 60 + now.getMinutes();
-      const prayerMins = {
-        Subuh: 4 * 60 + 36,
-        Terbit: 5 * 60 + 54,
-        Dzuhur: 11 * 60 + 58,
-        Ashar: 15 * 60 + 18,
-        Maghrib: 17 * 60 + 58,
-        Isya: 19 * 60 + 12,
-      };
-
-      let nxt = "Subuh";
-      let nxtMin = prayerMins["Subuh"] + 24 * 60;
-
-      for (const [name, mins] of Object.entries(prayerMins)) {
-        if (mins > currentMinTotal) {
-          nxt = name;
-          nxtMin = mins;
-          break;
-        }
-      }
-
-      const diff = nxtMin - currentMinTotal;
-      const hLeft = Math.floor(diff / 60);
-      const mLeft = diff % 60;
-
-      let tStr =
-        hLeft > 0 ? `${hLeft} jam ${mLeft} menit lagi` : `${mLeft} menit lagi`;
+      const diff = next.minutes - currentMinTotal;
+      const mLeft = diff < 0 ? 0 : diff;
 
       let minsRem = 9 - (mLeft % 10);
       let secsRem = 59 - now.getSeconds();
@@ -52,9 +23,10 @@ export default function JadwalSholatPage() {
         `${String(minsRem).padStart(2, "0")}:${String(secsRem).padStart(2, "0")}`,
       );
     }, 1000);
-
     return () => clearInterval(timer);
-  }, []);
+  }, [times]);
+
+  const current = loading ? null : computeCurrentPrayer(times, new Date());
 
   return (
     <div className="pb-16">
@@ -67,24 +39,27 @@ export default function JadwalSholatPage() {
           <p className="text-gold-300 mt-2 font-medium">
             Data real-time wilayah Cikoneng, Bojongsoang, Kab. Bandung
           </p>
+          <span className="inline-block mt-3 bg-emerald-900 text-gold-300 px-3 py-1.5 rounded-full text-xs font-mono border border-gold-500/30">
+            Sumber: {source === "gps" ? "Lokasi Anda (GPS)" : "Lokasi Masjid (Cikoneng)"}
+          </span>
         </div>
       </div>
       <div className="max-w-5xl mx-auto px-4 py-16 space-y-12">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          {Object.entries(localPrayers).map(([name, time]) => (
+          {Object.entries(times).map(([name, time]) => (
             <div
               key={name}
-              className={`rounded-xl p-4 text-center border shadow-sm ${name === "maghrib" ? "bg-emerald-50 border-emerald-500 ring-2 ring-emerald-900/15" : "bg-white border-gold-100"}`}
+              className={`rounded-xl p-4 text-center border shadow-sm ${name === current?.key ? "bg-emerald-50 border-emerald-500 ring-2 ring-emerald-900/15" : "bg-white border-gold-100"}`}
             >
               <p
-                className={`text-xs uppercase ${name === "maghrib" ? "text-emerald-800 font-bold tracking-wider" : "text-gray-500 font-semibold"}`}
+                className={`text-xs uppercase ${name === current?.key ? "text-emerald-800 font-bold tracking-wider" : "text-gray-500 font-semibold"}`}
               >
                 {name}
               </p>
               <h4
-                className={`text-2xl font-bold mt-2 ${name === "maghrib" ? "text-emerald-950" : "text-emerald-900"}`}
+                className={`text-2xl font-bold mt-2 ${name === current?.key ? "text-emerald-950" : "text-emerald-900"}`}
               >
-                {time}
+                {loading ? "--:--" : time}
               </h4>
             </div>
           ))}

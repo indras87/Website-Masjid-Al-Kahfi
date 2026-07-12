@@ -35,3 +35,6 @@ export function getDefaultContactSettings(): ContactSettings {
 export function getDefaultDonationSettings(): DonationSettings {
   return { ...DEFAULT_DONATION_SETTINGS };
 }
+
+export const DEFAULT_RUNNING_TEXT =
+  '"Siapa yang membangun masjid karena Allah, maka Allah akan membangunkan baginya rumah di surga." (HR. Bukhari dan Muslim) — Selamat datang di Layanan Digital Masjid Al-Kahfi Cikoneng, Kabupaten Bandung.';
