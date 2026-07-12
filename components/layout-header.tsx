@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { DEFAULT_RUNNING_TEXT } from "@/lib/cms/settings";
 import {
   HeartPulse,
   Menu,
@@ -28,15 +29,6 @@ const iconMap = {
   HistoryIcon,
 };
 
-const localPrayers = {
-  subuh: "04:36",
-  terbit: "05:54",
-  dzuhur: "11:58",
-  ashar: "15:18",
-  maghrib: "17:58",
-  isya: "19:12",
-};
-
 export function LayoutHeader({
   children,
   activeTab,
@@ -48,8 +40,7 @@ export function LayoutHeader({
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("Memuat Waktu...");
-  const [countdownText, setCountdownText] = useState("Menghitung mundur...");
-  const [iqomahTime, setIqomahTime] = useState("00:00");
+  const [runningText, setRunningText] = useState(DEFAULT_RUNNING_TEXT);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -57,58 +48,26 @@ export function LayoutHeader({
       const hours = String(now.getHours()).padStart(2, "0");
       const minutes = String(now.getMinutes()).padStart(2, "0");
       const seconds = String(now.getSeconds()).padStart(2, "0");
-      const days = [
-        "Ahad",
-        "Senin",
-        "Selasa",
-        "Rabu",
-        "Kamis",
-        "Jumat",
-        "Sabtu",
-      ];
+      const days = ["Ahad", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
       setCurrentTime(`${days[now.getDay()]}, ${hours}:${minutes}:${seconds}`);
-
-      const currentMinTotal = now.getHours() * 60 + now.getMinutes();
-      const prayerMins = {
-        Subuh: 4 * 60 + 36,
-        Terbit: 5 * 60 + 54,
-        Dzuhur: 11 * 60 + 58,
-        Ashar: 15 * 60 + 18,
-        Maghrib: 17 * 60 + 58,
-        Isya: 19 * 60 + 12,
-      };
-
-      let nxt = "Subuh";
-      let nxtMin = prayerMins["Subuh"] + 24 * 60;
-
-      for (const [name, mins] of Object.entries(prayerMins)) {
-        if (mins > currentMinTotal) {
-          nxt = name;
-          nxtMin = mins;
-          break;
-        }
-      }
-
-      const diff = nxtMin - currentMinTotal;
-      const hLeft = Math.floor(diff / 60);
-      const mLeft = diff % 60;
-
-      let tStr =
-        hLeft > 0 ? `${hLeft} jam ${mLeft} menit lagi` : `${mLeft} menit lagi`;
-      const exact =
-        localPrayers[nxt.toLowerCase() as keyof typeof localPrayers] || "00:00";
-
-      setCountdownText(`Sholat Berikutnya: ${nxt} (${exact}) — ${tStr}`);
-
-      let minsRem = 9 - (mLeft % 10);
-      let secsRem = 59 - now.getSeconds();
-      if (minsRem < 0) minsRem = 0;
-      setIqomahTime(
-        `${String(minsRem).padStart(2, "0")}:${String(secsRem).padStart(2, "0")}`,
-      );
     }, 1000);
-
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/pengaturan")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        if (data && typeof data.running_text === "string" && data.running_text.trim()) {
+          setRunningText(data.running_text);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const navLinks = [
@@ -133,13 +92,10 @@ export function LayoutHeader({
             <div className="overflow-hidden w-full relative">
               <motion.div
                 animate={{ x: ["100%", "-100%"] }}
-                transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
+                transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
                 className="whitespace-nowrap text-xs"
               >
-                &quot;Siapa yang membangun masjid karena Allah, maka Allah akan
-                membangunkan baginya rumah di surga.&quot; (HR. Bukhari dan
-                Muslim) — Selamat datang di Layanan Digital Masjid Al-Kahfi
-                Cikoneng, Kabupaten Bandung.
+                {runningText}
               </motion.div>
             </div>
           </div>
