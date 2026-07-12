@@ -8,9 +8,11 @@ import {
   pengurus,
   profilMasjid,
   fasilitas,
+  pengaturan,
   user,
   account,
 } from "./schema";
+import { DEFAULT_RUNNING_TEXT } from "../cms/settings";
 import bcrypt from "bcryptjs";
 
 // Helper: generate placeholder avatar URL dari inisial nama
@@ -296,6 +298,7 @@ async function main() {
   await db.delete(fasilitas);
   await db.delete(kontak);
   await db.delete(donasi);
+  await db.delete(pengaturan);
   await db.delete(account); // Clean account before user (foreign key constraint)
   await db.delete(user);
 
@@ -358,6 +361,13 @@ async function main() {
   // Insert Donasi
   console.log("Seeding donasi...");
   await db.insert(donasi).values(DEFAULT_DONASI);
+
+  // Insert Pengaturan (running text)
+  console.log("Seeding pengaturan...");
+  await db.insert(pengaturan).values({
+    key: "running_text",
+    value: DEFAULT_RUNNING_TEXT,
+  });
 
   console.log("Database seeded successfully!");
   process.exit(0);

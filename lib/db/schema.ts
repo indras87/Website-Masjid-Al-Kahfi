@@ -176,3 +176,10 @@ export const donasi = pgTable("donasi", {
   qrisImage: text("qris_image").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Site-wide key-value settings (e.g. running text)
+export const pengaturan = pgTable("pengaturan", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
