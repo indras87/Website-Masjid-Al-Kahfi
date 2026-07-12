@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { usePrayerTimes } from "@/hooks/use-prayer-times";
-import { computeNextPrayer } from "@/lib/prayer-times";
+import { computeNextPrayer, computeCurrentPrayer } from "@/lib/prayer-times";
 import {
   HeartPulse,
   Menu,
@@ -386,6 +386,8 @@ export default function BerandaPage() {
     ...activitiesData.filter((a) => !a.featured),
   ].slice(0, 3);
 
+  const current = loading ? null : computeCurrentPrayer(times, new Date());
+
   return (
     <div className="pb-16">
       {/* Hero */}
@@ -452,15 +454,15 @@ export default function BerandaPage() {
             {Object.entries(times).map(([name, time]) => (
               <div
                 key={name}
-                className={`p-4 ${name === "maghrib" ? "bg-gold-50/40" : ""}`}
+                className={`p-4 ${name === current?.key ? "bg-gold-50/40" : ""}`}
               >
                 <p
-                  className={`text-xs font-semibold uppercase ${name === "maghrib" ? "text-emerald-900 font-bold" : "text-gray-400"}`}
+                  className={`text-xs font-semibold uppercase ${name === current?.key ? "text-emerald-900 font-bold" : "text-gray-400"}`}
                 >
                   {name}
                 </p>
                 <h4
-                  className={`text-lg sm:text-2xl font-bold mt-1 ${name === "maghrib" ? "text-emerald-950" : "text-emerald-900"}`}
+                  className={`text-lg sm:text-2xl font-bold mt-1 ${name === current?.key ? "text-emerald-950" : "text-emerald-900"}`}
                 >
                   {loading ? "--:--" : time}
                 </h4>

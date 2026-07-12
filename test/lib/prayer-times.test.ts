@@ -7,6 +7,7 @@ import {
   buildCacheKey,
   prayerTimesToMinutes,
   computeNextPrayer,
+  computeCurrentPrayer,
 } from '../../lib/prayer-times';
 
 test('MASJID_COORDS is Cikoneng', () => {
@@ -70,4 +71,24 @@ test('computeNextPrayer after Isya wraps to next-day Subuh', () => {
   const r = computeNextPrayer(times, new Date(2026, 6, 13, 21, 0));
   assert.equal(r.name, 'Subuh');
   assert.equal(r.minutes, 4 * 60 + 40 + 24 * 60);
+});
+
+test('computeCurrentPrayer returns last passed entry (Terbit in morning)', () => {
+  const times = { subuh: '04:40', terbit: '06:03', dzuhur: '11:55', ashar: '15:17', maghrib: '17:48', isya: '19:02' };
+  assert.deepEqual(computeCurrentPrayer(times, new Date(2026, 6, 13, 10, 0)), { name: 'Terbit', key: 'terbit' });
+});
+
+test('computeCurrentPrayer at noon is Dzuhur window', () => {
+  const times = { subuh: '04:40', terbit: '06:03', dzuhur: '11:55', ashar: '15:17', maghrib: '17:48', isya: '19:02' };
+  assert.deepEqual(computeCurrentPrayer(times, new Date(2026, 6, 13, 12, 0)), { name: 'Dzuhur', key: 'dzuhur' });
+});
+
+test('computeCurrentPrayer before Subuh wraps to Isya', () => {
+  const times = { subuh: '04:40', terbit: '06:03', dzuhur: '11:55', ashar: '15:17', maghrib: '17:48', isya: '19:02' };
+  assert.deepEqual(computeCurrentPrayer(times, new Date(2026, 6, 13, 2, 0)), { name: 'Isya', key: 'isya' });
+});
+
+test('computeCurrentPrayer exactly at Isya time is Isya', () => {
+  const times = { subuh: '04:40', terbit: '06:03', dzuhur: '11:55', ashar: '15:17', maghrib: '17:48', isya: '19:02' };
+  assert.deepEqual(computeCurrentPrayer(times, new Date(2026, 6, 13, 19, 2)), { name: 'Isya', key: 'isya' });
 });

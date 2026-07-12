@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { usePrayerTimes } from "@/hooks/use-prayer-times";
-import { computeNextPrayer } from "@/lib/prayer-times";
+import { computeNextPrayer, computeCurrentPrayer } from "@/lib/prayer-times";
 
 export default function JadwalSholatPage() {
   const { times, loading, source } = usePrayerTimes();
@@ -26,6 +26,8 @@ export default function JadwalSholatPage() {
     return () => clearInterval(timer);
   }, [times]);
 
+  const current = loading ? null : computeCurrentPrayer(times, new Date());
+
   return (
     <div className="pb-16">
       <div className="bg-emerald-900 text-white py-16 text-center relative overflow-hidden border-b-4 border-gold-500">
@@ -47,15 +49,15 @@ export default function JadwalSholatPage() {
           {Object.entries(times).map(([name, time]) => (
             <div
               key={name}
-              className={`rounded-xl p-4 text-center border shadow-sm ${name === "maghrib" ? "bg-emerald-50 border-emerald-500 ring-2 ring-emerald-900/15" : "bg-white border-gold-100"}`}
+              className={`rounded-xl p-4 text-center border shadow-sm ${name === current?.key ? "bg-emerald-50 border-emerald-500 ring-2 ring-emerald-900/15" : "bg-white border-gold-100"}`}
             >
               <p
-                className={`text-xs uppercase ${name === "maghrib" ? "text-emerald-800 font-bold tracking-wider" : "text-gray-500 font-semibold"}`}
+                className={`text-xs uppercase ${name === current?.key ? "text-emerald-800 font-bold tracking-wider" : "text-gray-500 font-semibold"}`}
               >
                 {name}
               </p>
               <h4
-                className={`text-2xl font-bold mt-2 ${name === "maghrib" ? "text-emerald-950" : "text-emerald-900"}`}
+                className={`text-2xl font-bold mt-2 ${name === current?.key ? "text-emerald-950" : "text-emerald-900"}`}
               >
                 {loading ? "--:--" : time}
               </h4>

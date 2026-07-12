@@ -83,3 +83,22 @@ export function computeNextPrayer(times: PrayerTimes, now: Date): NextPrayer {
   }
   return { name: "Subuh", key: "subuh", minutes: mins.subuh + 24 * 60 };
 }
+
+export type CurrentPrayer = { name: string; key: keyof PrayerTimes };
+
+// The prayer whose time-window we are currently in: the last entry in
+// PRAYER_ORDER whose time has passed (<= now). Includes Terbit. Before Subuh
+// (middle of the night) the Isya window is still active → defaults to Isya.
+export function computeCurrentPrayer(times: PrayerTimes, now: Date): CurrentPrayer {
+  const mins = prayerTimesToMinutes(times);
+  const current = now.getHours() * 60 + now.getMinutes();
+  let result: CurrentPrayer = { name: "Isya", key: "isya" };
+  for (const p of PRAYER_ORDER) {
+    if (mins[p.key] <= current) {
+      result = { name: p.name, key: p.key };
+    } else {
+      break;
+    }
+  }
+  return result;
+}
