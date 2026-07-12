@@ -18,7 +18,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, type, time, ust, status, desc, note, icon, color, img } = body;
+    const { title, type, time, ust, status, desc, note, icon, color, img, featured } = body;
 
     if (!title || !type || !time || !ust) {
       return NextResponse.json({ error: 'Title, type, time, and ust are required' }, { status: 400 });
@@ -49,6 +49,7 @@ export async function POST(request: Request) {
       icon: finalIcon,
       color: finalColor,
       img: img || null,
+      featured: featured ?? false,
     }).returning();
 
     return NextResponse.json(result[0], { status: 201 });

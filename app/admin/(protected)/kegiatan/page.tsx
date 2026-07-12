@@ -28,6 +28,7 @@ export default function AdminKegiatan() {
   const [ust, setUst] = useState('');
   const [status, setStatus] = useState('Aktif');
   const [img, setImg] = useState('');
+  const [featured, setFeatured] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -62,6 +63,7 @@ export default function AdminKegiatan() {
     setUst('');
     setStatus('Aktif');
     setImg('');
+    setFeatured(false);
     setIsModalOpen(true);
   };
 
@@ -73,6 +75,7 @@ export default function AdminKegiatan() {
     setUst(item.ust);
     setStatus(item.status);
     setImg(item.img || '');
+    setFeatured(!!item.featured);
     setIsModalOpen(true);
   };
 
@@ -106,7 +109,7 @@ export default function AdminKegiatan() {
       return;
     }
 
-    const payload = { title, type, time, ust, status, img: img || null };
+    const payload = { title, type, time, ust, status, img: img || null, featured };
 
     try {
       setSubmitting(true);
@@ -232,9 +235,16 @@ export default function AdminKegiatan() {
                     <td className="px-6 py-4">{item.time}</td>
                     <td className="px-6 py-4">{item.ust}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${item.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}`}>
-                        {item.status}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${item.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}`}>
+                          {item.status}
+                        </span>
+                        {item.featured && (
+                          <span className="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gold-100 text-gold-800">
+                            Beranda
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
@@ -330,6 +340,16 @@ export default function AdminKegiatan() {
                   </select>
                 </div>
               </div>
+
+              <label className="flex items-center gap-2 text-xs font-bold text-gray-700 uppercase cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={featured}
+                  onChange={(e) => setFeatured(e.target.checked)}
+                  className="w-4 h-4 accent-emerald-600 cursor-pointer"
+                />
+                Tampilkan di Beranda
+              </label>
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Waktu / Jadwal Pelaksanaan</label>
