@@ -66,6 +66,8 @@ const FALLBACK_KEGIATAN = [
     note: "Gratis & Terbuka",
     Icon: CircleUser,
     color: "bg-emerald-50 text-emerald-800",
+    img: "",
+    featured: false,
   },
   {
     cat: "sholat-jumat",
@@ -77,6 +79,8 @@ const FALLBACK_KEGIATAN = [
     note: "Lantai Utama",
     Icon: Mic,
     color: "bg-gold-100 text-gold-800",
+    img: "",
+    featured: false,
   },
   {
     cat: "harian",
@@ -88,6 +92,8 @@ const FALLBACK_KEGIATAN = [
     note: "Khusus Anak-anak",
     Icon: GraduationCap,
     color: "bg-emerald-50 text-emerald-800",
+    img: "",
+    featured: false,
   },
   {
     cat: "hari-besar",
@@ -99,6 +105,8 @@ const FALLBACK_KEGIATAN = [
     note: "Halaman Samping",
     Icon: Gift,
     color: "bg-emerald-900 text-gold-300",
+    img: "",
+    featured: false,
   },
 ];
 
@@ -321,6 +329,8 @@ export default function BerandaPage() {
               note: k.note || "",
               Icon: iconMap[k.icon] || CircleUser,
               color: k.color || "bg-emerald-50 text-emerald-800",
+              img: k.img || "",
+              featured: !!k.featured,
             };
           });
           setActivitiesData(mappedKegiatan);
@@ -409,6 +419,11 @@ export default function BerandaPage() {
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
   };
+
+  const programKegiatan = [
+    ...activitiesData.filter((a) => a.featured),
+    ...activitiesData.filter((a) => !a.featured),
+  ].slice(0, 3);
 
   return (
     <div className="pb-16">
@@ -505,63 +520,42 @@ export default function BerandaPage() {
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white rounded-2xl border border-gold-100 shadow-md hover:shadow-lg transition p-6 space-y-4">
-            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-800">
-              <BookOpen />
-            </div>
-            <h4 className="font-serif text-lg font-bold text-emerald-950">
-              Majelis Ilmu & Kajian Rutin
-            </h4>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Penyelenggaraan kajian rutin mingguan dan bulanan yang
-              dibimbing oleh ustadz berkompeten untuk mendalami tauhid,
-              fiqih, tafsir, dan akhlak.
-            </p>
-            <a
-              href="/kegiatan"
-              className="text-xs text-emerald-900 font-bold hover:text-gold-600 transition flex items-center gap-1"
+          {programKegiatan.map((act, idx) => (
+            <div
+              key={idx}
+              className="bg-white rounded-2xl border border-gold-100 shadow-md hover:shadow-lg transition overflow-hidden flex flex-col"
             >
-              Lihat Jadwal Kajian <ChevronRight size={14} />
-            </a>
-          </div>
-          <div className="bg-white rounded-2xl border border-gold-100 shadow-md hover:shadow-lg transition p-6 space-y-4">
-            <div className="w-12 h-12 bg-gold-50 rounded-xl flex items-center justify-center text-gold-600">
-              <GraduationCap />
+              {act.img ? (
+                <div className="relative w-full h-40">
+                  <Image
+                    src={act.img}
+                    alt={act.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className={`relative w-full h-40 flex items-center justify-center ${act.color}`}>
+                  <act.Icon size={48} className="opacity-25" />
+                </div>
+              )}
+              <div className="p-6 space-y-4 flex-1 flex flex-col">
+                <h4 className="font-serif text-lg font-bold text-emerald-950">
+                  {act.title}
+                </h4>
+                <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                  {act.desc}
+                </p>
+                <a
+                  href="/kegiatan"
+                  className="text-xs text-emerald-900 font-bold hover:text-gold-600 transition flex items-center gap-1 mt-auto"
+                >
+                  Lihat Detail <ChevronRight size={14} />
+                </a>
+              </div>
             </div>
-            <h4 className="font-serif text-lg font-bold text-emerald-950">
-              Taman Pendidikan Al-Qur&apos;an (TPA)
-            </h4>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Membina anak-anak dan remaja di lingkungan Cikoneng agar
-              fasih membaca, menghafal, dan mengamalkan nilai-nilai
-              luhur Al-Qur&apos;an sejak dini.
-            </p>
-            <a
-              href="/kegiatan"
-              className="text-xs text-emerald-900 font-bold hover:text-gold-600 transition flex items-center gap-1"
-            >
-              Detail Kurikulum TPA <ChevronRight size={14} />
-            </a>
-          </div>
-          <div className="bg-white rounded-2xl border border-gold-100 shadow-md hover:shadow-lg transition p-6 space-y-4">
-            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-800">
-              <Ambulance />
-            </div>
-            <h4 className="font-serif text-lg font-bold text-emerald-950">
-              Layanan Sosial & Ambulans
-            </h4>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Bantuan ambulans gratis siaga 24 jam serta penyaluran
-              santunan sembako berkala untuk keluarga pra-sejahtera dan
-              dhuafa di wilayah Cikoneng.
-            </p>
-            <a
-              href="/kontak"
-              className="text-xs text-emerald-900 font-bold hover:text-gold-600 transition flex items-center gap-1"
-            >
-              Hubungi Kontak Siaga <ChevronRight size={14} />
-            </a>
-          </div>
+          ))}
         </div>
       </div>
 
