@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, Search, Filter, X, Loader2 } from 'lucide-react';
+import ImageUpload from "@/app/admin/components/ImageUpload";
 
 const DEFAULT_KEGIATAN = [
   { id: 1, title: 'Tahsin & Bimbingan Mengaji Quran Dewasa', type: 'Harian', time: 'Setiap Hari (Bada Subuh)', ust: 'Ust. Sulaeman Al-Hafidz', status: 'Aktif' },
@@ -26,6 +27,7 @@ export default function AdminKegiatan() {
   const [time, setTime] = useState('');
   const [ust, setUst] = useState('');
   const [status, setStatus] = useState('Aktif');
+  const [img, setImg] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -59,6 +61,7 @@ export default function AdminKegiatan() {
     setTime('');
     setUst('');
     setStatus('Aktif');
+    setImg('');
     setIsModalOpen(true);
   };
 
@@ -69,6 +72,7 @@ export default function AdminKegiatan() {
     setTime(item.time);
     setUst(item.ust);
     setStatus(item.status);
+    setImg(item.img || '');
     setIsModalOpen(true);
   };
 
@@ -102,7 +106,7 @@ export default function AdminKegiatan() {
       return;
     }
 
-    const payload = { title, type, time, ust, status };
+    const payload = { title, type, time, ust, status, img: img || null };
 
     try {
       setSubmitting(true);
@@ -287,6 +291,8 @@ export default function AdminKegiatan() {
             </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <ImageUpload value={img} onChange={setImg} label="Foto Header Kegiatan (Maksimal 2MB)" />
+
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Kegiatan</label>
                 <input 
