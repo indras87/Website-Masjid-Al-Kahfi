@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
+import { usePrayerTimes } from "@/hooks/use-prayer-times";
+import { computeNextPrayer } from "@/lib/prayer-times";
 import {
   HeartPulse,
   Menu,
@@ -261,16 +263,8 @@ const iconMap: Record<string, any> = {
   HistoryIcon,
 };
 
-const localPrayers = {
-  subuh: "04:36",
-  terbit: "05:54",
-  dzuhur: "11:58",
-  ashar: "15:18",
-  maghrib: "17:58",
-  isya: "19:12",
-};
-
 export default function BerandaPage() {
+  const { times, loading } = usePrayerTimes();
   const [activitiesData, setActivitiesData] = useState<any[]>([]);
   const [newsData, setNewsData] = useState<any[]>([]);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
@@ -361,49 +355,17 @@ export default function BerandaPage() {
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const seconds = String(now.getSeconds()).padStart(2, "0");
-      const days = [
-        "Ahad",
-        "Senin",
-        "Selasa",
-        "Rabu",
-        "Kamis",
-        "Jumat",
-        "Sabtu",
-      ];
+      const next = computeNextPrayer(times, now);
       const currentMinTotal = now.getHours() * 60 + now.getMinutes();
-      const prayerMins = {
-        Subuh: 4 * 60 + 36,
-        Terbit: 5 * 60 + 54,
-        Dzuhur: 11 * 60 + 58,
-        Ashar: 15 * 60 + 18,
-        Maghrib: 17 * 60 + 58,
-        Isya: 19 * 60 + 12,
-      };
-
-      let nxt = "Subuh";
-      let nxtMin = prayerMins["Subuh"] + 24 * 60;
-
-      for (const [name, mins] of Object.entries(prayerMins)) {
-        if (mins > currentMinTotal) {
-          nxt = name;
-          nxtMin = mins;
-          break;
-        }
-      }
-
-      const diff = nxtMin - currentMinTotal;
+      const diff = next.minutes - currentMinTotal;
       const hLeft = Math.floor(diff / 60);
       const mLeft = diff % 60;
+      const tStr = hLeft > 0 ? `${hLeft} jam ${mLeft} menit lagi` : `${mLeft} menit lagi`;
+      const exact = times[next.key];
 
-      let tStr =
-        hLeft > 0 ? `${hLeft} jam ${mLeft} menit lagi` : `${mLeft} menit lagi`;
-      const exact =
-        localPrayers[nxt.toLowerCase() as keyof typeof localPrayers] || "00:00";
-
-      setCountdownText(`Sholat Berikutnya: ${nxt} (${exact}) — ${tStr}`);
+      setCountdownText(loading
+        ? "Memuat jadwal sholat..."
+        : `Sholat Berikutnya: ${next.name} (${exact}) — ${tStr}`);
 
       let minsRem = 9 - (mLeft % 10);
       let secsRem = 59 - now.getSeconds();
@@ -412,9 +374,8 @@ export default function BerandaPage() {
         `${String(minsRem).padStart(2, "0")}:${String(secsRem).padStart(2, "0")}`,
       );
     }, 1000);
-
     return () => clearInterval(timer);
-  }, []);
+  }, [times, loading]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -488,7 +449,7 @@ export default function BerandaPage() {
             </span>
           </div>
           <div className="grid grid-cols-3 md:grid-cols-6 divide-x divide-y md:divide-y-0 divide-gray-100 text-center">
-            {Object.entries(localPrayers).map(([name, time]) => (
+            {Object.entries(times).map(([name, time]) => (
               <div
                 key={name}
                 className={`p-4 ${name === "maghrib" ? "bg-gold-50/40" : ""}`}
@@ -501,7 +462,7 @@ export default function BerandaPage() {
                 <h4
                   className={`text-lg sm:text-2xl font-bold mt-1 ${name === "maghrib" ? "text-emerald-950" : "text-emerald-900"}`}
                 >
-                  {time}
+                  {loading ? "--:--" : time}
                 </h4>
               </div>
             ))}
