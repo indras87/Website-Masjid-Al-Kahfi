@@ -10,7 +10,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, type, time, ust, status, desc, note, icon, color } = body;
+    const { title, type, time, ust, status, desc, note, icon, color, img } = body;
 
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
@@ -28,6 +28,7 @@ export async function PUT(
         note,
         icon,
         color,
+        img: img || null,
       })
       .where(eq(kegiatan.id, numericId))
       .returning();

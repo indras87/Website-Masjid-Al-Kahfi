@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { Clock, ChevronRight } from "lucide-react";
 import { CircleUser, Mic, GraduationCap, Gift } from "lucide-react";
+import Image from "next/image";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   CircleUser,
@@ -23,6 +24,7 @@ const FALLBACK_KEGIATAN = [
     note: "Gratis & Terbuka",
     Icon: CircleUser,
     color: "bg-emerald-50 text-emerald-800",
+    img: "",
   },
   {
     cat: "sholat-jumat",
@@ -34,6 +36,7 @@ const FALLBACK_KEGIATAN = [
     note: "Lantai Utama",
     Icon: Mic,
     color: "bg-gold-100 text-gold-800",
+    img: "",
   },
   {
     cat: "harian",
@@ -45,6 +48,7 @@ const FALLBACK_KEGIATAN = [
     note: "Khusus Anak-anak",
     Icon: GraduationCap,
     color: "bg-emerald-50 text-emerald-800",
+    img: "",
   },
   {
     cat: "hari-besar",
@@ -56,6 +60,7 @@ const FALLBACK_KEGIATAN = [
     note: "Halaman Samping",
     Icon: Gift,
     color: "bg-emerald-900 text-gold-300",
+    img: "",
   },
 ];
 
@@ -94,6 +99,7 @@ export default function KegiatanPage() {
               note: k.note || "",
               Icon: iconMap[k.icon] || CircleUser,
               color: k.color || "bg-emerald-50 text-emerald-800",
+              img: k.img || "",
             };
           });
           setActivitiesData(mappedKegiatan);
@@ -150,6 +156,21 @@ export default function KegiatanPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="bg-white rounded-2xl overflow-hidden border border-gold-100 shadow-sm flex flex-col justify-between"
               >
+                {act.img ? (
+                  <div className="relative w-full h-48">
+                    <Image
+                      src={act.img}
+                      alt={act.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className={`relative w-full h-48 flex items-center justify-center ${act.color}`}>
+                    <act.Icon size={56} className="opacity-25" />
+                  </div>
+                )}
                 <div className="p-6 sm:p-8 space-y-4">
                   <div className="flex items-center justify-between">
                     <span

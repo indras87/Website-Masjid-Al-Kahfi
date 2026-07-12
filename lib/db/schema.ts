@@ -108,6 +108,7 @@ export const kegiatan = pgTable("kegiatan", {
   note: text("note"),
   icon: text("icon"),
   color: text("color"),
+  img: text("img"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
