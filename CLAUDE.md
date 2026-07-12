@@ -24,6 +24,5 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling:** Tailwind CSS (v4).
 
 ## Development Notes
-- The project is configured with `outputFileTracingRoot` in `next.config.ts` for stable build in workspace environments.
 - Always use `.env.local` for local environment configuration.
 - Database access is via port `5433` if using the provided `docker-compose.yml`.
