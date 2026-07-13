@@ -29,12 +29,12 @@ export function Footer({ onNav }: { onNav: (tab: string) => void }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-gold-300 text-xl border border-gold-500/40">
+              <div aria-hidden="true" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-gold-300 text-xl border border-gold-500/40">
                 🕌
               </div>
-              <h4 className="font-serif text-lg font-bold text-gold-300">
+              <p className="font-serif text-lg font-bold text-gold-300">
                 Masjid Al-Kahfi
-              </h4>
+              </p>
             </div>
             <p className="text-xs text-emerald-100 leading-relaxed max-w-sm">
               Lembaga Dakwah, Sosial, Pendidikan, dan Kemaslahatan Ummat di

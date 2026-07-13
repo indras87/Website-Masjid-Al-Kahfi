@@ -42,7 +42,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Lewati ke konten
       </a>
       <LayoutHeader activeTab={getActiveTab()} onNav={handleNav}>
-        <main id="main">{children}</main>
+        <main id="main" tabIndex={-1} className="focus:outline-none">{children}</main>
       </LayoutHeader>
       <Footer onNav={handleNav} />
       <ThemeSettings />
