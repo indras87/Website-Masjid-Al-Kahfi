@@ -64,11 +64,13 @@ const FALLBACK_KEGIATAN = [
   },
 ];
 
+/** Halaman daftar kegiatan & kajian rutin masjid dengan filter kategori. */
 export default function KegiatanPage() {
   const [activitiesData, setActivitiesData] = useState<any[]>([]);
   const [filter, setFilter] = useState("semua");
 
   useEffect(() => {
+    /** Memuat daftar kegiatan aktif dari API; jatuh ke FALLBACK_KEGIATAN bila gagal. */
     const fetchData = async () => {
       try {
         const kegiatanRes = await fetch("/api/kegiatan");

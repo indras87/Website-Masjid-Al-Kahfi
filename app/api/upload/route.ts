@@ -4,6 +4,7 @@ import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
+/** Mengunggah file gambar ke folder public/uploads (POST). */
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();

@@ -11,10 +11,12 @@ const FALLBACK_DONASI = {
   qrisImage: "https://placehold.co/400x400/ffffff/064e3b?text=QRIS+AL-KAHFI",
 };
 
+/** Halaman donasi yang menampilkan rekening transfer bank dan QRIS untuk infaq dan sedekah. */
 export default function DonasiPage() {
   const [donationData, setDonationData] = useState(FALLBACK_DONASI);
 
   useEffect(() => {
+    /** Memuat data donasi (rekening & QRIS) dari API; jatuh ke FALLBACK_DONASI bila gagal. */
     const fetchDonasi = async () => {
       try {
         const donasiRes = await fetch("/api/donasi");
@@ -39,6 +41,7 @@ export default function DonasiPage() {
     fetchDonasi();
   }, []);
 
+  /** Menyalin teks (mis. nomor rekening) ke clipboard pengguna. */
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
   };

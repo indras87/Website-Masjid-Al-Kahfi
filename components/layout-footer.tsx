@@ -20,6 +20,7 @@ const navLinks = [
   { id: "kontak", label: "Kontak" },
 ];
 
+/** Footer situs publik berisi identitas masjid, peta navigasi, dan tautan media sosial. */
 export function Footer({ onNav }: { onNav: (tab: string) => void }) {
   return (
     <footer className="bg-emerald-950 text-white border-t border-gold-500/20">

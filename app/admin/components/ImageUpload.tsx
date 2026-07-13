@@ -11,11 +11,13 @@ interface ImageUploadProps {
   label?: string;
 }
 
+/** Komponen unggah gambar admin dengan pratinjau, kompresi otomatis, dan tombol hapus. */
 export default function ImageUpload({ value, onChange, label = 'Gambar/Foto' }: ImageUploadProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /** Memvalidasi ukuran berkas, mengompresi, mengunggah ke server, lalu memperbarui URL. */
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -67,6 +69,7 @@ export default function ImageUpload({ value, onChange, label = 'Gambar/Foto' }: 
     }
   };
 
+  /** Menghapus URL gambar dari state dan mereset input berkas. */
   const handleRemove = (e: React.MouseEvent) => {
     e.preventDefault();
     onChange('');
@@ -75,6 +78,7 @@ export default function ImageUpload({ value, onChange, label = 'Gambar/Foto' }: 
     }
   };
 
+  /** Memicu klik tersembunyi pada input berkas untuk memilih file. */
   const triggerSelectFile = () => {
     fileInputRef.current?.click();
   };

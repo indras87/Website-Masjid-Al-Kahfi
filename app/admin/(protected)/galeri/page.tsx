@@ -34,6 +34,7 @@ const DEFAULT_GALERI = [
   },
 ];
 
+/** Komponen utama halaman kelola galeri foto kegiatan masjid. */
 export default function AdminGaleri() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +48,7 @@ export default function AdminGaleri() {
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  /** Mengambil daftar foto galeri dari API saat komponen dimuat. */
   // Fetch data
   const fetchData = async () => {
     try {
@@ -69,12 +71,14 @@ export default function AdminGaleri() {
     fetchData();
   }, []);
 
+  /** Membuka modal unggah foto baru. */
   const handleOpenAdd = () => {
     setTitle("");
     setImg("");
     setIsModalOpen(true);
   };
 
+  /** Menghapus foto galeri berdasarkan ID setelah konfirmasi pengguna. */
   const handleDelete = async (id: number) => {
     if (confirm("Apakah Anda yakin ingin menghapus foto ini dari galeri?")) {
       const snapshot = data;
@@ -98,6 +102,7 @@ export default function AdminGaleri() {
     }
   };
 
+  /** Menangani submit form untuk mengunggah foto galeri baru. */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title) {

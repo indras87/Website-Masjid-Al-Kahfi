@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 
 const VALID_TINGKAT = ['pembina', 'penasehat', 'pimpinan', 'idarah', 'imarah', 'riayah'] as const;
 
+/** Mengambil daftar pengurus masjid (GET). */
 export async function GET() {
   try {
     const data = await db.select().from(pengurus).orderBy(asc(pengurus.tingkat), asc(pengurus.urutan));
@@ -18,6 +19,7 @@ export async function GET() {
   }
 }
 
+/** Menambahkan data pengurus masjid baru (POST). */
 export async function POST(request: Request) {
   try {
     const body = await request.json();

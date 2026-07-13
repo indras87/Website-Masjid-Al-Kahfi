@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { usePrayerTimes } from "@/hooks/use-prayer-times";
 import { computeNextPrayer, computeCurrentPrayer } from "@/lib/prayer-times";
 
+/** Halaman jadwal sholat real-time dengan highlight sholat aktif dan simulasi timer iqomah. */
 export default function JadwalSholatPage() {
   const { times, loading, source } = usePrayerTimes();
   const [iqomahTime, setIqomahTime] = useState("00:00");

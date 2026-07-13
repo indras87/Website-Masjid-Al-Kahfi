@@ -29,6 +29,7 @@ const iconMap = {
   HistoryIcon,
 };
 
+/** Header situs publik dengan running text hadits, jam digital, dan navigasi responsif. */
 export function LayoutHeader({
   children,
   activeTab,

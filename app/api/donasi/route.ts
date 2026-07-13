@@ -7,6 +7,7 @@ import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
+/** Mengambil data pengaturan donasi terbaru (GET). */
 export async function GET() {
   try {
     const rows = await db.select().from(donasi).orderBy(desc(donasi.id)).limit(1);
@@ -18,6 +19,7 @@ export async function GET() {
   }
 }
 
+/** Membuat atau memperbarui data donasi (PUT). */
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
@@ -60,6 +62,7 @@ export async function PUT(request: Request) {
   }
 }
 
+/** Menghapus seluruh data donasi (DELETE). */
 export async function DELETE() {
   try {
     await db.delete(donasi);

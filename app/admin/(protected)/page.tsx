@@ -6,6 +6,7 @@ import { formatRelative } from '@/lib/relative-time';
 import type { ActivityItem } from '@/lib/dashboard';
 import type { LucideIcon } from 'lucide-react';
 
+/** Halaman utama dashboard admin yang menampilkan statistik dan aktivitas terbaru. */
 export default async function AdminDashboard() {
   const [stats, activity] = await Promise.all([
     getDashboardStats(),

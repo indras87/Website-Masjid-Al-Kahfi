@@ -7,6 +7,7 @@ import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
+/** Mengambil data informasi kontak masjid (GET). */
 export async function GET() {
   try {
     const rows = await db.select().from(kontak).orderBy(desc(kontak.id)).limit(1);
@@ -18,6 +19,7 @@ export async function GET() {
   }
 }
 
+/** Membuat atau memperbarui data kontak masjid (PUT). */
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
@@ -62,6 +64,7 @@ export async function PUT(request: Request) {
   }
 }
 
+/** Menghapus seluruh data kontak (DELETE). */
 export async function DELETE() {
   try {
     await db.delete(kontak);

@@ -28,6 +28,7 @@ interface SidebarProps {
   user?: User;
 }
 
+/** Sidebar navigasi admin dengan menu dinamis sesuai peran pengguna dan tombol logout. */
 export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function Sidebar({ user }: SidebarProps) {
       : []),
   ];
 
+  /** Mengonfirmasi lalu melakukan logout pengguna dan mengarahkan ke halaman login. */
   const handleLogout = async () => {
     if (confirm("Apakah Anda yakin ingin keluar dari panel admin?")) {
       setIsLoggingOut(true);

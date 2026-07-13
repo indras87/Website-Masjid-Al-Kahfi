@@ -9,6 +9,7 @@ interface UserClientPageProps {
   currentUserId: string;
 }
 
+/** Komponen klien manajemen user dengan operasi CRUD dan modal form. */
 export default function UserClientPage({ initialUsers, currentUserId }: UserClientPageProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,11 +17,13 @@ export default function UserClientPage({ initialUsers, currentUserId }: UserClie
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  /** Menampilkan pesan status sementara yang hilang otomatis setelah 3 detik. */
   const showMessage = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 3000);
   };
 
+  /** Membuat pengguna baru melalui API dan menambahkannya ke daftar. */
   const handleCreate = async (data: UserData) => {
     const res = await fetch("/api/users", {
       method: "POST",
@@ -38,6 +41,7 @@ export default function UserClientPage({ initialUsers, currentUserId }: UserClie
     showMessage("success", "Pengguna berhasil ditambahkan");
   };
 
+  /** Memperbarui data pengguna terpilih melalui API. */
   const handleEdit = async (data: UserData) => {
     if (!editingUser) return;
 
@@ -57,6 +61,7 @@ export default function UserClientPage({ initialUsers, currentUserId }: UserClie
     showMessage("success", "Pengguna berhasil diupdate");
   };
 
+  /** Menghapus pengguna berdasarkan ID setelah validasi akun sendiri. */
   const handleDelete = async (id: string) => {
     if (id === currentUserId) {
       showMessage("error", "Tidak bisa menghapus akun sendiri");
@@ -81,11 +86,13 @@ export default function UserClientPage({ initialUsers, currentUserId }: UserClie
     }
   };
 
+  /** Membuka modal form dalam mode tambah pengguna baru. */
   const openCreateModal = () => {
     setEditingUser(undefined);
     setIsModalOpen(true);
   };
 
+  /** Membuka modal form dalam mode edit pengguna yang dipilih. */
   const openEditModal = (user: User) => {
     setEditingUser(user);
     setIsModalOpen(true);

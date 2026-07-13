@@ -51,12 +51,14 @@ const FALLBACK_DONASI = {
   qrisImage: "https://placehold.co/400x400/ffffff/064e3b?text=QRIS+AL-KAHFI",
 };
 
+/** Halaman daftar berita masjid yang menampilkan kartu artikel dari API atau data fallback. */
 export default function BeritaPage() {
   const [newsData, setNewsData] = useState<any[]>([]);
   const [donationData, setDonationData] = useState(FALLBACK_DONASI);
   const router = useRouter();
 
   useEffect(() => {
+    /** Memuat daftar berita dari API; jatuh ke FALLBACK_BERITA bila gagal. */
     const fetchData = async () => {
       try {
         const beritaRes = await fetch("/api/berita");
@@ -84,6 +86,7 @@ export default function BeritaPage() {
     fetchData();
   }, []);
 
+  /** Mengekstrak teks polos dari string HTML untuk pratinjau cuplikan berita. */
   const getPreviewText = (html: string) => {
     if (!html) return "";
     const div = document.createElement("div");

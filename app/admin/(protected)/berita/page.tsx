@@ -38,6 +38,7 @@ const DEFAULT_BERITA = [
   },
 ];
 
+/** Komponen utama halaman kelola berita masjid dengan CRUD dan pencarian. */
 export default function AdminBerita() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,6 +59,7 @@ export default function AdminBerita() {
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  /** Mengambil daftar berita dari API saat komponen dimuat. */
   // Fetch data from API
   const fetchData = async () => {
     try {
@@ -80,6 +82,7 @@ export default function AdminBerita() {
     fetchData();
   }, []);
 
+  /** Membuka modal form dalam mode tambah berita baru. */
   const handleOpenAdd = () => {
     setEditItem(null);
     setTitle("");
@@ -90,6 +93,7 @@ export default function AdminBerita() {
     setIsModalOpen(true);
   };
 
+  /** Membuka modal form dalam mode edit berita yang dipilih. */
   const handleOpenEdit = (item: any) => {
     setEditItem(item);
     setTitle(item.title);
@@ -100,6 +104,7 @@ export default function AdminBerita() {
     setIsModalOpen(true);
   };
 
+  /** Menghapus berita berdasarkan ID setelah konfirmasi pengguna. */
   const handleDelete = async (id: number) => {
     if (confirm("Apakah Anda yakin ingin menghapus berita ini?")) {
       const snapshot = data;
@@ -123,6 +128,7 @@ export default function AdminBerita() {
     }
   };
 
+  /** Menangani submit form untuk membuat atau memperbarui berita. */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !content) {

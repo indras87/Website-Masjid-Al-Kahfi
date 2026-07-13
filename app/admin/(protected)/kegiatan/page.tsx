@@ -12,6 +12,7 @@ const DEFAULT_KEGIATAN = [
   { id: 4, title: 'Penyelenggaraan Qurban Al-Kahfi', type: 'Hari Besar', time: 'Tentative (Hari Raya)', ust: 'Panitia Qurban Bersama', status: 'Nonaktif' }
 ];
 
+/** Komponen utama halaman kelola kegiatan masjid dengan CRUD dan pencarian. */
 export default function AdminKegiatan() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +35,7 @@ export default function AdminKegiatan() {
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  /** Mengambil daftar kegiatan dari API saat komponen dimuat. */
   // Fetch data
   const fetchData = async () => {
     try {
@@ -56,6 +58,7 @@ export default function AdminKegiatan() {
     fetchData();
   }, []);
 
+  /** Membuka modal form dalam mode tambah kegiatan baru. */
   const handleOpenAdd = () => {
     setEditItem(null);
     setTitle('');
@@ -68,6 +71,7 @@ export default function AdminKegiatan() {
     setIsModalOpen(true);
   };
 
+  /** Membuka modal form dalam mode edit kegiatan yang dipilih. */
   const handleOpenEdit = (item: any) => {
     setEditItem(item);
     setTitle(item.title);
@@ -80,6 +84,7 @@ export default function AdminKegiatan() {
     setIsModalOpen(true);
   };
 
+  /** Menghapus kegiatan berdasarkan ID setelah konfirmasi pengguna. */
   const handleDelete = async (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus kegiatan ini?')) {
       const snapshot = data;
@@ -103,6 +108,7 @@ export default function AdminKegiatan() {
     }
   };
 
+  /** Menangani submit form untuk membuat atau memperbarui kegiatan. */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !time || !ust) {

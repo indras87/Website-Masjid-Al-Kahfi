@@ -16,16 +16,19 @@ const navLinks = [
   { id: "kontak", label: "Kontak" },
 ];
 
+/** Kerangka utama situs publik yang menyusun header, footer, dan pengaturan tema. */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
+  /** Menentukan tab navigasi yang aktif berdasarkan path URL saat ini. */
   const getActiveTab = () => {
     if (pathname === "/" || pathname === "/beranda") return "beranda";
     const segments = pathname.split("/").filter(Boolean);
     return segments[0] || "beranda";
   };
 
+  /** Mengarahkan pengguna ke rute yang sesuai dengan tab navigasi yang dipilih. */
   const handleNav = (tab: string) => {
     if (tab === "beranda") {
       router.push("/beranda");

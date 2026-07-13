@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { DEFAULT_RUNNING_TEXT } from "@/lib/cms/settings";
 import { formatAbsolute } from "@/lib/relative-time";
 
+/** Komponen utama halaman pengaturan teks berjalan (running text) situs. */
 export default function PengaturanPage() {
   const [text, setText] = useState(DEFAULT_RUNNING_TEXT);
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,7 @@ export default function PengaturanPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  /** Menyimpan teks berjalan ke API setelah validasi. */
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim().length === 0) {

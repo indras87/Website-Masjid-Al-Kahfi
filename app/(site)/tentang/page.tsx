@@ -77,6 +77,7 @@ const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
   Wifi,
 };
 
+/** Mengelompokkan daftar pengurus berdasarkan tingkat dan bidang (idarah/imarah/riayah). */
 function groupPengurus(list: Pengurus[]) {
   const byTingkat = (t: Pengurus["tingkat"]) =>
     list.filter((p) => p.tingkat === t).sort((a, b) => a.urutan - b.urutan);
@@ -112,6 +113,7 @@ function groupPengurus(list: Pengurus[]) {
   };
 }
 
+/** Kartu profil pengurus dengan foto (atau inisial sebagai fallback) dan label jabatan. */
 function PengurusCard({ p, priority = false }: { p: Pengurus; priority?: boolean }) {
   const [imgError, setImgError] = useState(false);
   const initials = p.nama
@@ -149,6 +151,7 @@ function PengurusCard({ p, priority = false }: { p: Pengurus; priority?: boolean
   );
 }
 
+/** Kartu profil khusus koordinator bidang dengan gaya sorot yang menonjol. */
 function KoordinatorCard({ p }: { p: Pengurus }) {
   const [imgError, setImgError] = useState(false);
   const initials = p.nama
@@ -184,6 +187,7 @@ function KoordinatorCard({ p }: { p: Pengurus }) {
   );
 }
 
+/** Halaman tentang masjid yang menampilkan struktur kepengurusan, visi-misi, dan fasilitas. */
 export default function TentangPage() {
   const [pengurusData, setPengurusData] = useState<Pengurus[]>([]);
   const [activeBidang, setActiveBidang] = useState<"idarah" | "imarah" | "riayah">("imarah");
@@ -191,6 +195,7 @@ export default function TentangPage() {
   const [fasilitasData, setFasilitasData] = useState<any[]>([]);
 
   useEffect(() => {
+    /** Memuat data pengurus, profil (visi-misi), dan fasilitas masjid dari API dengan fallback. */
     const fetchData = async () => {
       try {
         const pengurusRes = await fetch("/api/pengurus");

@@ -25,6 +25,7 @@ export type UserData = {
   password: string;
 };
 
+/** Komponen modal form untuk membuat atau mengedit pengguna. */
 export default function UserFormModal({
   isOpen,
   onClose,
@@ -55,6 +56,7 @@ export default function UserFormModal({
     setError("");
   }, [user, isOpen]);
 
+  /** Menangani submit form untuk membuat/memperbarui user dengan validasi input. */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");

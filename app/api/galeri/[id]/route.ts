@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { galeri } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
+/** Menghapus foto galeri berdasarkan ID (DELETE). */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

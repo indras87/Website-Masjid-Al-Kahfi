@@ -282,10 +282,12 @@ const SUPERADMIN_USER = {
   emailVerified: new Date(),
 };
 
+/** Menghasilkan hash bcrypt dari password teks biasa. */
 async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10);
 }
 
+/** Fungsi utama seeding: membersihkan tabel lalu mengisi data awal (user, konten, pengaturan). */
 async function main() {
   console.log("Seeding database...");
 

@@ -263,6 +263,7 @@ const iconMap: Record<string, any> = {
   HistoryIcon,
 };
 
+/** Halaman beranda publik yang menampilkan hero, jadwal sholat, program, dan galeri masjid. */
 export default function BerandaPage() {
   const { times, loading } = usePrayerTimes();
   const [activitiesData, setActivitiesData] = useState<any[]>([]);
@@ -273,6 +274,7 @@ export default function BerandaPage() {
   const [dbLoading, setDbLoading] = useState(true);
 
   useEffect(() => {
+    /** Memuat data beranda (berita, kegiatan, galeri) dari API dengan fallback bila gagal. */
     const fetchLandingData = async () => {
       try {
         setDbLoading(true);
@@ -377,6 +379,7 @@ export default function BerandaPage() {
     return () => clearInterval(timer);
   }, [times, loading]);
 
+  /** Menyalin teks (mis. nomor rekening) ke clipboard pengguna. */
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
   };

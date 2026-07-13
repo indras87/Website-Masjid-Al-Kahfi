@@ -18,6 +18,7 @@ const ICON_OPTIONS = [
   { value: 'HeartPulse', label: 'Layanan Kesehatan (HeartPulse)' }
 ];
 
+/** Komponen utama halaman kelola informasi tentang masjid (pengurus, visi-misi, fasilitas). */
 export default function AdminTentang() {
   const [activeTab, setActiveTab] = useState<'pengurus' | 'visi-misi' | 'fasilitas'>('pengurus');
   const [loading, setLoading] = useState(false);
@@ -62,6 +63,7 @@ export default function AdminTentang() {
   // ==========================================
   // LOAD ALL DATA
   // ==========================================
+  /** Memuat seluruh data pengurus, visi-misi, dan fasilitas dari API. */
   const loadData = async () => {
     try {
       setLoading(true);
@@ -97,6 +99,7 @@ export default function AdminTentang() {
   // ==========================================
   // ACTIONS KEPENGURUSAN
   // ==========================================
+  /** Membuka modal form dalam mode tambah anggota pengurus baru. */
   const handleOpenAddPengurus = () => {
     setEditPengurus(null);
     setPNama('');
@@ -108,6 +111,7 @@ export default function AdminTentang() {
     setIsPengurusModalOpen(true);
   };
 
+  /** Membuka modal form dalam mode edit anggota pengurus yang dipilih. */
   const handleOpenEditPengurus = (item: any) => {
     setEditPengurus(item);
     setPNama(item.nama);
@@ -119,6 +123,7 @@ export default function AdminTentang() {
     setIsPengurusModalOpen(true);
   };
 
+  /** Menghapus anggota pengurus berdasarkan ID setelah konfirmasi. */
   const handleDeletePengurus = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus pengurus ini?')) return;
     const snapshot = pengurusList;
@@ -139,6 +144,7 @@ export default function AdminTentang() {
     }
   };
 
+  /** Menangani submit form untuk membuat atau memperbarui anggota pengurus. */
   const handleSubmitPengurus = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pNama || !pFoto || !pTingkat) {
@@ -187,6 +193,7 @@ export default function AdminTentang() {
   // ==========================================
   // ACTIONS VISI & MISI
   // ==========================================
+  /** Menyimpan perubahan visi dan misi masjid ke API. */
   const handleSaveVisiMisi = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!visi || !misi) {
@@ -216,6 +223,7 @@ export default function AdminTentang() {
   // ==========================================
   // ACTIONS FASILITAS
   // ==========================================
+  /** Membuka modal form dalam mode tambah fasilitas baru. */
   const handleOpenAddFasilitas = () => {
     setEditFasilitas(null);
     setFTitle('');
@@ -224,6 +232,7 @@ export default function AdminTentang() {
     setIsFasilitasModalOpen(true);
   };
 
+  /** Membuka modal form dalam mode edit fasilitas yang dipilih. */
   const handleOpenEditFasilitas = (item: any) => {
     setEditFasilitas(item);
     setFTitle(item.title);
@@ -232,6 +241,7 @@ export default function AdminTentang() {
     setIsFasilitasModalOpen(true);
   };
 
+  /** Menghapus fasilitas berdasarkan ID setelah konfirmasi. */
   const handleDeleteFasilitas = async (id: number) => {
     if (!confirm('Apakah Anda yakin ingin menghapus fasilitas ini?')) return;
     const snapshot = fasilitasList;
@@ -252,6 +262,7 @@ export default function AdminTentang() {
     }
   };
 
+  /** Menangani submit form untuk membuat atau memperbarui fasilitas. */
   const handleSubmitFasilitas = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fTitle || !fDesc || !fIcon) {
@@ -299,6 +310,7 @@ export default function AdminTentang() {
     }
   };
 
+  /** Merender ikon Lucide yang sesuai berdasarkan nama string ikon fasilitas. */
   // Helper render icon Lucide berdasarkan nama string
   const renderIcon = (name: string) => {
     switch (name) {

@@ -42,6 +42,7 @@ const EMPTY_DONATION: DonationForm = {
   qrisImage: '',
 };
 
+/** Komponen utama halaman kelola kontak masjid dan informasi rekening donasi. */
 export default function AdminKontakDonasi() {
   const [contact, setContact] = useState<ContactForm>(EMPTY_CONTACT);
   const [donation, setDonation] = useState<DonationForm>(EMPTY_DONATION);
@@ -53,6 +54,7 @@ export default function AdminKontakDonasi() {
   const [contactAudit, setContactAudit] = useState<{ updatedAt: string | null; updatedByName: string | null } | null>(null);
   const [donationAudit, setDonationAudit] = useState<{ updatedAt: string | null; updatedByName: string | null } | null>(null);
 
+  /** Memuat data kontak dan donasi dari API saat komponen dimuat. */
   const loadData = async () => {
     try {
       setLoading(true);
@@ -94,6 +96,7 @@ export default function AdminKontakDonasi() {
     loadData();
   }, []);
 
+  /** Menyimpan perubahan data kontak ke API. */
   const handleSaveContact = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -132,6 +135,7 @@ export default function AdminKontakDonasi() {
     }
   };
 
+  /** Menyimpan perubahan data donasi/rekening ke API. */
   const handleSaveDonation = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -169,6 +173,7 @@ export default function AdminKontakDonasi() {
     }
   };
 
+  /** Menghapus semua data kontak dan mengembalikan ke default. */
   const handleDeleteContact = async () => {
     if (!confirm('Hapus semua data kontak dan kembalikan ke default?')) {
       return;
@@ -193,6 +198,7 @@ export default function AdminKontakDonasi() {
     }
   };
 
+  /** Menghapus semua data donasi dan mengembalikan ke default. */
   const handleDeleteDonation = async () => {
     if (!confirm('Hapus semua data donasi dan kembalikan ke default?')) {
       return;

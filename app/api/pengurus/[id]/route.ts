@@ -6,6 +6,7 @@ import { getActor } from '@/lib/audit';
 
 const VALID_TINGKAT = ['pembina', 'penasehat', 'pimpinan', 'idarah', 'imarah', 'riayah'] as const;
 
+/** Memperbarui data pengurus berdasarkan ID (PUT). */
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
@@ -47,6 +48,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 }
 
+/** Menghapus data pengurus berdasarkan ID (DELETE). */
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
