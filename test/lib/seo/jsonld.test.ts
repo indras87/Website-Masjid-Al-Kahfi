@@ -13,11 +13,19 @@ test('placeOfWorshipJsonLd has correct @type and address, no telephone/sameAs', 
 });
 
 test('newsArticleJsonLd maps berita fields', () => {
-  const g = newsArticleJsonLd({ title: 'Judul', slug: 'x', img: 'https://img', date: '01 Januari 2026', desc: 'd', author: 'Tim' });
+  const g = newsArticleJsonLd({ title: 'Judul', slug: 'x', img: 'https://img', datePublished: '2026-01-01T00:00:00.000Z', dateModified: '2026-01-02T00:00:00.000Z', desc: 'd', author: 'Tim' });
   assert.equal(g['@type'], 'NewsArticle');
   assert.equal(g.headline, 'Judul');
   assert.equal(g.image, 'https://img');
+  assert.equal(g.datePublished, '2026-01-01T00:00:00.000Z');
+  assert.equal(g.dateModified, '2026-01-02T00:00:00.000Z');
   assert.equal(g.author.name, 'Tim');
+});
+
+test('newsArticleJsonLd omits dates when not provided', () => {
+  const g: any = newsArticleJsonLd({ title: 'J', slug: 'y' });
+  assert.equal(g.datePublished, undefined);
+  assert.equal(g.dateModified, undefined);
 });
 
 test('breadcrumbJsonLd builds itemList', () => {

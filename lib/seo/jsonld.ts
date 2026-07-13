@@ -29,7 +29,15 @@ export function placeOfWorshipJsonLd() {
   };
 }
 
-type BeritaLike = { title: string; slug: string; img?: string | null; date?: string | null; desc?: string | null; author?: string | null };
+type BeritaLike = {
+  title: string;
+  slug: string;
+  img?: string | null;
+  datePublished?: string; // ISO 8601, e.g. from berita.createdAt
+  dateModified?: string;  // ISO 8601, e.g. from berita.updatedAt
+  desc?: string | null;
+  author?: string | null;
+};
 
 export function newsArticleJsonLd(b: BeritaLike) {
   return {
@@ -37,8 +45,8 @@ export function newsArticleJsonLd(b: BeritaLike) {
     "@type": "NewsArticle",
     headline: b.title,
     image: b.img ? (b.img.startsWith("http") ? b.img : `${BASE}${b.img}`) : `${BASE}${siteConfig.ogImage}`,
-    datePublished: b.date,
-    dateModified: b.date,
+    ...(b.datePublished ? { datePublished: b.datePublished } : {}),
+    ...(b.dateModified ? { dateModified: b.dateModified } : {}),
     author: { "@type": "Organization", name: b.author || siteConfig.name },
     publisher: { "@type": "Organization", name: siteConfig.name },
     description: b.desc || undefined,
