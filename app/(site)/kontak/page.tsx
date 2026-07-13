@@ -114,6 +114,7 @@ export default function KontakPage() {
           <div className="rounded-2xl overflow-hidden border-2 border-gold-200 lg:col-span-7 bg-gray-100 relative shadow-inner min-h-[400px]">
             <iframe
               src={contactData.googleMapsUrl}
+              title="Lokasi Masjid Al-Kahfi di peta"
               className="absolute inset-0 w-full h-full"
               style={{ border: 0 }}
               allowFullScreen

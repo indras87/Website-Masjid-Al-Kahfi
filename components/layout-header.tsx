@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import Link from "next/link";
 import { DEFAULT_RUNNING_TEXT } from "@/lib/cms/settings";
 import {
   HeartPulse,
@@ -70,6 +71,8 @@ export function LayoutHeader({
     };
   }, []);
 
+  const reduceMotion = useReducedMotion();
+
   const navLinks = [
     { id: "beranda", label: "Beranda" },
     { id: "tentang", label: "Tentang" },
@@ -79,6 +82,8 @@ export function LayoutHeader({
     { id: "galeri", label: "Galeri" },
     { id: "kontak", label: "Kontak" },
   ];
+
+  const hrefFor = (id: string) => (id === "beranda" ? "/beranda" : `/${id}`);
 
   return (
     <>
@@ -91,8 +96,8 @@ export function LayoutHeader({
             </span>
             <div className="overflow-hidden w-full relative">
               <motion.div
-                animate={{ x: ["100%", "-100%"] }}
-                transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+                animate={reduceMotion ? {} : { x: ["100%", "-100%"] }}
+                transition={reduceMotion ? { duration: 0 } : { repeat: Infinity, duration: 30, ease: "linear" }}
                 className="whitespace-nowrap text-xs"
               >
                 {runningText}
@@ -109,46 +114,48 @@ export function LayoutHeader({
       <header className="bg-white/95 backdrop-blur-md shadow-md sticky top-0 z-40 border-b-2 border-gold-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-24">
-            <button
-              onClick={() => onNav("beranda")}
+            <Link
+              href="/beranda"
               className="flex items-center gap-4 group text-left"
             >
-              <div className="w-14 h-14 bg-emerald-900 border-2 border-gold-500 rounded-full flex items-center justify-center text-gold-300 font-serif text-2xl shadow-lg transition-transform duration-300 group-hover:scale-105">
+              <div className="w-14 h-14 bg-emerald-900 border-2 border-gold-500 rounded-full flex items-center justify-center text-gold-300 font-serif text-2xl shadow-lg transition-transform duration-300 group-hover:scale-105" aria-hidden="true">
                 🕌
               </div>
               <div>
-                <h1 className="font-serif font-bold text-xl md:text-2xl text-emerald-900 tracking-wide leading-tight">
+                <span className="block font-serif font-bold text-xl md:text-2xl text-emerald-900 tracking-wide leading-tight">
                   Masjid Al-Kahfi
-                </h1>
-                <p className="text-xs text-gold-600 font-semibold uppercase tracking-widest">
+                </span>
+                <span className="block text-xs text-gold-600 font-semibold uppercase tracking-widest">
                   Cikoneng • Kab. Bandung
-                </p>
+                </span>
               </div>
-            </button>
+            </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1" aria-label="Navigasi utama">
               {navLinks.map((link) => (
-                <button
+                <Link
                   key={link.id}
-                  onClick={() => onNav(link.id)}
+                  href={hrefFor(link.id)}
                   className={`px-3 py-2 rounded-md text-sm font-semibold transition duration-150 ${activeTab === link.id ? "text-gold-500 border-b-2 border-gold-500" : "text-gray-600 hover:text-gold-600"}`}
                 >
                   {link.label}
-                </button>
+                </Link>
               ))}
-              <button
-                onClick={() => onNav("donasi")}
+              <Link
+                href="/donasi"
                 className="ml-4 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold text-sm px-5 py-2.5 rounded-lg shadow-md hover:shadow-lg hover:from-gold-600 hover:to-gold-700 transition transform hover:-translate-y-0.5 flex items-center gap-2"
               >
                 <HeartPulse size={16} /> Donasi & Infaq
-              </button>
+              </Link>
             </nav>
 
             {/* Mobile Nav Toggle */}
             <div className="lg:hidden flex items-center">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Tutup menu" : "Buka menu"}
+                aria-expanded={isMobileMenuOpen}
                 className="text-emerald-900 focus:outline-none p-2 rounded-md hover:bg-gold-50"
               >
                 {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -168,20 +175,20 @@ export function LayoutHeader({
             >
               <div className="py-3 flex flex-col space-y-2">
                 {navLinks.map((link) => (
-                  <button
+                  <Link
                     key={link.id}
-                    onClick={() => onNav(link.id)}
+                    href={hrefFor(link.id)}
                     className={`block text-left px-4 py-2.5 rounded-md text-base font-semibold ${activeTab === link.id ? "bg-gold-50 text-gold-600" : "text-emerald-950 hover:bg-gold-50"}`}
                   >
                     {link.label}
-                  </button>
+                  </Link>
                 ))}
-                <button
-                  onClick={() => onNav("donasi")}
+                <Link
+                  href="/donasi"
                   className="block w-full text-center bg-gold-500 text-white font-bold py-3 rounded-md shadow-md mt-2 flex justify-center items-center gap-2"
                 >
                   <HeartPulse size={16} /> Donasi & Infaq
-                </button>
+                </Link>
               </div>
             </motion.div>
           )}

@@ -21,6 +21,8 @@ const navLinks = [
 ];
 
 export function Footer({ onNav }: { onNav: (tab: string) => void }) {
+  const hrefFor = (id: string) => (id === "beranda" ? "/beranda" : `/${id}`);
+
   return (
     <footer className="bg-emerald-950 text-white border-t border-gold-500/20">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -41,38 +43,40 @@ export function Footer({ onNav }: { onNav: (tab: string) => void }) {
             </p>
           </div>
           <div className="space-y-4">
-            <h5 className="font-serif text-sm font-bold uppercase tracking-wider text-gold-400">
+            <h2 className="font-serif text-sm font-bold uppercase tracking-wider text-gold-400">
               Peta Navigasi
-            </h5>
-            <div className="grid grid-cols-2 gap-2 text-xs text-emerald-100">
-              {navLinks.map((link) => (
-                <button
-                  key={`footer-${link.id}`}
-                  onClick={() => onNav(link.id)}
-                  className="text-left hover:text-gold-300 transition"
-                >
-                  {link.label}
-                </button>
-              ))}
-            </div>
+            </h2>
+            <nav aria-label="Navigasi footer">
+              <div className="grid grid-cols-2 gap-2 text-xs text-emerald-100">
+                {navLinks.map((link) => (
+                  <Link
+                    key={`footer-${link.id}`}
+                    href={hrefFor(link.id)}
+                    className="text-left hover:text-gold-300 transition"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </nav>
           </div>
           <div className="space-y-4">
-            <h5 className="font-serif text-sm font-bold uppercase tracking-wider text-gold-400">
+            <h2 className="font-serif text-sm font-bold uppercase tracking-wider text-gold-400">
               Media Interaksi
-            </h5>
-            <div className="flex gap-4">
-              <button className="w-8 h-8 rounded-full bg-white/10 hover:bg-gold-500 hover:text-emerald-950 flex items-center justify-center text-sm transition">
+            </h2>
+            <div className="flex gap-4" aria-hidden="true">
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">
                 <Youtube size={14} />
-              </button>
-              <button className="w-8 h-8 rounded-full bg-white/10 hover:bg-gold-500 hover:text-emerald-950 flex items-center justify-center text-sm transition">
+              </span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">
                 <Instagram size={14} />
-              </button>
-              <button className="w-8 h-8 rounded-full bg-white/10 hover:bg-gold-500 hover:text-emerald-950 flex items-center justify-center text-sm transition">
+              </span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">
                 <MessageCircle size={14} />
-              </button>
-              <button className="w-8 h-8 rounded-full bg-white/10 hover:bg-gold-500 hover:text-emerald-950 flex items-center justify-center text-sm transition">
+              </span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">
                 <Mail size={14} />
-              </button>
+              </span>
             </div>
             <p className="text-[10px] text-emerald-200/60 leading-relaxed">
               &copy; 2026 DKM Masjid Al-Kahfi Cikoneng. <br />
