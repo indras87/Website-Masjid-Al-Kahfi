@@ -1,8 +1,28 @@
 import React from 'react';
 import { Users, BookOpen, FileText, Image as ImageIcon, TrendingUp, Calendar as CalendarIcon, Clock, HandCoins } from 'lucide-react';
 import Link from 'next/link';
+import { getDashboardStats, getRecentActivity } from '@/lib/dashboard';
+import { formatRelative } from '@/lib/relative-time';
+import type { ActivityItem } from '@/lib/dashboard';
+import type { LucideIcon } from 'lucide-react';
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const [stats, activity] = await Promise.all([
+    getDashboardStats(),
+    getRecentActivity(8),
+  ]);
+
+  const ENTITY_META: Record<
+    ActivityItem["entity"],
+    { icon: LucideIcon; label: string; color: string }
+  > = {
+    berita: { icon: FileText, label: "Berita", color: "text-blue-500" },
+    kegiatan: { icon: CalendarIcon, label: "Kegiatan", color: "text-amber-500" },
+    galeri: { icon: ImageIcon, label: "Galeri", color: "text-purple-500" },
+    pengurus: { icon: Users, label: "Pengurus", color: "text-emerald-500" },
+    fasilitas: { icon: BookOpen, label: "Fasilitas", color: "text-sky-500" },
+  };
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       <div>
@@ -18,7 +38,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <p className="text-sm text-gray-500 font-medium">Total Kegiatan</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">12</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{stats.kegiatan}</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition">
@@ -27,7 +47,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <p className="text-sm text-gray-500 font-medium">Berita Terpublikasi</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">24</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{stats.berita}</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition">
@@ -35,8 +55,8 @@ export default function AdminDashboard() {
             <Users size={28} />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">Jumlah Jamaah</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">1.2K</p>
+            <p className="text-sm text-gray-500 font-medium">Pengurus DKM</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{stats.pengurus}</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition">
@@ -45,36 +65,42 @@ export default function AdminDashboard() {
           </div>
           <div>
             <p className="text-sm text-gray-500 font-medium">Foto Galeri</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">45</p>
+            <p className="text-3xl font-bold text-gray-900 mt-1">{stats.galeri}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-        {/* Recent Activity Placeholder */}
+        {/* Recent Activity */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:col-span-2 flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><TrendingUp size={20} className="text-emerald-600"/> Aktivitas Terbaru</h3>
             <Link href="/admin/berita" className="text-sm text-emerald-600 font-semibold hover:text-emerald-700">Lihat Semua</Link>
           </div>
           <div className="space-y-5 flex-1">
-            {[
-              { title: 'Menambahkan Berita Baru: "Penyaluran Sembako Rutin Bulanan"', time: '2 jam yang lalu', type: 'berita' },
-              { title: 'Mengubah Jadwal Kegiatan: "Taman Pendidikan Al-Qur\'an (TPA)"', time: '5 jam yang lalu', type: 'kegiatan' },
-              { title: 'Mengunggah 3 Foto Baru ke Galeri', time: 'Kemarin, 14:30 WIB', type: 'galeri' }
-            ].map((activity, i) => (
-               <div key={i} className="flex items-start gap-4">
-                 <div className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 mt-1">
-                   {activity.type === 'berita' && <FileText size={18} className="text-blue-500" />}
-                   {activity.type === 'kegiatan' && <CalendarIcon size={18} className="text-amber-500" />}
-                   {activity.type === 'galeri' && <ImageIcon size={18} className="text-purple-500" />}
-                 </div>
-                 <div className="flex-1 pb-4 border-b border-gray-50 last:border-0 last:pb-0">
-                   <p className="text-sm font-semibold text-gray-800 leading-snug">{activity.title}</p>
-                   <p className="text-xs text-gray-500 mt-1 flex items-center gap-1"><Clock size={12}/> Oleh Admin Utama • {activity.time}</p>
-                 </div>
-               </div>
-            ))}
+            {activity.length === 0 ? (
+              <p className="text-sm text-gray-400">Belum ada aktivitas.</p>
+            ) : (
+              activity.map((a, i) => {
+                const meta = ENTITY_META[a.entity];
+                const Icon = meta.icon;
+                return (
+                  <div key={i} className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 mt-1">
+                      <Icon size={18} className={meta.color} />
+                    </div>
+                    <div className="flex-1 pb-4 border-b border-gray-50 last:border-0 last:pb-0">
+                      <p className="text-sm font-semibold text-gray-800 leading-snug">
+                        {a.updatedByName || "Sistem"} {a.action === "create" ? "menambahkan" : "memperbarui"} {meta.label} &ldquo;{a.title}&rdquo;
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <Clock size={12} /> {formatRelative(a.updatedAt)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 

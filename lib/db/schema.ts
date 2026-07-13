@@ -94,6 +94,9 @@ export const berita = pgTable("berita", {
   desc: text("desc").notNull(),
   content: text("content"),
   slug: text("slug"),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -110,6 +113,9 @@ export const kegiatan = pgTable("kegiatan", {
   color: text("color"),
   img: text("img"),
   featured: boolean("featured").default(false).notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -117,6 +123,9 @@ export const galeri = pgTable("galeri", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   img: text("img").notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -139,6 +148,9 @@ export const pengurus = pgTable("pengurus", {
   jabatan: text("jabatan"), // nullable: "Ketua","Sekretaris","Koordinator Bidang", null = anggota
   urutan: integer("urutan").default(0).notNull(),
   periode: text("periode").default("2024-2028").notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -147,6 +159,8 @@ export const profilMasjid = pgTable("profil_masjid", {
   visi: text("visi").notNull(),
   misi: text("misi").notNull(), // Newline-separated values
   history: text("history"),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -155,6 +169,9 @@ export const fasilitas = pgTable("fasilitas", {
   title: text("title").notNull(),
   desc: text("desc").notNull(),
   icon: text("icon").notNull(), // Lucide icon names like "User", "Droplet", etc.
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -165,6 +182,8 @@ export const kontak = pgTable("kontak", {
   email: text("email").notNull(),
   jamOperasional: text("jam_operasional").notNull(),
   googleMapsUrl: text("google_maps_url").notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -174,6 +193,8 @@ export const donasi = pgTable("donasi", {
   nomorRekening: text("nomor_rekening").notNull(),
   atasNamaRekening: text("atas_nama_rekening").notNull(),
   qrisImage: text("qris_image").notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -181,5 +202,7 @@ export const donasi = pgTable("donasi", {
 export const pengaturan = pgTable("pengaturan", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

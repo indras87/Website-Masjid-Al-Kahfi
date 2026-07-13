@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Search, X, Loader2 } from "lucide-react";
 import Image from "next/image";
 import ImageUpload from "@/app/admin/components/ImageUpload";
+import { formatRelative } from "@/lib/relative-time";
 
 const DEFAULT_GALERI = [
   {
@@ -190,10 +191,13 @@ export default function AdminGaleri() {
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex flex-col justify-end p-3">
-                  <p className="text-white text-xs font-semibold truncate mb-2">
+                  <p className="text-white text-xs font-semibold truncate mb-1">
                     {item.title}
                   </p>
-                   <button
+                  <p className="text-white/80 text-[10px]">
+                    {item.updatedByName || "Sistem"} · {formatRelative(item.updatedAt)}
+                  </p>
+                  <button
                      onClick={() => handleDelete(item.id)}
                      disabled={deletingId === item.id}
                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded flex items-center justify-center transition w-8 h-8 disabled:opacity-60"

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { fasilitas } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { getActor } from '@/lib/audit';
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,8 +14,16 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Nama fasilitas, deskripsi, dan ikon wajib diisi' }, { status: 400 });
     }
 
+    const actor = await getActor();
+
     const result = await db.update(fasilitas)
-      .set({ title, desc: description, icon })
+      .set({
+        title,
+        desc: description,
+        icon,
+        updatedById: actor?.id ?? null,
+        updatedAt: new Date(),
+      })
       .where(eq(fasilitas.id, parseInt(id)))
       .returning();
 

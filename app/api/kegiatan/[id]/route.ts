@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { kegiatan } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { withActorNames, getActor } from '@/lib/audit';
 
 export async function PUT(
   request: Request,
@@ -17,6 +18,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
+    const actor = await getActor();
+
     const result = await db.update(kegiatan)
       .set({
         title,
@@ -30,6 +33,8 @@ export async function PUT(
         color,
         img: img || null,
         featured: featured ?? false,
+        updatedById: actor?.id ?? null,
+        updatedAt: new Date(),
       })
       .where(eq(kegiatan.id, numericId))
       .returning();

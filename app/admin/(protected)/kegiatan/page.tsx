@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, Search, Filter, X, Loader2 } from 'lucide-react';
 import ImageUpload from "@/app/admin/components/ImageUpload";
+import { formatRelative } from "@/lib/relative-time";
 
 const DEFAULT_KEGIATAN = [
   { id: 1, title: 'Tahsin & Bimbingan Mengaji Quran Dewasa', type: 'Harian', time: 'Setiap Hari (Bada Subuh)', ust: 'Ust. Sulaeman Al-Hafidz', status: 'Aktif' },
@@ -211,13 +212,14 @@ export default function AdminKegiatan() {
                 <th className="px-6 py-4 font-semibold">Waktu</th>
                 <th className="px-6 py-4 font-semibold">Pengisi</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
+                <th className="px-6 py-4 font-semibold">Diperbarui</th>
                 <th className="px-6 py-4 font-semibold text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-gray-400">Memuat data kegiatan...</td>
+                  <td colSpan={7} className="px-6 py-10 text-center text-gray-400">Memuat data kegiatan...</td>
                 </tr>
               ) : filteredData.length > 0 ? (
                 filteredData.map(item => (
@@ -244,6 +246,12 @@ export default function AdminKegiatan() {
                             Beranda
                           </span>
                         )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-xs">
+                        <span className="font-semibold text-gray-800">{item.updatedByName || "Sistem"}</span>
+                        <span className="block text-gray-400">{formatRelative(item.updatedAt)}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -273,7 +281,7 @@ export default function AdminKegiatan() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-gray-400">Tidak ada data kegiatan ditemukan</td>
+                  <td colSpan={7} className="px-6 py-10 text-center text-gray-400">Tidak ada data kegiatan ditemukan</td>
                 </tr>
               )}
             </tbody>

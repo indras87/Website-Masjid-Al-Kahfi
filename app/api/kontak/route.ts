@@ -3,13 +3,15 @@ import { desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { kontak } from '@/lib/db/schema';
 import { getDefaultContactSettings } from '@/lib/cms/settings';
+import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
     const rows = await db.select().from(kontak).orderBy(desc(kontak.id)).limit(1);
-    return NextResponse.json(rows[0] || getDefaultContactSettings());
+    const enriched = rows.length ? await withActorNames(rows) : [];
+    return NextResponse.json(enriched[0] || getDefaultContactSettings());
   } catch (error: any) {
     console.error('Error fetching kontak:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
@@ -25,6 +27,8 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Semua field kontak wajib diisi' }, { status: 400 });
     }
 
+    const actor = await getActor();
+
     const existing = await db.select().from(kontak).limit(1);
 
     const result = existing.length === 0
@@ -34,6 +38,9 @@ export async function PUT(request: Request) {
           email,
           jamOperasional,
           googleMapsUrl,
+          createdById: actor?.id ?? null,
+          updatedById: actor?.id ?? null,
+          updatedAt: new Date(),
         }).returning()
       : await db.update(kontak)
           .set({
@@ -42,6 +49,7 @@ export async function PUT(request: Request) {
             email,
             jamOperasional,
             googleMapsUrl,
+            updatedById: actor?.id ?? null,
             updatedAt: new Date(),
           })
           .where(eq(kontak.id, existing[0].id))
