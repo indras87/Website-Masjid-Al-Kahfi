@@ -1,0 +1,21 @@
+# Masjid Al-Kahfi Cikoneng
+
+Masjid Al-Kahfi adalah masjid di Cikoneng, Bojongsoang, Kabupaten Bandung, Jawa Barat, Indonesia. Situs ini menyediakan jadwal sholat berbasis GPS, jadwal kajian & kegiatan rutin, berita DKM, galeri dokumentasi, dan informasi infaq & zakat.
+
+## Lokasi & Kontak
+- Alamat: Jl. Cikoneng No.15, Bojongsoang, Kab. Bandung 40288, Jawa Barat, Indonesia
+- Email: alkahfi.cikoneng@gmail.com
+- Koordinat: -6.9856, 107.6589
+
+## Halaman utama
+- Beranda: https://masjid-alkahfi.id/beranda
+- Jadwal Sholat: https://masjid-alkahfi.id/jadwal-sholat
+- Kegiatan & Kajian: https://masjid-alkahfi.id/kegiatan
+- Berita: https://masjid-alkahfi.id/berita
+- Galeri: https://masjid-alkahfi.id/galeri
+- Tentang: https://masjid-alkahfi.id/tentang
+- Kontak: https://masjid-alkahfi.id/kontak
+- Donasi & Infaq: https://masjid-alkahfi.id/donasi
+
+## Konten
+Berita DKM dipublikasikan dalam Bahasa Indonesia. Feed RSS tersedia di https://masjid-alkahfi.id/feed.xml.

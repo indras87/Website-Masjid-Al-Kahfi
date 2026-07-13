@@ -36,6 +36,10 @@ export const metadata: Metadata = {
       ? { other: { "msvalidate.01": process.env.NEXT_PUBLIC_BING_VERIFICATION } }
       : {}),
   },
+  alternates: {
+    canonical: siteConfig.url,
+    types: { "application/rss+xml": `${siteConfig.url}/feed.xml` },
+  },
 };
 
 export const viewport: Viewport = { themeColor: siteConfig.themeColor };
