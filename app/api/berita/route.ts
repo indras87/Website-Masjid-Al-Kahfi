@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { berita } from '@/lib/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { generateSlug } from '@/lib/slug';
 import { withActorNames, getActor } from '@/lib/audit';
+import { getAllBerita } from '@/lib/queries/content';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const data = await db.select().from(berita).orderBy(desc(berita.createdAt));
+    const data = await getAllBerita();
     return NextResponse.json(await withActorNames(data));
   } catch (error: any) {
     console.error('Error fetching berita:', error);
