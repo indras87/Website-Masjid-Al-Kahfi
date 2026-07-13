@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { DEFAULT_RUNNING_TEXT } from "@/lib/cms/settings";
+import Image from "next/image";
 import {
   HeartPulse,
   Menu,
@@ -112,19 +113,16 @@ export function LayoutHeader({
           <div className="flex justify-between items-center h-24">
             <button
               onClick={() => onNav("beranda")}
-              className="flex items-center gap-4 group text-left"
+              className="flex items-center group text-left"
             >
-              <div className="w-14 h-14 bg-emerald-900 border-2 border-gold-500 rounded-full flex items-center justify-center text-gold-300 font-serif text-2xl shadow-lg transition-transform duration-300 group-hover:scale-105">
-                🕌
-              </div>
-              <div>
-                <h1 className="font-serif font-bold text-xl md:text-2xl text-emerald-900 tracking-wide leading-tight">
-                  Masjid Al-Kahfi
-                </h1>
-                <p className="text-xs text-gold-600 font-semibold uppercase tracking-widest">
-                  Cikoneng • Kab. Bandung
-                </p>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Masjid Al-Kahfi Cikoneng"
+                width={192}
+                height={64}
+                className="h-14 w-auto transition-transform duration-300 group-hover:scale-105"
+                priority
+              />
             </button>
 
             {/* Desktop Nav */}

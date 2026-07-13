@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
 import {
@@ -71,9 +72,9 @@ export default function Sidebar({ user }: SidebarProps) {
     <>
       {/* Mobile Toggle */}
       <div className="md:hidden bg-emerald-950 text-white p-4 flex justify-between items-center shrink-0">
-        <h2 className="text-xl font-bold font-serif text-gold-400">
-          Admin Al-Kahfi
-        </h2>
+        <div className="bg-white/95 rounded-md px-2 py-1">
+          <Image src="/logo.png" alt="Masjid Al-Kahfi Cikoneng" width={108} height={36} className="h-8 w-auto" />
+        </div>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="text-white hover:text-gold-300 transition"
@@ -87,9 +88,9 @@ export default function Sidebar({ user }: SidebarProps) {
         className={`w-64 bg-emerald-950 text-white flex-col absolute md:relative z-50 h-[calc(100vh-68px)] md:h-screen transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"} flex shrink-0`}
       >
         <div className="hidden md:flex p-6 border-b border-emerald-900 items-center justify-center shrink-0">
-          <h2 className="text-2xl font-bold font-serif text-gold-400">
-            Admin CMS
-          </h2>
+          <div className="bg-white/95 rounded-md px-3 py-2">
+            <Image src="/logo.png" alt="Masjid Al-Kahfi Cikoneng" width={144} height={48} className="h-10 w-auto" />
+          </div>
         </div>
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {links.map((link) => {
