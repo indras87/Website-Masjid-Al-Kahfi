@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { profilMasjid } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,8 @@ export async function GET() {
         history: ''
       });
     }
-    return NextResponse.json(data[0]);
+    const enriched = await withActorNames(data);
+    return NextResponse.json(enriched[0]);
   } catch (error: any) {
     console.error('Error fetching profil:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
@@ -31,6 +33,8 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Visi dan Misi wajib diisi' }, { status: 400 });
     }
 
+    const actor = await getActor();
+
     // Ambil data profil pertama (ID tunggal)
     const existing = await db.select().from(profilMasjid).limit(1);
 
@@ -40,12 +44,21 @@ export async function PUT(request: Request) {
       result = await db.insert(profilMasjid).values({
         visi,
         misi,
-        history: history || ''
+        history: history || '',
+        createdById: actor?.id ?? null,
+        updatedById: actor?.id ?? null,
+        updatedAt: new Date(),
       }).returning();
     } else {
       // Perbarui jika sudah ada
       result = await db.update(profilMasjid)
-        .set({ visi, misi, history: history || '', updatedAt: new Date() })
+        .set({
+          visi,
+          misi,
+          history: history || '',
+          updatedById: actor?.id ?? null,
+          updatedAt: new Date(),
+        })
         .where(eq(profilMasjid.id, existing[0].id))
         .returning();
     }
