@@ -3,6 +3,12 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/app/admin/components/Sidebar";
 
+// Seluruh area admin butuh sesi (headers/cookies) dan query DB live, jadi tidak
+// boleh di-prerender saat `next build`. force-dynamic mencegah build mencoba
+// mengevaluasi halaman (yang akan terkena ECONNREFUSED karena DB tak tersedia
+// di environment build/Docker standalone).
+export const dynamic = "force-dynamic";
+
 /** Layout terproteksi yang memverifikasi sesi server-side dan merender dashboard admin beserta sidebar. */
 export default async function ProtectedLayout({
   children,
