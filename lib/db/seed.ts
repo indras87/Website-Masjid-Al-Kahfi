@@ -13,6 +13,7 @@ import {
   account,
 } from "./schema";
 import { DEFAULT_RUNNING_TEXT } from "../cms/settings";
+import { slugify, uniqueSlug } from "../slug";
 import bcrypt from "bcryptjs";
 
 // Helper: generate placeholder avatar URL dari inisial nama
@@ -325,7 +326,14 @@ async function main() {
 
   // Insert Berita
   console.log("Seeding berita...");
-  await db.insert(berita).values(DEFAULT_BERITA);
+  // Sertakan slug unik (tanpa id) pada setiap berita seed agar URL bersih.
+  const seedSlugs: string[] = [];
+  const beritaWithSlug = DEFAULT_BERITA.map((b) => {
+    const slug = uniqueSlug(slugify(b.title), seedSlugs);
+    seedSlugs.push(slug);
+    return { ...b, slug };
+  });
+  await db.insert(berita).values(beritaWithSlug);
 
   // Insert Kegiatan
   console.log("Seeding kegiatan...");
