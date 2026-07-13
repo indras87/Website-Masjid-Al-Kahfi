@@ -1,195 +1,128 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Image from "next/image";
-import { Share2, Copy, MessageCircle, Twitter, Facebook, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { getBeritaBySlug, getAllBeritaSlugs } from "@/lib/queries/content";
+import { buildMetadata } from "@/lib/seo/metadata";
+import { newsArticleJsonLd, breadcrumbJsonLd } from "@/lib/seo/jsonld";
+import { JsonLd } from "@/components/json-ld";
+import { BeritaShareBar } from "./berita-detail-client";
 
-export default function BeritaDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+type Params = { params: Promise<{ slug: string }> };
 
-  const slugParam = params.slug as string;
-  const id = parseInt(slugParam.split("-").pop() || "0");
+// Allow on-demand rendering for slugs not pre-rendered by generateStaticParams.
+export const dynamicParams = true;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!id || isNaN(id)) {
-        setLoading(false);
-        return;
-      }
+export async function generateStaticParams() {
+  const slugs = await getAllBeritaSlugs();
+  return slugs.map((s) => ({ slug: s.slug }));
+}
 
-      try {
-        const res = await fetch(`/api/berita/${id}`);
-        if (res.ok) {
-          const json = await res.json();
-          setData(json);
-        } else {
-          console.error("Failed to fetch berita detail");
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleShareWhatsApp = () => {
-    const url = window.location.href;
-    const text = `${data?.title || "Berita"}\n\n${url}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
-  };
-
-  const handleShareTwitter = () => {
-    const url = window.location.href;
-    const text = data?.title || "Berita";
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-      "_blank"
-    );
-  };
-
-  const handleShareFacebook = () => {
-    const url = window.location.href;
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-      "_blank"
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-950"></div>
-      </div>
-    );
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+  const b = await getBeritaBySlug(slug);
+  if (!b) {
+    return buildMetadata({
+      title: "Berita tidak ditemukan",
+      description: "",
+      path: `/berita/${slug}`,
+      noIndex: true,
+    });
   }
+  return buildMetadata({
+    title: b.title,
+    description: b.desc ?? "",
+    path: `/berita/${slug}`,
+    image: b.img ?? undefined,
+    type: "article",
+    publishedTime: b.createdAt ? new Date(b.createdAt).toISOString() : undefined,
+    modifiedTime: b.updatedAt ? new Date(b.updatedAt).toISOString() : undefined,
+    author: b.author ?? undefined,
+  });
+}
 
-  if (!data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Berita tidak ditemukan</h2>
-          <button
-            onClick={() => router.push("/berita")}
-            className="mt-4 text-emerald-900 font-semibold hover:underline"
-          >
-            Kembali ke Berita
-          </button>
-        </div>
-      </div>
-    );
-  }
+export default async function BeritaDetail({ params }: Params) {
+  const { slug } = await params;
+  const b = await getBeritaBySlug(slug);
+  if (!b) notFound();
 
   return (
-    <div className="pb-16">
-      <div className="max-w-4xl mx-auto px-4 pt-8">
-        {data.img && (
-          <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-8 border border-gray-100">
-            <Image
-              src={data.img}
-              alt={data.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 896px"
-              className="object-cover"
-              priority
-            />
-          </div>
-        )}
+    <article className="max-w-3xl mx-auto px-4 py-10">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Beranda", path: "/beranda" },
+          { name: "Berita", path: "/berita" },
+          { name: b.title, path: `/berita/${slug}` },
+        ])}
+      />
+      <JsonLd
+        data={newsArticleJsonLd({
+          title: b.title,
+          slug,
+          img: b.img,
+          datePublished: b.createdAt
+            ? new Date(b.createdAt).toISOString()
+            : undefined,
+          dateModified: b.updatedAt
+            ? new Date(b.updatedAt).toISOString()
+            : undefined,
+          desc: b.desc,
+          author: b.author,
+        })}
+      />
 
-        {/* Header Info */}
-        <div className="mb-8">
-          <span
-            className={`text-[10px] md:text-xs ${data.color || "bg-emerald-50 text-emerald-800"} font-bold px-3 py-1 rounded-full mb-4 inline-block`}
-          >
-            {data.tag}
-          </span>
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-emerald-950 leading-tight mb-4">
-            {data.title}
-          </h1>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 border-b border-gray-100 pb-6">
-            <span className="font-semibold text-gray-700">{data.author}</span>
-            <span className="text-gray-300">|</span>
-            <span>{data.date}</span>
-          </div>
-        </div>
+      <nav className="text-sm text-emerald-700 mb-4" aria-label="Breadcrumb">
+        <Link href="/beranda">Beranda</Link> /{" "}
+        <Link href="/berita">Berita</Link> /{" "}
+        <span className="text-gray-500">{b.title}</span>
+      </nav>
 
-        {/* Content */}
-        <div
-          className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl text-gray-700 leading-relaxed mb-12"
-          dangerouslySetInnerHTML={{ __html: data.content || data.desc }}
+      <h1 className="font-serif text-3xl md:text-4xl font-bold text-emerald-950 leading-tight">
+        {b.title}
+      </h1>
+      <p className="mt-3 text-sm text-gray-500">
+        {b.author ? `oleh ${b.author} • ` : ""}
+        {b.date}
+        {b.tag ? ` • ${b.tag}` : ""}
+      </p>
+
+      {b.img && (
+        <Image
+          src={b.img}
+          alt={b.title}
+          width={1200}
+          height={675}
+          priority
+          sizes="(max-width: 768px) 100vw, 768px"
+          className="rounded-xl mt-6 w-full h-auto object-cover"
         />
+      )}
 
-        {/* Share Section */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
-          <h3 className="font-serif text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Share2 size={20} className="text-emerald-600" />
-            Bagikan Artikel Ini
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition"
-            >
-              {copied ? (
-                <>
-                  <Copy size={16} className="text-emerald-600" />
-                  Tersalin!
-                </>
-              ) : (
-                <>
-                  <Copy size={16} />
-                  Copy Link
-                </>
-              )}
-            </button>
-            <button
-              onClick={handleShareWhatsApp}
-              className="flex items-center gap-2 px-4 py-2.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-semibold transition"
-            >
-              <MessageCircle size={16} />
-              WhatsApp
-            </button>
-            <button
-              onClick={handleShareTwitter}
-              className="flex items-center gap-2 px-4 py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg text-sm font-semibold transition"
-            >
-              <Twitter size={16} />
-              Twitter
-            </button>
-            <button
-              onClick={handleShareFacebook}
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold transition"
-            >
-              <Facebook size={16} />
-              Facebook
-            </button>
-          </div>
-        </div>
+      {/*
+        NOTE: @tailwindcss/typography is listed in package.json but is NOT
+        registered via `@plugin` in app/globals.css, so `prose` classes are
+        no-ops. Using explicit classes instead so the article body is styled
+        regardless. (See task-8-report.md → prose decision.)
+      */}
+      <div
+        className="text-gray-700 leading-relaxed mt-6 [&_img]:rounded-xl [&_a]:text-emerald-700"
+        dangerouslySetInnerHTML={{ __html: b.content ?? b.desc ?? "" }}
+      />
 
-        {/* Back Button */}
-        <div className="text-center">
-          <button
-            onClick={() => router.push("/berita")}
-            className="inline-flex items-center gap-2 text-emerald-900 font-semibold hover:text-gold-600 transition"
-          >
-            <ArrowLeft size={18} />
-            Kembali ke Berita
-          </button>
-        </div>
+      <div className="mt-8">
+        <BeritaShareBar title={b.title} slug={slug} />
       </div>
-    </div>
+
+      <div className="text-center mt-8">
+        <Link
+          href="/berita"
+          className="inline-flex items-center gap-2 text-emerald-900 font-semibold hover:text-gold-600 transition"
+        >
+          <ArrowLeft size={18} />
+          Kembali ke Berita
+        </Link>
+      </div>
+    </article>
   );
 }
