@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { berita } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { generateSlug } from '@/lib/slug';
+import { withActorNames, getActor } from '@/lib/audit';
 
 export async function GET(
   request: Request,
@@ -22,7 +23,8 @@ export async function GET(
       return NextResponse.json({ error: 'Berita not found' }, { status: 404 });
     }
 
-    const item = result[0];
+    const enriched = await withActorNames(result);
+    const item = enriched[0];
     const slug = item.slug || generateSlug(item.title, item.id);
 
     return NextResponse.json({ ...item, slug });
@@ -46,6 +48,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
 
+    const actor = await getActor();
     const slug = generateSlug(title, numericId);
 
     const result = await db.update(berita)
@@ -57,6 +60,8 @@ export async function PUT(
         desc: description,
         content: content || description,
         slug,
+        updatedById: actor?.id ?? null,
+        updatedAt: new Date(),
       })
       .where(eq(berita.id, numericId))
       .returning();

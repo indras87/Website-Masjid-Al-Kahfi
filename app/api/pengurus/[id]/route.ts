@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { pengurus } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { getActor } from '@/lib/audit';
 
 const VALID_TINGKAT = ['pembina', 'penasehat', 'pimpinan', 'idarah', 'imarah', 'riayah'] as const;
 
@@ -19,6 +20,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Tingkat tidak valid' }, { status: 400 });
     }
 
+    const actor = await getActor();
+
     const result = await db.update(pengurus)
       .set({
         nama,
@@ -27,6 +30,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         jabatan: jabatan || null,
         subBidang: subBidang || null,
         urutan: typeof urutan === 'number' ? urutan : 0,
+        updatedById: actor?.id ?? null,
+        updatedAt: new Date(),
       })
       .where(eq(pengurus.id, parseInt(id)))
       .returning();

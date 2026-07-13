@@ -3,13 +3,14 @@ import { db } from '@/lib/db';
 import { berita } from '@/lib/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { generateSlug } from '@/lib/slug';
+import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
     const data = await db.select().from(berita).orderBy(desc(berita.createdAt));
-    return NextResponse.json(data);
+    return NextResponse.json(await withActorNames(data));
   } catch (error: any) {
     console.error('Error fetching berita:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
@@ -25,6 +26,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
     }
 
+    const actor = await getActor();
+
     const options = { day: 'numeric', month: 'long', year: 'numeric' } as const;
     const formattedDate = date || new Date().toLocaleDateString('id-ID', options);
 
@@ -36,6 +39,9 @@ export async function POST(request: Request) {
       desc: description,
       content: content || description,
       date: formattedDate,
+      createdById: actor?.id ?? null,
+      updatedById: actor?.id ?? null,
+      updatedAt: new Date(),
     }).returning();
 
     const inserted = result[0];
