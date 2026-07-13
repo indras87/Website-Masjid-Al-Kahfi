@@ -4,6 +4,7 @@ import { fasilitas } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getActor } from '@/lib/audit';
 
+/** Memperbarui data fasilitas berdasarkan ID (PUT). */
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
@@ -38,6 +39,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   }
 }
 
+/** Menghapus fasilitas berdasarkan ID (DELETE). */
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;

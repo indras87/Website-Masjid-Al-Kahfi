@@ -6,6 +6,7 @@ import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
+/** Mengambil daftar foto galeri terbaru (GET). */
 export async function GET() {
   try {
     const data = await db.select().from(galeri).orderBy(desc(galeri.id));
@@ -16,6 +17,7 @@ export async function GET() {
   }
 }
 
+/** Menambahkan foto ke galeri baru (POST). */
 export async function POST(request: Request) {
   try {
     const body = await request.json();

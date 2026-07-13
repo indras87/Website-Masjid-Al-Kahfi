@@ -12,10 +12,12 @@ const FALLBACK_KONTAK = {
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15840.403487310565!2d107.65886676342774!3d-6.985587799999991!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68c22755e378c3%3A0xe5a363717dfbbf5e!2sCikoneng%2C%20Bojongsoang%2C%20Bandung%20Regency%2C%20West%20Java!5e0!3m2!1sen!2sid!4v1700000000000",
 };
 
+/** Halaman kontak yang menampilkan informasi DKM dan peta lokasi masjid. */
 export default function KontakPage() {
   const [contactData, setContactData] = useState(FALLBACK_KONTAK);
 
   useEffect(() => {
+    /** Memuat data kontak masjid dari API; jatuh ke FALLBACK_KONTAK bila gagal. */
     const fetchContact = async () => {
       try {
         const kontaktRes = await fetch("/api/kontak");

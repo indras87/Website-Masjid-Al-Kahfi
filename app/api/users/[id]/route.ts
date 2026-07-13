@@ -6,7 +6,7 @@ import { user } from "@/lib/db/schema";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 
-// GET /api/users/[id] - Get single user (superadmin only)
+/** Mengambil detail satu pengguna berdasarkan ID (GET, superadmin only). */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -46,7 +46,7 @@ export async function GET(
   }
 }
 
-// PUT /api/users/[id] - Update user (superadmin only)
+/** Memperbarui data pengguna berdasarkan ID (PUT, superadmin only). */
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -112,7 +112,7 @@ export async function PUT(
   }
 }
 
-// DELETE /api/users/[id] - Delete user (superadmin only, cannot delete self)
+/** Menghapus pengguna berdasarkan ID (DELETE, superadmin only). */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

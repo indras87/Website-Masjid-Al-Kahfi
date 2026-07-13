@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { user } from "@/lib/db/schema";
 import UserClientPage from "./_components/UserClientPage";
 
+/** Halaman server manajemen user; memverifikasi sesi dan role superadmin sebelum menampilkan daftar. */
 export default async function UsersPage() {
   const session = await auth.api.getSession({
     headers: await headers(),

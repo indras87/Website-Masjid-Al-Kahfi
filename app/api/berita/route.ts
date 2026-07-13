@@ -7,6 +7,7 @@ import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
+/** Mengambil daftar berita terbaru untuk ditampilkan (GET). */
 export async function GET() {
   try {
     const data = await db.select().from(berita).orderBy(desc(berita.createdAt));
@@ -17,6 +18,7 @@ export async function GET() {
   }
 }
 
+/** Membuat berita baru beserta slug-nya (POST). */
 export async function POST(request: Request) {
   try {
     const body = await request.json();

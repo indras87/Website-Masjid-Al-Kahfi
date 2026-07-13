@@ -1,3 +1,4 @@
+/** Memformat waktu menjadi label relatif (mis. "5 menit lalu", "2 jam lalu"). */
 export function formatRelative(input: string | Date | null | undefined): string {
   if (!input) return "—";
   const d = typeof input === "string" ? new Date(input) : input;
@@ -14,6 +15,7 @@ export function formatRelative(input: string | Date | null | undefined): string 
   return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 }
 
+/** Memformat waktu menjadi tanggal dan jam absolut sesuai locale Indonesia. */
 export function formatAbsolute(input: string | Date | null | undefined): string {
   if (!input) return "—";
   const d = typeof input === "string" ? new Date(input) : input;

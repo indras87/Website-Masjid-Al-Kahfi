@@ -12,6 +12,7 @@ const themes = [
   { id: "raudhah", name: "Ar-Raudhah", col: "bg-[#0d9488]" },
 ];
 
+/** Tombol melayang untuk membuka pemilih tema warna situs. */
 export function ThemeSettings() {
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
   const [theme, setTheme] = useState("zamrud");
@@ -29,6 +30,7 @@ export function ThemeSettings() {
     document.documentElement.classList.add(`theme-${savedTheme}`);
   }, []);
 
+  /** Mengganti tema aktif, menyimpan pilihan ke localStorage, dan memperbarui kelas pada root. */
   const changeTheme = (newTheme: string) => {
     setTheme(newTheme);
     localStorage.setItem("kahfi-theme", newTheme);

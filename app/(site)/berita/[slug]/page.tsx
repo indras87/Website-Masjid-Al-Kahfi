@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Share2, Copy, MessageCircle, Twitter, Facebook, ArrowLeft } from "lucide-react";
 
+/** Halaman detail berita yang menampilkan konten lengkap dan tombol berbagi artikel. */
 export default function BeritaDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function BeritaDetailPage() {
   const id = parseInt(slugParam.split("-").pop() || "0");
 
   useEffect(() => {
+    /** Memuat detail berita berdasarkan id dari slug URL; menangani state loading. */
     const fetchData = async () => {
       if (!id || isNaN(id)) {
         setLoading(false);
@@ -40,18 +42,21 @@ export default function BeritaDetailPage() {
     fetchData();
   }, [id]);
 
+  /** Menyalin URL artikel saat ini ke clipboard dan menampilkan indikator sukses sementara. */
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+/** Membuka aplikasi WhatsApp dengan teks dan URL artikel untuk dibagikan. */
   const handleShareWhatsApp = () => {
     const url = window.location.href;
     const text = `${data?.title || "Berita"}\n\n${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
 
+/** Membuka dialog tweet Twitter/X berisi judul dan URL artikel. */
   const handleShareTwitter = () => {
     const url = window.location.href;
     const text = data?.title || "Berita";
@@ -61,6 +66,7 @@ export default function BeritaDetailPage() {
     );
   };
 
+/** Membuka dialog bagikan Facebook dengan URL artikel. */
   const handleShareFacebook = () => {
     const url = window.location.href;
     window.open(

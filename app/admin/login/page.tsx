@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signIn, useSession } from "@/lib/auth-client";
 import { Lock, LogIn, AlertCircle, Mail } from "lucide-react";
 
+/** Halaman login admin dengan formulir kredensial email dan kata sandi. */
 export default function LoginPage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -20,6 +21,7 @@ export default function LoginPage() {
     }
   }, [session, router]);
 
+  /** Menangani submit formulir login, mengautentikasi pengguna, dan mengarahkan ke dashboard. */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");

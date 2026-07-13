@@ -4,6 +4,7 @@ import { kegiatan } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { withActorNames, getActor } from '@/lib/audit';
 
+/** Memperbarui data kegiatan berdasarkan ID (PUT). */
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -50,6 +51,7 @@ export async function PUT(
   }
 }
 
+/** Menghapus kegiatan berdasarkan ID (DELETE). */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

@@ -6,6 +6,7 @@ import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
+/** Mengambil data profil masjid (visi, misi, sejarah) (GET). */
 export async function GET() {
   try {
     const data = await db.select().from(profilMasjid);
@@ -24,6 +25,7 @@ export async function GET() {
   }
 }
 
+/** Membuat atau memperbarui profil masjid (PUT). */
 export async function PUT(request: Request) {
   try {
     const body = await request.json();

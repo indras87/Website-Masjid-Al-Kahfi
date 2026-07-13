@@ -15,10 +15,12 @@ const FALLBACK_GALERI = [
   "https://images.unsplash.com/photo-1590075865003-e48277faa558?auto=format&fit=crop&q=80&w=800",
 ];
 
+/** Halaman galeri yang menampilkan grid dokumentasi foto kegiatan masjid. */
 export default function GaleriPage() {
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
   useEffect(() => {
+    /** Memuat daftar foto galeri dari API; jatuh ke FALLBACK_GALERI bila gagal. */
     const fetchData = async () => {
       try {
         const res = await fetch("/api/galeri");

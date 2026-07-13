@@ -1,3 +1,4 @@
+/** Menghasilkan slug URL-friendly dari judul teks dengan menambahkan id di akhir. */
 export function generateSlug(title: string, id: number): string {
   const slug = title
     .toLowerCase()

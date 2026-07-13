@@ -6,7 +6,7 @@ import { user } from "@/lib/db/schema";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 
-// GET /api/users - List all users (superadmin only)
+/** Mengambil daftar seluruh pengguna (GET, superadmin only). */
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/users - Create user (superadmin only)
+/** Membuat pengguna baru (POST, superadmin only). */
 export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({

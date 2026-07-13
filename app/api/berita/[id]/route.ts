@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { generateSlug } from '@/lib/slug';
 import { withActorNames, getActor } from '@/lib/audit';
 
+/** Mengambil detail berita berdasarkan ID (GET). */
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -34,6 +35,7 @@ export async function GET(
   }
 }
 
+/** Memperbarui data berita berdasarkan ID (PUT). */
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -77,6 +79,7 @@ export async function PUT(
   }
 }
 
+/** Menghapus berita berdasarkan ID (DELETE). */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

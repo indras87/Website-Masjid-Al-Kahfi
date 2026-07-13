@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import Sidebar from "@/app/admin/components/Sidebar";
 
+/** Layout terproteksi yang memverifikasi sesi server-side dan merender dashboard admin beserta sidebar. */
 export default async function ProtectedLayout({
   children,
 }: {

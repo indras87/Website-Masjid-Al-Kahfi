@@ -26,12 +26,14 @@ export const FALLBACK_PRAYERS: PrayerTimes = {
   isya: "19:12",
 };
 
+/** Mengekstrak pola HH:MM dari string waktu, mengembalikan "--:--" bila tidak valid. */
 function extractHHMM(v?: string): string {
   if (!v) return "--:--";
   const m = v.match(/\d{2}:\d{2}/);
   return m ? m[0] : "--:--";
 }
 
+/** Memetakan objek timings dari Aladhan API ke struktur PrayerTimes aplikasi. */
 export function mapAladhanToPrayers(timings: Record<string, string>): PrayerTimes {
   return {
     subuh: extractHHMM(timings.Fajr),
@@ -43,10 +45,12 @@ export function mapAladhanToPrayers(timings: Record<string, string>): PrayerTime
   };
 }
 
+/** Membuat kunci cache unik untuk jadwal sholat berdasarkan koordinat dan tanggal. */
 export function buildCacheKey(lat: number, lng: number, isoDate: string): string {
   return `jadwal:${lat.toFixed(2)},${lng.toFixed(2)}:${isoDate}`;
 }
 
+/** Mengonversi setiap waktu sholat format string menjadi menit sejak tengah malam. */
 export function prayerTimesToMinutes(t: PrayerTimes): Record<keyof PrayerTimes, number> {
   const parse = (s: string) => {
     const [h, m] = s.split(":").map(Number);
@@ -73,6 +77,7 @@ const PRAYER_ORDER: Array<{ name: string; key: keyof PrayerTimes }> = [
   { name: "Isya", key: "isya" },
 ];
 
+/** Menentukan sholat berikutnya setelah waktu sekarang beserta menitnya. */
 export function computeNextPrayer(times: PrayerTimes, now: Date): NextPrayer {
   const mins = prayerTimesToMinutes(times);
   const current = now.getHours() * 60 + now.getMinutes();

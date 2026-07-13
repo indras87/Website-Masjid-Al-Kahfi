@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   description: "Pusat Pembinaan Keimanan dan Pemberdayaan Sosial Ekonomi Umat",
 };
 
+/** Root layout aplikasi yang menerapkan font global, metadata, dan provider autentikasi. */
 export default function RootLayout({
   children,
 }: {

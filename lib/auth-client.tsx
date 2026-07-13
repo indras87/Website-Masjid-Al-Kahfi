@@ -3,7 +3,7 @@
 import { createAuthClient } from "better-auth/react";
 import { useState, useEffect, ReactNode } from "react";
 
-// Resolve base URL for better-auth
+/** Menentukan URL dasar aplikasi untuk konfigurasi klien better-auth. */
 function getBaseUrl(): string {
   if (typeof window !== "undefined") {
     return window.location.origin;
@@ -33,6 +33,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+/** Provider pembungkus yang menunda render anak hingga klien ter-mount (mencegah hydration mismatch). */
 export function AuthProvider({ children }: AuthProviderProps) {
   const [mounted, setMounted] = useState(false);
 

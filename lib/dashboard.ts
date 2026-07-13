@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { berita, kegiatan, galeri, pengurus, fasilitas, user } from "@/lib/db/schema";
 import { count, desc, inArray } from "drizzle-orm";
 
+/** Mengambil jumlah total kegiatan, berita, pengurus, dan galeri untuk statistik dashboard. */
 export async function getDashboardStats() {
   const [kegiatanRow, beritaRow, pengurusRow, galeriRow] = await Promise.all([
     db.select({ value: count() }).from(kegiatan),
@@ -36,6 +37,7 @@ type RawRow = {
   createdAt: Date;
 };
 
+/** Mengambil aktivitas terbaru lintas entitas (berita, kegiatan, galeri, dll) beserta nama pelaku. */
 export async function getRecentActivity(limit = 8): Promise<ActivityItem[]> {
   const N = limit;
   const [b, k, g, p, f] = await Promise.all([

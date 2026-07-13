@@ -28,10 +28,12 @@ export const DEFAULT_DONATION_SETTINGS: DonationSettings = {
   qrisImage: '',
 };
 
+/** Mengembalikan salinan default pengaturan kontak masjid. */
 export function getDefaultContactSettings(): ContactSettings {
   return { ...DEFAULT_CONTACT_SETTINGS };
 }
 
+/** Mengembalikan salinan default pengaturan donasi masjid. */
 export function getDefaultDonationSettings(): DonationSettings {
   return { ...DEFAULT_DONATION_SETTINGS };
 }

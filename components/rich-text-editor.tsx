@@ -40,6 +40,7 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
+/** Editor teks kaya berbasis TipTap untuk menulis konten berita dengan toolbar lengkap. */
 export default function RichTextEditor({
   value,
   onChange,
@@ -113,6 +114,7 @@ export default function RichTextEditor({
     },
   });
 
+  /** Mengompresi dan mengunggah berkas gambar ke server, lalu menyisipkannya ke editor. */
   const handleImageUpload = async (file: File) => {
     if (!editor) return;
 
@@ -143,6 +145,7 @@ export default function RichTextEditor({
     }
   };
 
+  /** Meminta URL gambar dan menyisipkannya ke konten editor. */
   const addImageUrl = useCallback(() => {
     const url = prompt("Masukkan URL gambar:");
     if (url && editor) {
@@ -150,6 +153,7 @@ export default function RichTextEditor({
     }
   }, [editor]);
 
+  /** Meminta URL dan menerapkan tautan pada teks terpilih di editor. */
   const addLink = useCallback(() => {
     const url = prompt("Masukkan URL link:");
     if (url && editor) {
@@ -157,10 +161,12 @@ export default function RichTextEditor({
     }
   }, [editor]);
 
+  /** Memicu klik tersembunyi pada input berkas untuk memilih gambar. */
   const triggerFileUpload = () => {
     fileInputRef.current?.click();
   };
 
+  /** Menangani perubahan input berkas dan mengunggah gambar yang dipilih. */
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -171,6 +177,7 @@ export default function RichTextEditor({
     }
   };
 
+  /** Menyisipkan blok ayat Al-Quran (Arab, terjemahan, referensi) ke dalam editor. */
   const insertQuranVerse = () => {
     if (!editor || !quranArabic.trim() || !quranTranslation.trim()) {
       alert("Mohon isi teks Arab dan terjemahan ayat.");
@@ -199,6 +206,7 @@ export default function RichTextEditor({
     return null;
   }
 
+  /** Tombol toolbar editor dengan dukungan status aktif dan tooltip. */
   const ToolbarButton = ({
     onClick,
     isActive,

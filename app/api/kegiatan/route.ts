@@ -6,6 +6,7 @@ import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
+/** Mengambil daftar kegiatan masjid (GET). */
 export async function GET() {
   try {
     const data = await db.select().from(kegiatan).orderBy(asc(kegiatan.id));
@@ -16,6 +17,7 @@ export async function GET() {
   }
 }
 
+/** Menambahkan kegiatan masjid baru (POST). */
 export async function POST(request: Request) {
   try {
     const body = await request.json();

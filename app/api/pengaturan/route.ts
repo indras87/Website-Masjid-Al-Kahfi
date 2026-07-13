@@ -9,6 +9,7 @@ import { inArray } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
+/** Mengambil pengaturan running text beserta info updater (GET). */
 export async function GET() {
   try {
     const rows = await db.select().from(pengaturan).where(eq(pengaturan.key, 'running_text')).limit(1);
@@ -31,11 +32,13 @@ export async function GET() {
   }
 }
 
+/** Memeriksa dan mengembalikan sesi pengguna yang sedang login. */
 async function requireSession() {
   const session = await auth.api.getSession({ headers: await headers() });
   return session ?? null;
 }
 
+/** Membuat atau memperbarui running text (PUT, butuh sesi login). */
 export async function PUT(request: Request) {
   try {
     const session = await requireSession();
