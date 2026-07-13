@@ -6,6 +6,7 @@ import {
   User, Droplet, Ambulance, BookOpen, Car, Wifi, Clock, HeartPulse, Loader2
 } from 'lucide-react';
 import ImageUpload from "@/app/admin/components/ImageUpload";
+import { formatAbsolute } from "@/lib/relative-time";
 const ICON_OPTIONS = [
   { value: 'User', label: 'Sajadah / Jamaah (User)' },
   { value: 'Droplet', label: 'Wudhu / Air (Droplet)' },
@@ -42,6 +43,7 @@ export default function AdminTentang() {
   // ==========================================
   const [visi, setVisi] = useState('');
   const [misi, setMisi] = useState(''); // Textarea string, split by newline
+  const [profilAudit, setProfilAudit] = useState<{ updatedAt: string | null; updatedByName: string | null } | null>(null);
 
   // ==========================================
   // STATE FASILITAS
@@ -74,6 +76,7 @@ export default function AdminTentang() {
         const pData = await vRes.json();
         setVisi(pData.visi || '');
         setMisi(pData.misi || '');
+        setProfilAudit({ updatedAt: pData.updatedAt ?? null, updatedByName: pData.updatedByName ?? null });
       }
 
       // Fetch Fasilitas
@@ -555,9 +558,17 @@ export default function AdminTentang() {
           {activeTab === 'visi-misi' && (
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
               <form onSubmit={handleSaveVisiMisi} className="space-y-6">
-                <div className="flex items-center gap-2 pb-4 border-b border-gray-50">
-                  <Eye className="text-emerald-600" size={22} />
-                  <h3 className="font-serif text-lg font-bold text-gray-800">Ubah Visi Masjid</h3>
+                <div className="flex items-center justify-between pb-4 border-b border-gray-50">
+                  <div className="flex items-center gap-2">
+                    <Eye className="text-emerald-600" size={22} />
+                    <h3 className="font-serif text-lg font-bold text-gray-800">Ubah Visi Masjid</h3>
+                  </div>
+                  {(profilAudit?.updatedAt || profilAudit?.updatedByName) && (
+                    <p className="text-xs text-gray-400">
+                      Terakhir disimpan oleh <span className="font-semibold text-gray-600">{profilAudit.updatedByName || "Sistem"}</span>
+                      {profilAudit.updatedAt ? <> · {formatAbsolute(profilAudit.updatedAt)}</> : null}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Pernyataan Visi Utama</label>

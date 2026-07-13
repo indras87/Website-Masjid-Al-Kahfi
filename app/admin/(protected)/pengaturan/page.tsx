@@ -2,12 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { DEFAULT_RUNNING_TEXT } from "@/lib/cms/settings";
+import { formatAbsolute } from "@/lib/relative-time";
 
 export default function PengaturanPage() {
   const [text, setText] = useState(DEFAULT_RUNNING_TEXT);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [audit, setAudit] = useState<{ updatedAt: string | null; updatedByName: string | null } | null>(null);
 
   useEffect(() => {
     fetch("/api/pengaturan")
@@ -15,6 +17,9 @@ export default function PengaturanPage() {
       .then((data) => {
         if (data && typeof data.running_text === "string" && data.running_text.trim()) {
           setText(data.running_text);
+        }
+        if (data) {
+          setAudit({ updatedAt: data.updatedAt ?? null, updatedByName: data.updatedByName ?? null });
         }
       })
       .catch(() => {})
@@ -48,9 +53,15 @@ export default function PengaturanPage() {
   return (
     <div className="max-w-3xl">
       <h1 className="text-2xl font-bold text-gray-800 mb-1">Pengaturan Situs</h1>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-gray-500 mb-1">
         Kelola teks berjalan yang tampil di banner atas situs publik.
       </p>
+      {(audit?.updatedAt || audit?.updatedByName) && (
+        <p className="text-xs text-gray-400 -mt-5 mb-6">
+          Terakhir disimpan oleh <span className="font-semibold text-gray-600">{audit.updatedByName || "Sistem"}</span>
+          {audit.updatedAt ? <> · {formatAbsolute(audit.updatedAt)}</> : null}
+        </p>
+      )}
 
       <form onSubmit={handleSave} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
         <div>

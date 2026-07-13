@@ -10,6 +10,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import ImageUpload from '@/app/admin/components/ImageUpload';
+import { formatAbsolute } from '@/lib/relative-time';
 
 type ContactForm = {
   alamat: string;
@@ -49,6 +50,8 @@ export default function AdminKontakDonasi() {
   const [savingDonation, setSavingDonation] = useState(false);
   const [deletingContact, setDeletingContact] = useState(false);
   const [deletingDonation, setDeletingDonation] = useState(false);
+  const [contactAudit, setContactAudit] = useState<{ updatedAt: string | null; updatedByName: string | null } | null>(null);
+  const [donationAudit, setDonationAudit] = useState<{ updatedAt: string | null; updatedByName: string | null } | null>(null);
 
   const loadData = async () => {
     try {
@@ -67,6 +70,7 @@ export default function AdminKontakDonasi() {
           jamOperasional: contactJson.jamOperasional || '',
           googleMapsUrl: contactJson.googleMapsUrl || '',
         });
+        setContactAudit({ updatedAt: contactJson.updatedAt ?? null, updatedByName: contactJson.updatedByName ?? null });
       }
 
       if (donationRes.ok) {
@@ -77,6 +81,7 @@ export default function AdminKontakDonasi() {
           atasNamaRekening: donationJson.atasNamaRekening || '',
           qrisImage: donationJson.qrisImage || '',
         });
+        setDonationAudit({ updatedAt: donationJson.updatedAt ?? null, updatedByName: donationJson.updatedByName ?? null });
       }
     } catch (error) {
       console.error('Gagal memuat data kontak/donasi:', error);
@@ -235,6 +240,12 @@ export default function AdminKontakDonasi() {
               <div>
                 <h3 className="text-lg font-bold text-gray-800">CMS Kontak</h3>
                 <p className="text-sm text-gray-500">Alamat, hotline, email, jam operasional, dan maps.</p>
+                {(contactAudit?.updatedAt || contactAudit?.updatedByName) && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Terakhir disimpan oleh <span className="font-semibold text-gray-600">{contactAudit.updatedByName || "Sistem"}</span>
+                    {contactAudit.updatedAt ? <> · {formatAbsolute(contactAudit.updatedAt)}</> : null}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -331,6 +342,12 @@ export default function AdminKontakDonasi() {
               <div>
                 <h3 className="text-lg font-bold text-gray-800">CMS Donasi / Infaq</h3>
                 <p className="text-sm text-gray-500">Kelola rekening transfer dan gambar QRIS.</p>
+                {(donationAudit?.updatedAt || donationAudit?.updatedByName) && (
+                  <p className="text-xs text-gray-400 mt-1">
+                    Terakhir disimpan oleh <span className="font-semibold text-gray-600">{donationAudit.updatedByName || "Sistem"}</span>
+                    {donationAudit.updatedAt ? <> · {formatAbsolute(donationAudit.updatedAt)}</> : null}
+                  </p>
+                )}
               </div>
             </div>
 
