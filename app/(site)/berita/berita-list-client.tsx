@@ -40,7 +40,7 @@ export function BeritaListClient({ initial }: { initial: Berita[] }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {filtered.map((b) => {
-            const href = `/berita/${b.slug ?? b.id}`;
+            const href = `/berita/${b.slug}`;
             return (
               <article
                 key={b.id}

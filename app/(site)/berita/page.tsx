@@ -13,7 +13,8 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function BeritaPage() {
-  const berita = await getAllBerita();
+  const allBerita = await getAllBerita();
+  const berita = allBerita.filter((b) => b.slug);
   return (
     <div className="pb-16">
       <JsonLd
