@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, Search, Filter, X, Loader2 } from "lucide-react";
 import Image from "next/image";
 import ImageUpload from "@/app/admin/components/ImageUpload";
 import RichTextEditor from "@/components/rich-text-editor";
+import { formatRelative } from "@/lib/relative-time";
 
 const DEFAULT_BERITA = [
   {
@@ -241,6 +242,7 @@ export default function AdminBerita() {
                 <th className="px-6 py-4 font-semibold">Kategori</th>
                 <th className="px-6 py-4 font-semibold">Tanggal</th>
                 <th className="px-6 py-4 font-semibold">Penulis</th>
+                <th className="px-6 py-4 font-semibold">Diperbarui</th>
                 <th className="px-6 py-4 font-semibold text-right">Aksi</th>
               </tr>
             </thead>
@@ -248,7 +250,7 @@ export default function AdminBerita() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-6 py-10 text-center text-gray-400"
                   >
                     Memuat data berita...
@@ -282,6 +284,12 @@ export default function AdminBerita() {
                     </td>
                     <td className="px-6 py-4">{item.date}</td>
                     <td className="px-6 py-4">{item.author}</td>
+                    <td className="px-6 py-4">
+                      <div className="text-xs">
+                        <span className="font-semibold text-gray-800">{item.updatedByName || "Sistem"}</span>
+                        <span className="block text-gray-400">{formatRelative(item.updatedAt)}</span>
+                      </div>
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
@@ -310,7 +318,7 @@ export default function AdminBerita() {
               ) : (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-6 py-10 text-center text-gray-400"
                   >
                     Tidak ada berita ditemukan
