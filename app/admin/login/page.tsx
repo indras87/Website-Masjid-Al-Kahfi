@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "@/lib/auth-client";
 import { Lock, LogIn, AlertCircle, Mail } from "lucide-react";
+import Image from "next/image";
 
 /** Halaman login admin dengan formulir kredensial email dan kata sandi. */
 export default function LoginPage() {
@@ -54,11 +55,15 @@ export default function LoginPage() {
 
       <div className="relative bg-white/95 backdrop-blur-md rounded-2xl w-full max-w-md border-t-4 border-gold-500 shadow-2xl overflow-hidden p-6 sm:p-8 space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 bg-emerald-900 border-2 border-gold-500 rounded-full flex items-center justify-center mx-auto text-gold-300 text-3xl shadow-lg">
-            🕌
-          </div>
+          <Image
+            src="/logo.png"
+            alt="Masjid Al-Kahfi Cikoneng"
+            width={160}
+            height={54}
+            className="h-14 w-auto mx-auto"
+            priority
+          />
           <h2 className="font-serif text-2xl font-bold text-emerald-950 mt-4">Panel Kontrol DKM</h2>
-          <p className="text-xs text-gold-600 font-semibold uppercase tracking-widest">Masjid Al-Kahfi Cikoneng</p>
           <p className="text-sm text-gray-500 max-w-xs mx-auto">Login untuk mengakses sistem manajemen konten.</p>
         </div>
 

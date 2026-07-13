@@ -9,6 +9,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const navLinks = [
   { id: "beranda", label: "Beranda" },
@@ -27,13 +28,14 @@ export function Footer({ onNav }: { onNav: (tab: string) => void }) {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-gold-300 text-xl border border-gold-500/40">
-                🕌
-              </div>
-              <h4 className="font-serif text-lg font-bold text-gold-300">
-                Masjid Al-Kahfi
-              </h4>
+            <div className="bg-white/95 rounded-lg px-3 py-2 inline-block">
+              <Image
+                src="/logo.png"
+                alt="Masjid Al-Kahfi Cikoneng"
+                width={144}
+                height={48}
+                className="h-11 w-auto"
+              />
             </div>
             <p className="text-xs text-emerald-100 leading-relaxed max-w-sm">
               Lembaga Dakwah, Sosial, Pendidikan, dan Kemaslahatan Ummat di
