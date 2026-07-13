@@ -56,8 +56,8 @@ export function buildMetadata(opts: BuildOpts): Metadata {
       ? {
           other: {
             "article:author": opts.author ?? siteConfig.name,
-            "article:published_time": opts.publishedTime,
-            "article:modified_time": opts.modifiedTime,
+            ...(opts.publishedTime ? { "article:published_time": opts.publishedTime } : {}),
+            ...(opts.modifiedTime ? { "article:modified_time": opts.modifiedTime } : {}),
             "article:section": "Berita Masjid",
           },
         }

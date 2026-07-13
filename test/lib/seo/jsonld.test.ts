@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { placeOfWorshipJsonLd, newsArticleJsonLd, breadcrumbJsonLd, faqPageJsonLd, organizationJsonLd, websiteJsonLd, imageCollectionJsonLd } from '../../../lib/seo/jsonld';
 
 test('placeOfWorshipJsonLd has correct @type and address, no telephone/sameAs', () => {
-  const g = placeOfWorshipJsonLd();
+  const g: any = placeOfWorshipJsonLd();
   assert.deepEqual(g['@type'], ['PlaceOfWorship', 'Mosque']);
   assert.equal(g.telephone, undefined);
   assert.equal(g.sameAs, undefined);

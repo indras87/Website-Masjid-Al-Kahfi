@@ -8,7 +8,7 @@ test('siteConfig.url defaults to production domain when APP_URL unset', () => {
 });
 
 test('buildMetadata sets canonical, openGraph, twitter from path', () => {
-  const m = buildMetadata({ title: 'Berita', description: 'desc', path: '/berita' });
+  const m: any = buildMetadata({ title: 'Berita', description: 'desc', path: '/berita' });
   assert.equal(m.title, 'Berita');
   assert.equal(m.alternates?.canonical, 'https://masjid-alkahfi.id/berita');
   assert.equal(m.openGraph?.url, 'https://masjid-alkahfi.id/berita');

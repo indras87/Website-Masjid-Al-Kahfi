@@ -65,7 +65,7 @@ export function KegiatanListClient({ initial }: { initial: Kegiatan[] }) {
     desc: k.desc || "",
     ust: k.ust,
     note: k.note || "",
-    Icon: iconMap[k.icon] || CircleUser,
+    Icon: iconMap[k.icon ?? ""] || CircleUser,
     color: TYPE_COLOR[k.type] ?? k.color ?? "bg-emerald-50 text-emerald-800",
     img: k.img || "",
   }));
