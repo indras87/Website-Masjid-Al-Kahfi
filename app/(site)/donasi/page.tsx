@@ -60,17 +60,23 @@ export default async function DonasiPage() {
               agar pencatatan rapi.
             </p>
             <div className="bg-gold-50/50 p-4 rounded-xl border border-gold-100 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs font-bold text-emerald-900">
-                  {d?.namaRekening}
+              {d?.nomorRekening ? (
+                <div>
+                  <p className="text-xs font-bold text-emerald-900">
+                    {d.namaRekening || "Bank"}
+                  </p>
+                  <p className="font-mono text-base font-bold text-gray-800 mt-1">
+                    {d.nomorRekening}
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    a.n {d.atasNamaRekening || "-"}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 italic">
+                  Informasi rekening belum tersedia. Silakan hubungi DKM.
                 </p>
-                <p className="font-mono text-base font-bold text-gray-800 mt-1">
-                  {d?.nomorRekening}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-0.5">
-                  a.n {d?.atasNamaRekening}
-                </p>
-              </div>
+              )}
               {d?.nomorRekening && (
                 <CopyRekeningButton nomorRekening={d.nomorRekening} />
               )}

@@ -54,7 +54,7 @@ export default async function KontakPage() {
                 <div>
                   <h3 className="font-bold text-emerald-900">Alamat Fisik</h3>
                   <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                    {k?.alamat}
+                    {k?.alamat || "Belum tersedia."}
                   </p>
                 </div>
               </div>
@@ -65,7 +65,7 @@ export default async function KontakPage() {
                     Hotline DKM &amp; Ambulans
                   </h3>
                   <p className="text-xs text-emerald-950 font-bold mt-1">
-                    {k?.hotline}{" "}
+                    {k?.hotline || "-"}{" "}
                     <span className="text-[10px] bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded ml-2 uppercase font-extrabold tracking-wider">
                       Siaga 24 Jam
                     </span>
@@ -79,12 +79,16 @@ export default async function KontakPage() {
                     Email Korespondensi
                   </h3>
                   <p className="text-xs text-gray-500 mt-1">
-                    <a
-                      href={`mailto:${k?.email}`}
-                      className="text-emerald-700 hover:underline"
-                    >
-                      {k?.email}
-                    </a>
+                    {k?.email ? (
+                      <a
+                        href={`mailto:${k.email}`}
+                        className="text-emerald-700 hover:underline"
+                      >
+                        {k.email}
+                      </a>
+                    ) : (
+                      "Belum tersedia."
+                    )}
                   </p>
                 </div>
               </div>
@@ -95,7 +99,7 @@ export default async function KontakPage() {
                     Jam Operasional Kantor
                   </h3>
                   <p className="text-xs text-gray-500 mt-1">
-                    {k?.jamOperasional}
+                    {k?.jamOperasional || "-"}
                   </p>
                 </div>
               </div>
