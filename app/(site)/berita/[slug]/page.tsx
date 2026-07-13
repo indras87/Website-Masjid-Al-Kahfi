@@ -14,18 +14,17 @@ export default function BeritaDetailPage() {
   const [copied, setCopied] = useState(false);
 
   const slugParam = params.slug as string;
-  const id = parseInt(slugParam.split("-").pop() || "0");
 
   useEffect(() => {
-    /** Memuat detail berita berdasarkan id dari slug URL; menangani state loading. */
+    /** Memuat detail berita berdasarkan slug dari URL; menangani state loading. */
     const fetchData = async () => {
-      if (!id || isNaN(id)) {
+      if (!slugParam) {
         setLoading(false);
         return;
       }
 
       try {
-        const res = await fetch(`/api/berita/${id}`);
+        const res = await fetch(`/api/berita/${slugParam}`);
         if (res.ok) {
           const json = await res.json();
           setData(json);
@@ -40,7 +39,7 @@ export default function BeritaDetailPage() {
     };
 
     fetchData();
-  }, [id]);
+  }, [slugParam]);
 
   /** Menyalin URL artikel saat ini ke clipboard dan menampilkan indikator sukses sementara. */
   const handleCopy = () => {

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { berita } from '@/lib/db/schema';
-import { desc, eq } from 'drizzle-orm';
-import { generateSlug } from '@/lib/slug';
+import { desc, eq, like } from 'drizzle-orm';
+import { generateSlug, slugify, uniqueSlug } from '@/lib/slug';
 import { withActorNames, getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +18,20 @@ export async function GET() {
   }
 }
 
-/** Membuat berita baru beserta slug-nya (POST). */
+/**
+ * Menghitung slug unik untuk judul baru dengan memeriksa slug yang sudah ada
+ * berawalan base, lalu menambahkan sufiks numerik bila terjadi bentrok.
+ */
+async function computeUniqueSlug(title: string): Promise<string> {
+  const base = slugify(title);
+  const conflicts = await db
+    .select({ slug: berita.slug })
+    .from(berita)
+    .where(like(berita.slug, `${base}%`));
+  return uniqueSlug(base, conflicts.map((c) => c.slug).filter(Boolean) as string[]);
+}
+
+/** Membuat berita baru beserta slug uniknya (POST). */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -33,6 +46,8 @@ export async function POST(request: Request) {
     const options = { day: 'numeric', month: 'long', year: 'numeric' } as const;
     const formattedDate = date || new Date().toLocaleDateString('id-ID', options);
 
+    const slug = await computeUniqueSlug(title);
+
     const result = await db.insert(berita).values({
       title,
       tag: tag || 'Sosial',
@@ -41,16 +56,13 @@ export async function POST(request: Request) {
       desc: description,
       content: content || description,
       date: formattedDate,
+      slug,
       createdById: actor?.id ?? null,
       updatedById: actor?.id ?? null,
       updatedAt: new Date(),
     }).returning();
 
     const inserted = result[0];
-    const slug = generateSlug(inserted.title, inserted.id);
-
-    await db.update(berita).set({ slug }).where(eq(berita.id, inserted.id));
-
     return NextResponse.json({ ...inserted, slug }, { status: 201 });
   } catch (error: any) {
     console.error('Error creating berita:', error);
