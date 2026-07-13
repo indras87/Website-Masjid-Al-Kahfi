@@ -1,104 +1,78 @@
-"use client";
+import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo/metadata";
+import { breadcrumbJsonLd, faqPageJsonLd } from "@/lib/seo/jsonld";
+import { JsonLd } from "@/components/json-ld";
+import { PrayerScheduleClient } from "./jadwal-client";
 
-import React, { useState, useEffect } from "react";
-import { usePrayerTimes } from "@/hooks/use-prayer-times";
-import { computeNextPrayer, computeCurrentPrayer } from "@/lib/prayer-times";
+export const metadata: Metadata = buildMetadata({
+  title: "Jadwal Sholat Harian — Masjid Al-Kahfi Cikoneng",
+  description:
+    "Jadwal sholat harian (Subuh, Dzuhur, Ashar, Maghrib, Isya) untuk Cikoneng, Bojongsoang, Kab. Bandung. Metode Kementerian Agama RI, mazhab Syafi'i.",
+  path: "/jadwal-sholat",
+});
 
-export default function JadwalSholatPage() {
-  const { times, loading, source } = usePrayerTimes();
-  const [iqomahTime, setIqomahTime] = useState("00:00");
+const FAQ = [
+  {
+    q: "Apakah jadwal sholat mengikuti lokasi saya?",
+    a: "Ya. Bila Anda mengizinkan akses lokasi (GPS), jadwal dihitung sesuai koordinat Anda. Bila ditolak, digunakan koordinat Masjid Al-Kahfi Cikoneng.",
+  },
+  {
+    q: "Metode perhitungan apa yang dipakai?",
+    a: "Metode Kementerian Agama RI (Fajr 20°, Isya 18°) dengan mazhab Syafi'i, melalui API Aladhan.",
+  },
+];
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      const next = computeNextPrayer(times, now);
-      const currentMinTotal = now.getHours() * 60 + now.getMinutes();
-      const diff = next.minutes - currentMinTotal;
-      const mLeft = diff < 0 ? 0 : diff;
-
-      let minsRem = 9 - (mLeft % 10);
-      let secsRem = 59 - now.getSeconds();
-      if (minsRem < 0) minsRem = 0;
-      setIqomahTime(
-        `${String(minsRem).padStart(2, "0")}:${String(secsRem).padStart(2, "0")}`,
-      );
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [times]);
-
-  const current = loading ? null : computeCurrentPrayer(times, new Date());
-
+export default async function JadwalSholatPage() {
   return (
     <div className="pb-16">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Beranda", path: "/beranda" },
+          { name: "Jadwal Sholat", path: "/jadwal-sholat" },
+        ])}
+      />
+      <JsonLd data={faqPageJsonLd(FAQ)} />
       <div className="bg-emerald-900 text-white py-16 text-center relative overflow-hidden border-b-4 border-gold-500">
         <div className="absolute inset-0 opacity-15 islamic-pattern"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4">
-          <h2 className="font-serif text-4xl font-bold">
-            Jadwal Sholat & Ibadah
-          </h2>
+          <h1 className="font-serif text-4xl font-bold">
+            Jadwal Sholat &amp; Ibadah
+          </h1>
           <p className="text-gold-300 mt-2 font-medium">
             Data real-time wilayah Cikoneng, Bojongsoang, Kab. Bandung
           </p>
-          <span className="inline-block mt-3 bg-emerald-900 text-gold-300 px-3 py-1.5 rounded-full text-xs font-mono border border-gold-500/30">
-            Sumber: {source === "gps" ? "Lokasi Anda (GPS)" : "Lokasi Masjid (Cikoneng)"}
-          </span>
         </div>
       </div>
-      <div className="max-w-5xl mx-auto px-4 py-16 space-y-12">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          {Object.entries(times).map(([name, time]) => (
-            <div
-              key={name}
-              className={`rounded-xl p-4 text-center border shadow-sm ${name === current?.key ? "bg-emerald-50 border-emerald-500 ring-2 ring-emerald-900/15" : "bg-white border-gold-100"}`}
-            >
-              <p
-                className={`text-xs uppercase ${name === current?.key ? "text-emerald-800 font-bold tracking-wider" : "text-gray-500 font-semibold"}`}
+      <div className="max-w-5xl mx-auto px-4 py-16">
+        {/*
+          The island SSR-renders the fallback (Cikoneng) schedule so real
+          prayer times are in the initial HTML; hydration then refines to the
+          visitor's GPS location. See jadwal-client.tsx.
+        */}
+        <PrayerScheduleClient />
+
+        {/* FAQ */}
+        <section className="max-w-3xl mx-auto mt-16">
+          <h2 className="font-serif text-2xl font-bold text-emerald-950 mb-6 text-center">
+            Pertanyaan Umum Jadwal Sholat
+          </h2>
+          <div className="space-y-4">
+            {FAQ.map((item) => (
+              <div
+                key={item.q}
+                className="bg-white rounded-xl p-5 border border-gold-100 shadow-sm"
               >
-                {name}
-              </p>
-              <h4
-                className={`text-2xl font-bold mt-2 ${name === current?.key ? "text-emerald-950" : "text-emerald-900"}`}
-              >
-                {loading ? "--:--" : time}
-              </h4>
-            </div>
-          ))}
-        </div>
-        <div className="bg-emerald-950 text-white rounded-2xl p-6 sm:p-8 relative overflow-hidden border-b-4 border-gold-500 shadow-lg">
-          <div className="absolute inset-0 opacity-10 islamic-pattern"></div>
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-gold-300">
-                Layanan Alert Adzan & Iqomah
-              </h3>
-              <p className="text-emerald-50 text-xs sm:text-sm leading-relaxed">
-                Fitur otomatisasi jam dinding pintar masjid mengacu pada
-                waktu digital di atas. Waktu jeda Iqomah rata-rata diset
-                10 menit setelah adzan berkumandang untuk sholat
-                rawatib.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <span className="bg-emerald-900 text-gold-300 px-3 py-1.5 rounded-full text-xs font-mono">
-                  GMT+07:00 Asia/Jakarta
-                </span>
-                <span className="bg-emerald-900 text-gold-300 px-3 py-1.5 rounded-full text-xs font-mono">
-                  Metode: KEMENAG RI
-                </span>
+                <h3 className="font-bold text-emerald-950 text-sm flex items-start gap-2">
+                  <span className="text-gold-500" aria-hidden="true">
+                    Q.
+                  </span>
+                  <span>{item.q}</span>
+                </h3>
+                <p className="text-gray-600 text-sm mt-2 pl-6">{item.a}</p>
               </div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 text-center">
-              <p className="text-xs text-gold-300 uppercase font-semibold tracking-wider">
-                Simulasi Timer Iqomah
-              </p>
-              <div className="font-mono text-4xl sm:text-5xl font-bold text-white my-3">
-                {iqomahTime}
-              </div>
-              <p className="text-xs text-emerald-200">
-                Menuju Iqomah Sholat Berikutnya
-              </p>
-            </div>
+            ))}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
