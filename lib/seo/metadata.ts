@@ -27,7 +27,14 @@ export function buildMetadata(opts: BuildOpts): Metadata {
       title: opts.title ?? siteConfig.name,
       description: opts.description ?? siteConfig.description,
       locale: siteConfig.locale,
-      images: [{ url: image }],
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: opts.title ?? siteConfig.name,
+        },
+      ],
       ...(opts.type === "article"
         ? {
             publishedTime: opts.publishedTime,
@@ -41,7 +48,19 @@ export function buildMetadata(opts: BuildOpts): Metadata {
       title: opts.title ?? siteConfig.name,
       description: opts.description ?? siteConfig.description,
       images: [image],
+      site: "@masjid_alkahfi", // Add Twitter handle when available
     },
     robots: opts.noIndex ? { index: false, follow: false } : { index: true, follow: true },
+    // Additional social meta tags for better sharing
+    ...(opts.type === "article"
+      ? {
+          other: {
+            "article:author": opts.author ?? siteConfig.name,
+            "article:published_time": opts.publishedTime,
+            "article:modified_time": opts.modifiedTime,
+            "article:section": "Berita Masjid",
+          },
+        }
+      : {}),
   };
 }

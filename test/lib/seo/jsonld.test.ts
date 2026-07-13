@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { placeOfWorshipJsonLd, newsArticleJsonLd, breadcrumbJsonLd, faqPageJsonLd } from '../../../lib/seo/jsonld';
+import { placeOfWorshipJsonLd, newsArticleJsonLd, breadcrumbJsonLd, faqPageJsonLd, organizationJsonLd, websiteJsonLd, imageCollectionJsonLd } from '../../../lib/seo/jsonld';
 
 test('placeOfWorshipJsonLd has correct @type and address, no telephone/sameAs', () => {
   const g = placeOfWorshipJsonLd();
@@ -40,4 +40,34 @@ test('faqPageJsonLd maps Q&A', () => {
   assert.equal(g['@type'], 'FAQPage');
   assert.equal(g.mainEntity[0].name, 'Apa?');
   assert.equal(g.mainEntity[0].acceptedAnswer.text, 'Begini.');
+});
+
+test('organizationJsonLd has correct @type and contact', () => {
+  const g = organizationJsonLd();
+  assert.equal(g['@type'], 'Organization');
+  assert.equal(g.contactPoint['@type'], 'ContactPoint');
+  assert.equal(g.contactPoint.contactType, 'customer service');
+  assert.equal(g.address.addressCountry, 'ID');
+});
+
+test('websiteJsonLd includes SearchAction', () => {
+  const g = websiteJsonLd();
+  assert.equal(g['@type'], 'WebSite');
+  assert.equal(g.potentialAction['@type'], 'SearchAction');
+  assert.equal(g.potentialAction.target['@type'], 'EntryPoint');
+  assert(g.potentialAction.target.urlTemplate.includes('search_term_string'));
+});
+
+test('imageCollectionJsonLd creates CollectionPage with ImageObject', () => {
+  const images = [
+    { title: 'Foto 1', img: 'https://example.com/img1.jpg' },
+    { title: 'Foto 2', img: '/img2.jpg' },
+  ];
+  const g = imageCollectionJsonLd(images);
+  assert.equal(g['@type'], 'CollectionPage');
+  assert.equal(g.hasPart.length, 2);
+  assert.equal(g.hasPart[0]['@type'], 'ImageObject');
+  assert.equal(g.hasPart[0].contentUrl, 'https://example.com/img1.jpg');
+  assert.equal(g.hasPart[1].contentUrl, 'https://masjid-alkahfi.id/img2.jpg');
+  assert.equal(g.hasPart[0].name, 'Foto 1');
 });

@@ -93,3 +93,82 @@ export function faqPageJsonLd(qa: { q: string; a: string }[]) {
     })),
   };
 }
+
+export function organizationJsonLd() {
+  return {
+    "@context": GRAPH,
+    "@type": "Organization",
+    name: siteConfig.name,
+    url: BASE,
+    logo: `${BASE}${siteConfig.ogImage}`,
+    description: siteConfig.description,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Jl. Cikoneng No.15",
+      addressLocality: "Bojongsoang, Kab. Bandung",
+      addressRegion: "Jawa Barat",
+      postalCode: "40288",
+      addressCountry: "ID",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      email: siteConfig.contact.email,
+      areaServed: "ID",
+      availableLanguage: "Indonesian",
+    },
+    sameAs: [], // Add social media links when available
+  };
+}
+
+export function websiteJsonLd() {
+  return {
+    "@context": GRAPH,
+    "@type": "WebSite",
+    url: BASE,
+    name: siteConfig.name,
+    description: siteConfig.description,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${BASE}/berita?q={search_term_string}`,
+      },
+      "query-input": {
+        "@type": "PropertyValueSpecification",
+        valueRequired: true,
+        valueName: "search_term_string",
+      },
+    },
+  };
+}
+
+type ImageLike = {
+  title: string;
+  img: string;
+};
+
+export function imageCollectionJsonLd(images: ImageLike[]) {
+  return {
+    "@context": GRAPH,
+    "@type": "CollectionPage",
+    name: `Galeri Dokumentasi ${siteConfig.name}`,
+    description: "Kumpulan foto dokumentasi kegiatan dan momen ibadah di Masjid Al-Kahfi Cikoneng.",
+    url: `${BASE}/galeri`,
+    about: {
+      "@type": "PlaceOfWorship",
+      name: siteConfig.name,
+      url: BASE,
+    },
+    hasPart: images.map((img) => ({
+      "@type": "ImageObject",
+      contentUrl: img.img.startsWith("http") ? img.img : `${BASE}${img.img}`,
+      name: img.title,
+      description: img.title,
+      author: {
+        "@type": "Organization",
+        name: siteConfig.name,
+      },
+    })),
+  };
+}

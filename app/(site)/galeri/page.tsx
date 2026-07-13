@@ -3,7 +3,7 @@ import Image from "next/image";
 import { ZoomIn } from "lucide-react";
 import { getAllGaleri } from "@/lib/queries/content";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
+import { breadcrumbJsonLd, imageCollectionJsonLd } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = buildMetadata({
@@ -23,6 +23,7 @@ export default async function GaleriPage() {
           { name: "Galeri", path: "/galeri"},
         ])}
       />
+      <JsonLd data={imageCollectionJsonLd(items)} />
       <div className="bg-emerald-900 text-white py-16 text-center relative overflow-hidden border-b-4 border-gold-500">
         <div className="absolute inset-0 opacity-15 islamic-pattern"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4">

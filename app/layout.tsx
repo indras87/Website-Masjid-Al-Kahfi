@@ -3,7 +3,7 @@ import { Playfair_Display, Sora } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-client";
 import { siteConfig } from "@/lib/seo/site";
-import { placeOfWorshipJsonLd } from "@/lib/seo/jsonld";
+import { placeOfWorshipJsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/json-ld";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
@@ -58,6 +58,8 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         <AuthProvider>
           <JsonLd data={placeOfWorshipJsonLd()} />
+          <JsonLd data={organizationJsonLd()} />
+          <JsonLd data={websiteJsonLd()} />
           {children}
         </AuthProvider>
       </body>
