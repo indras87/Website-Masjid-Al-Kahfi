@@ -1,167 +1,385 @@
 # Website Profil Masjid Al-Kahfi
 
-Aplikasi ini adalah **Website Profil Resmi Masjid Al-Kahfi Cikoneng**, Kabupaten Bandung. Website ini dibangun untuk menyediakan informasi terpusat mengenai masjid kepada masyarakat luas, meliputi profil kepengurusan, visi-misi, fasilitas, jadwal sholat, dokumentasi kegiatan (kajian, TPA, dll), berita terbaru, galeri foto, hingga informasi donasi/ziswaf.
+Aplikasi ini adalah **Website Profil Resmi Masjid Al-Kahfi Cikoneng**, Kabupaten Bandung. Website ini dibangun untuk menyediakan informasi terpusat mengenai masjid kepada masyarakat luas, meliputi profil kepengurusan DKM, visi-misi, sejarah, fasilitas, jadwal sholat, dokumentasi kegiatan (kajian, TPA, dll), berita terbaru, galeri foto, hingga informasi donasi/ziswaf.
 
-Aplikasi ini dirancang dengan antarmuka yang modern, responsif, dan interaktif untuk memberikan pengalaman pengguna yang nyaman.
+Aplikasi ini terdiri dari dua sisi:
 
-## Arsitektur dan Struktur Folder
+- **Sisi publik** — halaman yang dapat diakses masyarakat umum (Beranda, Tentang, Jadwal Sholat, Kegiatan, Berita, Galeri, Kontak, Donasi).
+- **Sisi admin (CMS)** — dashboard terproteksi untuk mengelola seluruh konten situs (berita, kegiatan, galeri, pengurus, fasilitas, profil masjid, kontak, donasi, pengaturan situs, hingga manajemen pengguna).
 
-Aplikasi ini menggunakan framework **Next.js** dengan paradigma **App Router**. Berikut adalah struktur folder utama dari proyek ini:
+Antarmuka dirancang modern, responsif, dan interaktif untuk memberikan pengalaman pengguna yang nyaman baik di desktop maupun mobile.
 
-```
-website_masjid_alkahfi/
-├── app/                  # Folder utama App Router Next.js
-│   ├── admin/            # Halaman dan komponen untuk dashboard admin
-│   ├── api/              # Route handler API untuk data CMS
-│   ├── (site)/           # Route group untuk halaman publik (tidak memiliki layout admin)
-│   │   ├── beranda/      # Halaman beranda (/beranda)
-│   │   ├── berita/       # Halaman berita (/berita)
-│   │   ├── donasi/       # Halaman donasi/infaq (/donasi)
-│   │   ├── galeri/       # Halaman galeri foto (/galeri)
-│   │   ├── jadwal-sholat/# Halaman jadwal sholat (/jadwal-sholat)
-│   │   ├── kegiatan/     # Halaman kegiatan (/kegiatan)
-│   │   ├── kontak/       # Halaman kontak (/kontak)
-│   │   ├── tentang/      # Halaman tentang masjid (/tentang)
-│   │   └── layout.tsx    # Layout bersama untuk halaman publik (header, footer, theme settings)
-│   ├── globals.css       # Styling global termasuk variabel tema (CSS variables)
-│   ├── layout.tsx        # Layout utama aplikasi (HTML skeleton, fonts, meta tags)
-│   └── page.tsx          # Redirect root ke /beranda
-├── assets/               ...
-```
+---
 
-Aplikasi ini menggunakan pendekatan **multi-route** dengan App Router Next.js. Halaman publik (Beranda, Tentang, Jadwal Sholat, Kegiatan, Berita, Galeri, Kontak, Donasi) ditempatkan dalam route group `(site)` yang membungkusnya dengan layout bersama (header, footer, tema). Halaman admin berada di luar kelompok ini dan menggunakan layout sendiri yang tidak menyertakan navbar situs, sehingga admin hanya memiliki sidebar dan header adminnya masing-masing.
+## Daftar Isi
+
+- [Teknologi Stack](#teknologi-stack)
+- [Library yang Digunakan](#library-yang-digunakan)
+- [Arsitektur & Struktur Folder](#arsitektur--struktur-folder)
+- [Konvensi Penamaan File](#konvensi-penamaan-file)
+- [Fitur](#fitur)
+- [Schema Database](#schema-database)
+- [API / Route Handler](#api--route-handler)
+- [Setup Project](#setup-project)
+- [Menjalankan Aplikasi](#menjalankan-aplikasi)
+- [Testing](#testing)
+- [Diagram Alur](#diagram-alur)
+
+---
 
 ## Teknologi Stack
 
-Proyek ini dibangun menggunakan teknologi modern untuk memastikan performa yang cepat dan pengembangan yang efisien:
-
-- **Framework:** [Next.js](https://nextjs.org/) (App Router)
-- **Library UI:** [React](https://react.dev/) (v19)
+- **Framework:** [Next.js 15+](https://nextjs.org/) (App Router, output `standalone`)
+- **Library UI:** [React 19](https://react.dev/)
 - **Bahasa Pemrograman:** [TypeScript](https://www.typescriptlang.org/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/) (v4)
-- **Package Manager:** npm
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) + `@tailwindcss/typography` + `tw-animate-css`
+- **Database:** [PostgreSQL 15](https://www.postgresql.org/) (dijalankan via Docker, port host `5433`)
+- **ORM:** [Drizzle ORM](https://orm.drizzle.team/) + [Drizzle Kit](https://orm.drizzle.team/docs/kit-overview) untuk migrasi (`drizzle-kit push`)
+- **Autentikasi:** [Better Auth](https://www.better-auth.com/) (email & password, hashing bcrypt) dengan adapter Drizzle
+- **Editor Konten:** [Tiptap](https://tiptap.dev/) (rich text editor untuk konten berita)
+- **Animasi:** [Motion](https://motion.dev/) (Framer Motion)
+- **Ikon:** [Lucide React](https://lucide.dev/)
+- **Runtime/Kontainerisasi:** [Docker](https://www.docker.com/) + `docker-compose`
 
-## Library Utama yang Digunakan
+---
 
-- **`motion` (Framer Motion):** Digunakan untuk membuat animasi transisi antar halaman, elemen interaktif, dan efek visual yang halus.
-- **`lucide-react`:** Kumpulan ikon SVG modern dan ringan yang digunakan di seluruh antarmuka aplikasi.
-- **`clsx` & `tailwind-merge`:** Utility untuk memanipulasi dan menggabungkan class Tailwind secara dinamis tanpa konflik.
-- **`drizzle-orm` & `drizzle-kit`:** ORM untuk PostgreSQL yang cepat, ringan, dan fully type-safe.
-- **`postgres`:** Driver database PostgreSQL client untuk Drizzle.
+## Library yang Digunakan
 
-## Fitur Utama
+### Dependencies
 
-- Halaman beranda dengan konten masjid, berita, kegiatan, galeri, dan info donasi/ziswaf.
-- Route terpisah untuk setiap halaman: `/beranda`, `/tentang`, `/jadwal-sholat`, `/kegiatan`, `/berita`, `/galeri`, `/kontak`, `/donasi`.
-- Dashboard admin untuk mengelola berita, kegiatan, galeri, dan halaman "Tentang".
-- Manajemen data "Tentang" untuk pengurus, visi-misi, dan fasilitas masjid.
-- CMS singleton untuk mengelola halaman `Kontak` dan `Donasi / Infaq` dengan simpan, baca, dan reset data.
-- API route berbasis Next.js untuk CRUD data CMS.
-- Halaman detail berita SEO-friendly di `/berita/[slug]-[id]` dengan tombol berbagi (Copy Link, WhatsApp, Twitter, Facebook).
-- Thumbnail berita ditampilkan sebagai gambar di atas konten pada halaman detail berita.
-- Loading state dengan spinner dan teks "Menyimpan..." / "Menghapus..." pada semua operasi CRUD di admin.
-- Optimistic delete pada daftar admin: item langsung dihapus dari UI lalu di-rollback jika API gagal.
+| Library | Kegunaan |
+|---|---|
+| `next`, `react`, `react-dom` | Framework & UI utama |
+| `drizzle-orm`, `postgres` | Akses database PostgreSQL |
+| `drizzle-kit` | Migrasi skema (`db:push`) |
+| `better-auth` | Autentikasi (sesi, email/password, role) |
+| `bcryptjs` | Hashing & verifikasi password |
+| `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-*` | Rich text editor (gambar, link, text-align, resize) |
+| `@hookform/resolvers`, (`react-hook-form`) | Validasi & manajemen form |
+| `motion` | Animasi UI |
+| `lucide-react` | Ikon |
+| `class-variance-authority`, `clsx`, `tailwind-merge` | Utilitas styling/className |
+| `uuid` | Generator ID unik |
+| `dotenv` | Memuat variabel lingkungan |
+| `@google/genai` | Integrasi Google Gemini (AI) |
 
-## Cara Setup Project
+### Dev Dependencies
 
-Ikuti langkah-langkah berikut untuk mengatur proyek di komputer lokal Anda:
+| Library | Kegunaan |
+|---|---|
+| `tailwindcss`, `@tailwindcss/postcss`, `autoprefixer`, `postcss` | Tooling CSS |
+| `eslint`, `eslint-config-next` | Linting |
+| `typescript` | Type checking |
+| `tsx` | Menjalankan skrip TypeScript (seed & test runner) |
+| `firebase-tools` | Deployment ke Firebase Hosting |
 
-1. **Pastikan Prasyarat Terpenuhi:**
-   - Node.js (versi 20 atau lebih baru disarankan)
-   - Docker & Docker Compose (opsional jika ingin menjalankan via Docker)
+---
 
-2. **Install Dependensi:**
-   Buka terminal di dalam folder proyek, lalu jalankan:
+## Arsitektur & Struktur Folder
+
+Aplikasi memakai **App Router** Next.js dengan pendekatan **multi-route group**:
+
+- Halaman publik ditempatkan di route group `(site)` yang dibungkus layout bersama (header, footer, tema).
+- Halaman admin berada di luar kelompok `(site)` dan menggunakan layout terproteksi sendiri (sidebar + header admin, tanpa navbar situs).
+- Seluruh data mengalir melalui **Route Handler** di `app/api/*` yang berkomunikasi dengan **Drizzle ORM** ke PostgreSQL. Komponen klien memanggil endpoint ini via `fetch`.
+
+```
+website_masjid_alkahfi/
+├── app/                         # App Router Next.js
+│   ├── (site)/                  # Route group halaman publik (tanpa layout admin)
+│   │   ├── beranda/             # /beranda — halaman utama
+│   │   ├── tentang/             # /tentang — profil, visi-misi, sejarah, pengurus
+│   │   ├── jadwal-sholat/       # /jadwal-sholat — jadwal sholat (Aladhan/Kemenag)
+│   │   ├── kegiatan/            # /kegiatan — agenda kajian & kegiatan
+│   │   ├── berita/              # /berita + /berita/[slug] — daftar & detail berita
+│   │   ├── galeri/              # /galeri — galeri foto (lightbox)
+│   │   ├── kontak/              # /kontak — info kontak & peta
+│   │   ├── donasi/              # /donasi — info rekening & QRIS
+│   │   └── layout.tsx           # Layout publik (header, footer, theme)
+│   ├── admin/                   # Area CMS
+│   │   ├── login/               # /admin/login — halaman login
+│   │   ├── components/          # Komponen admin (Sidebar, ImageUpload)
+│   │   └── (protected)/         # Route group terproteksi (butuh sesi)
+│   │       ├── berita/          # Kelola berita
+│   │       ├── kegiatan/        # Kelola kegiatan
+│   │       ├── galeri/          # Kelola galeri
+│   │       ├── tentang/         # Kelola profil & pengurus
+│   │       ├── kontak-donasi/   # Kelola kontak & donasi
+│   │       ├── pengaturan/      # Kelola pengaturan situs
+│   │       ├── users/           # Manajemen pengguna + _components/
+│   │       ├── layout.tsx       # Verifikasi sesi server-side + shell admin
+│   │       └── page.tsx         # Dashboard (statistik & aktivitas terbaru)
+│   ├── api/                     # Route Handler REST (lihat seksi API)
+│   │   ├── auth/[...all]/       # Handler Better Auth
+│   │   ├── berita/, kegiatan/, galeri/, pengurus/, fasilitas/
+│   │   ├── profil/, kontak/, donasi/, pengaturan/
+│   │   ├── users/, upload/
+│   │   └── .../[id]/            # Endpoint item (GET/PUT/DELETE per entitas)
+│   ├── globals.css              # Styling global & CSS variables tema
+│   ├── layout.tsx               # Root layout (HTML skeleton, font, metadata)
+│   └── page.tsx                 # Root redirect → /beranda
+├── components/                  # Komponen UI reusable lintas halaman
+│   ├── app-shell.tsx
+│   ├── layout-header.tsx        # Navbar publik
+│   ├── layout-footer.tsx        # Footer publik
+│   ├── layout-theme.tsx         # Provider/pengaturan tema
+│   └── rich-text-editor.tsx     # Wrapper Tiptap untuk konten berita
+├── hooks/                       # React custom hooks
+│   ├── use-mobile.ts            # Deteksi viewport mobile
+│   └── use-prayer-times.ts      # Fetch & cache jadwal sholat
+├── lib/                         # Logika aplikasi (non-UI)
+│   ├── db/
+│   │   ├── schema.ts            # Definisi seluruh tabel Drizzle
+│   │   ├── index.ts             # Koneksi DB (postgres-js + Drizzle)
+│   │   └── seed.ts              # Skrip seeding data awal
+│   ├── cms/settings.ts          # Default pengaturan (mis. running text)
+│   ├── auth.ts                  # Konfigurasi Better Auth
+│   ├── auth-client.tsx          # Client Better Auth
+│   ├── audit.ts                 # Resolver pelaku (createdBy/updatedBy)
+│   ├── dashboard.ts             # Query statistik & aktivitas dashboard
+│   ├── prayer-times.ts          # Helper jadwal sholat (Aladhan API)
+│   ├── quran-surahs.ts          # Daftar surah Al-Qur'an
+│   ├── image-compress.ts        # Kompresi gambar sisi klien
+│   ├── slug.ts                  # Generator slug unik
+│   ├── relative-time.ts         # Format waktu relatif
+│   └── utils.ts                 # Utilitas umum (cn, dll)
+├── drizzle/                     # Output migrasi Drizzle Kit
+├── public/                      # Aset statis & folder uploads/
+├── assets/                      # Aset mentah (gambar, dll)
+├── test/                        # Unit test (tsx --test)
+│   └── lib/                     # prayer-times, cms/settings
+├── docs/                        # Dokumentasi tambahan
+├── docker-compose.yml           # PostgreSQL + app (dev)
+├── Dockerfile                   # Build produksi (multi-stage, standalone)
+├── Dockerfile.dev               # Image development
+├── drizzle.config.ts            # Konfigurasi Drizzle Kit
+├── next.config.ts               # Konfigurasi Next.js
+├── .env.example                 # Contoh variabel lingkungan
+└── package.json
+```
+
+---
+
+## Konvensi Penamaan File
+
+- **Halaman/route:** menggunakan `page.tsx` (App Router). Root halaman publik berada di `(site)/<nama>/page.tsx`.
+- **Layout:** `layout.tsx` per segmen. Route group dengan tanda kurung `(site)`, `(protected)` **tidak memengaruhi URL**, hanya pengelompokan layout.
+- **Route Handler API:** `app/api/<entitas>/route.ts` (koleksi) dan `app/api/<entitas>/[id]/route.ts` (item). Setiap `route.ts` mengekspor fungsi HTTP: `GET`, `POST`, `PUT`, `DELETE`.
+- **Slug dinamis:** berita memakai `[slug]` untuk URL ramah SEO (`/berita/[slug]`).
+- **Komponen:** `kebab-case` dengan prefiks domain bila perlu (`layout-*`, `app-shell`).
+- **Komponen privat admin:** diletakkan dalam folder `_components/` (contoh `users/_components/`); prefix `_` mengecualikan folder dari routing.
+- **Utilitas/library:** `lib/` memakai `kebab-case` (mis. `prayer-times.ts`, `image-compress.ts`).
+- **Skema & seeding:** terpusat di `lib/db/schema.ts` dan `lib/db/seed.ts`.
+- **Hooks:** prefiks `use-` (mis. `use-prayer-times.ts`).
+
+---
+
+## Fitur
+
+### Sisi Publik
+
+- **Beranda** — ringkasan konten utama, running text pengumuman, highlight kegiatan & berita.
+- **Tentang** — profil masjid, visi & misi, sejarah, struktur kepengurusan DKM (berjenjang: Pembina → Penasehat → Pimpinan → Idarah/Imarah/Riayah).
+- **Jadwal Sholat** — jadwal harian berbasis koordinat masjid (API Aladhan, metode Kemenag RI) dengan fallback statis bila offline.
+- **Kegiatan** — agenda kajian/kegiatan berkategorisasi (Harian, Jum'at, Hari Besar) beserta ustadz, waktu, dan status.
+- **Berita** — daftar berita terurut terbaru + halaman detail via slug.
+- **Galeri** — grid foto dengan lightbox.
+- **Kontak** — alamat, hotline, email, jam operasional, dan peta Google Maps.
+- **Donasi** — informasi rekening bank dan QRIS.
+
+### Sisi Admin (CMS) — `/admin`
+
+- **Login** autentikasi email & password (Better Auth, sesi 7 hari).
+- **Dashboard** — statistik (jumlah kegiatan, berita, pengurus, galeri) dan aktivitas terbaru lintas entitas.
+- **CRUD Berita** dengan editor rich text (Tiptap), gambar, tag, dan auto-slug unik.
+- **CRUD Kegiatan, Galeri, Pengurus, Fasilitas.**
+- **Manajemen profil masjid, kontak, donasi.**
+- **Pengaturan situs** (key-value, mis. running text pengumuman).
+- **Manajemen pengguna** dengan role `superadmin` / `admin`.
+- **Upload gambar** ke `public/uploads/` (validasi tipe & ukuran maks. 2 MB, kompresi sisi klien).
+- **Audit trail** — setiap entitas mencatat `createdById` / `updatedById` dan menampilkan nama pelaku.
+
+### Keamanan
+
+- Seluruh area `(protected)` diverifikasi sesi **server-side** (`auth.api.getSession`) sebelum dirender; tanpa sesi → redirect ke `/admin/login`.
+- Hashing password memakai **bcrypt** (10 rounds).
+- Role pengguna tidak dapat diatur sendiri oleh pengguna (`input: false`).
+
+---
+
+## Schema Database
+
+Skema didefinisikan di `lib/db/schema.ts` dengan Drizzle ORM (PostgreSQL). Terdapat dua kelompok tabel:
+
+### Tabel Autentikasi (Better Auth)
+
+| Tabel | Keterangan |
+|---|---|
+| `user` | `id`, `email` (unique), `password`, `name`, `image`, `role` (`superadmin`/`admin`, default `admin`), `emailVerified`, `createdAt`, `updatedAt` |
+| `session` | `id`, `expiresAt`, `token` (unique), `userId` → `user.id` (cascade), `ipAddress`, `userAgent`, timestamp |
+| `account` | `id`, `accountId`, `providerId`, `userId` → `user.id`, token-token OAuth, `password`, timestamp |
+| `verification` | `id`, `identifier`, `value`, `expiresAt`, timestamp |
+
+### Tabel Konten (CMS)
+
+| Tabel | Kolom Utama | Catatan |
+|---|---|---|
+| `berita` | `id`, `title`, `tag`, `author`, `date`, `img`, `desc`, `content`, `slug` | `slug` unik untuk URL; `createdById`/`updatedById` audit |
+| `kegiatan` | `id`, `title`, `type` (Harian/Jum'at/Hari Besar), `time`, `ust`, `status` (Aktif/Nonaktif), `desc`, `note`, `icon`, `color`, `img`, `featured` | |
+| `galeri` | `id`, `title`, `img` | |
+| `pengurus` | `id`, `nama`, `foto`, `tingkat` (enum: `pembina`, `penasehat`, `pimpinan`, `idarah`, `imarah`, `riayah`), `subBidang`, `jabatan`, `urutan`, `periode` | Nullable `jabatan`/`subBidang` untuk anggota |
+| `profil_masjid` | `id`, `visi`, `misi` (newline-separated), `history` | Tunggal |
+| `fasilitas` | `id`, `title`, `desc`, `icon` (nama ikon Lucide) | |
+| `kontak` | `id`, `alamat`, `hotline`, `email`, `jamOperasional`, `googleMapsUrl` | Tunggal |
+| `donasi` | `id`, `namaRekening`, `nomorRekening`, `atasNamaRekening`, `qrisImage` | Tunggal |
+| `pengaturan` | `key` (PK), `value` | Key-value settings lintas situs |
+
+**Konvensi:** tabel konten mencatat `createdById`, `updatedById` (FK → `user.id`, `onDelete: SET NULL`) dan `updatedAt`/`createdAt`. Dua enum didefinisikan: `user_role` dan `pengurus_tingkat`.
+
+---
+
+## API / Route Handler
+
+Seluruh endpoint berbasis REST di `app/api/*`, mengembalikan JSON. Endpoint item memakai `[id]`. Sebagian besar endpoint menambahkan field `createdByName`/`updatedByName` via `withActorNames`.
+
+| Entitas | Collection | Item (`[id]`) |
+|---|---|---|
+| Berita | `GET /api/berita`, `POST /api/berita` | `GET`, `PUT`, `DELETE /api/berita/[id]` |
+| Kegiatan | `GET`, `POST /api/kegiatan` | `PUT`, `DELETE /api/kegiatan/[id]` |
+| Galeri | `GET`, `POST /api/galeri` | `DELETE /api/galeri/[id]` |
+| Pengurus | `GET`, `POST /api/pengurus` | `PUT`, `DELETE /api/pengurus/[id]` |
+| Fasilitas | `GET`, `POST /api/fasilitas` | `PUT`, `DELETE /api/fasilitas/[id]` |
+| Profil | `GET`, `PUT /api/profil` | — (resource tunggal) |
+| Kontak | `GET`, `PUT`, `DELETE /api/kontak` | — |
+| Donasi | `GET`, `PUT`, `DELETE /api/donasi` | — |
+| Pengaturan | `GET`, `PUT /api/pengaturan` | — (key-value) |
+| Users | `GET`, `POST /api/users` | `GET`, `PUT`, `DELETE /api/users/[id]` |
+| Upload | `POST /api/upload` (multipart/form-data, max 2 MB, JPG/PNG/WEBP/GIF) | — |
+| Auth | `ALL /api/auth/[...all]` (handler Better Auth: login, logout, signup, session) | — |
+
+**Catatan implementasi:** endpoint membaca/menulis langsung via Drizzle; `POST` berita membuat `slug` unik (cek bentrok dengan sufiks numerik). Endpoint `dynamic = "force-dynamic"` agar selalu dievaluasi saat request.
+
+---
+
+## Setup Project
+
+### Prasyarat
+
+- **Node.js 20+**
+- **npm**
+- **Docker** & **Docker Compose** (untuk PostgreSQL)
+
+### Langkah-langkah
+
+1. **Clone repository**
+   ```bash
+   git clone <repo-url>
+   cd website_masjid_alkahfi
+   ```
+
+2. **Salin konfigurasi environment**
+   ```bash
+   cp .env.example .env.local
+   ```
+   Lalu sesuaikan `.env.local`:
+   ```env
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5433/alkahfi_db"
+   GEMINI_API_KEY="..."     # opsional, untuk fitur Gemini
+   APP_URL="http://localhost:3000"
+   ```
+
+3. **Install dependency**
    ```bash
    npm install
    ```
 
-3. **Konfigurasi Environment Variables:**
-   - Salin file `.env.example` dan ubah namanya menjadi `.env.local`
-   - Isi variabel `DATABASE_URL` dengan alamat database PostgreSQL Anda. Untuk setup lokal dan Docker host, gunakan port `5433`.
-   - Perintah `npm run db:setup` sekarang membaca `.env.local` secara otomatis.
+4. **Jalankan database PostgreSQL** (via Docker Compose)
    ```bash
-   cp .env.example .env.local
+   docker-compose up -d db
    ```
+   Container memetakan port host **5433 → 5432** (sesuai catatan di `CLAUDE.md`).
 
-## Cara Run Aplikasi
-
-Aplikasi ini dapat dijalankan menggunakan dua cara:
-
-### Cara 1: Menggunakan Docker Compose (Direkomendasikan)
-Cara ini akan menjalankan database PostgreSQL dan aplikasi Next.js (dalam **mode Development dengan Hot Reload** aktif) secara otomatis di dalam kontainer Docker.
-
-1. **Jalankan Docker Compose:**
+5. **Migrasi skema & seeding data awal**
    ```bash
-   docker-compose up -d --build
+   npm run db:setup        # = drizzle-kit push && tsx lib/db/seed.ts
    ```
-   *Menggunakan flag `-d` (detached) agar kontainer berjalan di latar belakang (daemonize). Proses build akan sangat cepat karena melewati proses npm run build.*
-   Database Docker dapat diakses dari host lewat port `5433`.
-
-   > **Tips Docker Berguna:**
-   > * **Melihat log real-time:** `docker-compose logs -f app`
-   > * **Melihat status kontainer:** `docker-compose ps`
-   > * **Mematikan kontainer:** `docker-compose down`
-
-2. **Migrasi dan Seed Database:**
-   Setelah kontainer database dan aplikasi menyala, Anda dapat mengisi data awal (berita, kegiatan, galeri, pengurus, profil, dan fasilitas) dengan menjalankan perintah ini:
+   Atau per langkah:
    ```bash
-   docker exec -it alkahfi_app npm run db:setup
+   npm run db:push         # terapkan skema ke DB
+   npm run db:seed         # isi data awal (pengurus, berita contoh, user admin, dll)
    ```
-   Atau jika menggunakan Docker Compose CLI baru:
-   ```bash
-   docker compose exec app npm run db:setup
-   ```
-   *Perintah ini akan membuat tabel-tabel database via Drizzle (`drizzle-kit push`) dan memasukkan data default (`tsx lib/db/seed.ts`). Tabel yang dibuat mencakup `berita`, `kegiatan`, `galeri`, `pengurus`, `profil_masjid`, `fasilitas`, `kontak`, dan `donasi`.*
-
-3. **Akses Aplikasi:**
-   Buka browser Anda dan kunjungi:
-   - Halaman Utama: [http://localhost:3000/beranda](http://localhost:3000/beranda)
-   - Halaman Admin (Kelola Berita/Kegiatan/Galeri/Tentang/Kontak/Donasi): [http://localhost:3000/admin](http://localhost:3000/admin)
-
-### Cara 2: Menjalankan Secara Manual (Development Lokal)
-
-1. **Jalankan Database PostgreSQL:**
-   Pastikan PostgreSQL berjalan lokal di komputer Anda di port `5433` dengan database `alkahfi_db` (atau sesuai konfigurasi di `.env.local`).
-   Jika memakai Docker Compose, database juga diekspos ke host pada port `5433`.
-
-2. **Jalankan Migrasi & Seed:**
-   ```bash
-   npm run db:setup
-   ```
-
-3. **Mulai Development Server:**
-   ```bash
-   npm run dev
-   ```
-
-4. **Akses Aplikasi:**
-   Kunjungi [http://localhost:3000/beranda](http://localhost:3000/beranda)
-
-### Deploy Otomatis ke Dokku via GitHub Actions
-
-Workflow deploy tersedia di `.github/workflows/deploy-dokku.yml`. Setiap push ke branch `main` akan memicu deploy ke Dokku melalui SSH, setara dengan perintah manual `git push dokku main:master`. Workflow ini sekarang memakai GitHub Environment `production`, jadi secrets bisa disimpan khusus untuk environment itu.
-
-Secrets GitHub yang perlu disiapkan:
-
-- `DOKKU_GIT_REMOTE`: remote Git Dokku lengkap, misalnya `dokku@178.128.86.13:al-kahfi`
-- `DOKKU_SSH_PRIVATE_KEY`: private key SSH yang sudah di-authorize ke user Dokku di server
-- `DOKKU_KNOWN_HOSTS`: isi baris `known_hosts` untuk server Dokku, misalnya hasil `ssh-keyscan -H 178.128.86.13`
-- `DOKKU_REMOTE_BRANCH`: opsional, default `master`
-
-Contoh setup secrets dari mesin lokal:
-
-```bash
-ssh-keyscan -H 178.128.86.13
-```
-
-Dengan pola ini, detail host, user, dan nama app tidak ditulis terpisah di repository. Semuanya dibungkus dalam secrets GitHub. Jika ingin lebih ketat lagi, simpan secrets tersebut di Environment `production` dan aktifkan required reviewers sebelum job deploy berjalan.
-
-Jika app Next.js berjalan di port internal `3000`, pastikan mapping proxy Dokku sesuai:
-
-```bash
-dokku proxy:ports-set al-kahfi http:80:3000 https:443:3000
-```
 
 ---
-*Dibuat untuk kemaslahatan umat. Semoga menjadi amal jariyah.*
+
+## Menjalankan Aplikasi
+
+### Development (local)
+
+```bash
+npm run dev
+```
+Buka `http://localhost:3000` (root otomatis redirect ke `/beranda`). Panel admin di `http://localhost:3000/admin`.
+
+### Development (Docker — app + db)
+
+```bash
+docker-compose up -d --build
+```
+Menjalankan PostgreSQL (`alkahfi_db`) dan aplikasi Next.js (`alkahfi_app`) di port `3000`. Volume kode dipasang (hot-reload).
+
+### Produksi (Docker standalone)
+
+```bash
+docker build -t masjid-alkahfi .
+docker run -p 3000:3000 -e DATABASE_URL=... masjid-alkahfi
+```
+`Dockerfile` memakai multi-stage build dan output `standalone` Next.js.
+
+### Script npm lainnya
+
+| Perintah | Kegunaan |
+|---|---|
+| `npm run dev` | Server development |
+| `npm run build` | Build produksi |
+| `npm start` | Jalankan hasil build |
+| `npm run lint` | Jalankan ESLint |
+| `npm run db:push` | Migrasi skema (Drizzle Kit) |
+| `npm run db:seed` | Seeding data awal |
+| `npm run db:setup` | Push skema + seeding |
+| `npm test` | Menjalankan unit test |
+| `npm run clean` | Hapus cache build Next.js |
+
+---
+
+## Testing
+
+Pengujian menggunakan runner bawaan **Node.js** via `tsx`:
+
+```bash
+npm test          # = tsx --test
+```
+
+File test berada di folder `test/` dan mengikuti pola `*.test.ts`:
+
+```
+test/
+└── lib/
+    ├── prayer-times.test.ts   # logika parsing & format jadwal sholat
+    └── cms/settings.test.ts   # default pengaturan situs
+```
+
+Pendekatan: modul yang dites (mis. `lib/prayer-times.ts`) sengaja dibuat **pure function** tanpa dependensi React/browser/DB agar mudah diuji secara terisolasi. Linting tambahan bisa dijalankan dengan `npm run lint`.
+
+---
+
+## Diagram Alur
+
+Seluruh diagram alur aplikasi (arsitektur sistem, routing, autentikasi, CRUD admin, upload gambar, audit trail, jadwal sholat, dashboard, dan ERD database) tersedia dalam format **Mermaid** di dokumen terpisah:
+
+👉 **[docs/diagrams.md](docs/diagrams.md)**
+
+Diagram ter-render otomatis di GitHub/GitLab/VS Code, atau dapat di-paste ke [mermaid.live](https://mermaid.live) untuk melihat visualnya.
+
+---
+
+© Masjid Al-Kahfi Cikoneng — Kabupaten Bandung.
