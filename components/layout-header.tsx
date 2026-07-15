@@ -169,14 +169,20 @@ export function LayoutHeader({
                 {navLinks.map((link) => (
                   <button
                     key={link.id}
-                    onClick={() => onNav(link.id)}
+                    onClick={() => {
+                      onNav(link.id);
+                      setIsMobileMenuOpen(false);
+                    }}
                     className={`block text-left px-4 py-2.5 rounded-md text-base font-semibold ${activeTab === link.id ? "bg-gold-50 text-gold-600" : "text-emerald-950 hover:bg-gold-50"}`}
                   >
                     {link.label}
                   </button>
                 ))}
                 <button
-                  onClick={() => onNav("donasi")}
+                  onClick={() => {
+                    onNav("donasi");
+                    setIsMobileMenuOpen(false);
+                  }}
                   className="block w-full text-center bg-gold-500 text-white font-bold py-3 rounded-md shadow-md mt-2 flex justify-center items-center gap-2"
                 >
                   <HeartPulse size={16} /> Donasi & Infaq
