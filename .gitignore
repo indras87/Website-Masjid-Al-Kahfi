@@ -7,3 +7,5 @@ coverage/
 !.env.example
 public/uploads/
 tsconfig.tsbuildinfo
+# Seed data (local only, not shared via repo)
+lib/db/seed.ts
