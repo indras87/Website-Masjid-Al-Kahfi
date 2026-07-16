@@ -26,8 +26,8 @@ type Pengurus = {
 };
 
 const FALLBACK_PENGURUS: Pengurus[] = [
-  { id: 1, nama: "Budi Ramdani", foto: "https://placehold.co/200x200/064e3b/fbbf24?text=BR", tingkat: "pimpinan", subBidang: null, jabatan: "Ketua", urutan: 1, periode: "2024-2028" },
-  { id: 2, nama: "Idham Faisal", foto: "https://placehold.co/200x200/064e3b/fbbf24?text=IF", tingkat: "pimpinan", subBidang: null, jabatan: "Wakil Ketua", urutan: 2, periode: "2024-2028" },
+  { id: 1, nama: "Budi Ramdani", foto: "https://placehold.co/200x200/064e3b/fbbf24?text=BR", tingkat: "pimpinan", subBidang: null, jabatan: "Ketua", urutan: 1, periode: "2025-2031" },
+  { id: 2, nama: "Idham Faisal", foto: "https://placehold.co/200x200/064e3b/fbbf24?text=IF", tingkat: "pimpinan", subBidang: null, jabatan: "Wakil Ketua", urutan: 2, periode: "2025-2031" },
 ];
 
 const FALLBACK_VISI_MISI = {
@@ -267,7 +267,7 @@ export default function TentangPage() {
             Pengurus DKM Al-Kahfi
           </h3>
           <p className="text-center text-sm text-gray-500 -mt-6 mb-4">
-            Masa Khidmat: 2024 - 2028
+            Masa Khidmat: 2025 - 2031
           </p>
 
           {(() => {

@@ -145,25 +145,25 @@ const FALLBACK_PENGURUS = [
   {
     name: "H. Endang Wijaya, Lc.",
     role: "Ketua Umum DKM",
-    period: "Periode 2024-2028",
+    period: "Periode 2025-2031",
     img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200&h=200",
   },
   {
     name: "H. Ridwan Kamil, S.E.",
     role: "Wakil Ketua",
-    period: "Periode 2024-2028",
+    period: "Periode 2025-2031",
     img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200&h=200",
   },
   {
     name: "Bpk. Ahmad Fauzi",
     role: "Bendahara Ziswaf",
-    period: "Periode 2024-2028",
+    period: "Periode 2025-2031",
     img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200&h=200",
   },
   {
     name: "Ust. Syahrul Ramadhan",
     role: "Ketua Bidang Dakwah",
-    period: "Periode 2024-2028",
+    period: "Periode 2025-2031",
     img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200&h=200",
   },
 ];

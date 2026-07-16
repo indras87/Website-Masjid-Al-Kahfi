@@ -147,7 +147,7 @@ export const pengurus = pgTable("pengurus", {
   subBidang: text("sub_bidang"), // nullable: null = anggota langsung tingkat/bidang
   jabatan: text("jabatan"), // nullable: "Ketua","Sekretaris","Koordinator Bidang", null = anggota
   urutan: integer("urutan").default(0).notNull(),
-  periode: text("periode").default("2024-2028").notNull(),
+  periode: text("periode").default("2025-2031").notNull(),
   createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
   updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

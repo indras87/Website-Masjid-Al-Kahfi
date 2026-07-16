@@ -28,7 +28,7 @@ const avatar = (nama: string): string => {
   return `https://placehold.co/200x200/064e3b/fbbf24?text=${encodeURIComponent(initials)}`;
 };
 
-// Struktur pengurus DKM Al-Kahfi periode 2024-2028
+// Struktur pengurus DKM Al-Kahfi periode 2025-2031
 // Field: nama, tingkat, jabatan?, subBidang?, urutan
 const DEFAULT_PENGURUS: Array<{
   nama: string;
