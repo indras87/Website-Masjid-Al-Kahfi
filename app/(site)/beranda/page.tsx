@@ -217,8 +217,8 @@ const FALLBACK_KONTAK = {
 
 const FALLBACK_DONASI = {
   namaRekening: "Bank Syariah Indonesia (BSI)",
-  nomorRekening: "7123-4567-89",
-  atasNamaRekening: "DKM AL-KAHFI CIKONENG",
+  nomorRekening: "7710016008",
+  atasNamaRekening: "DKM Masjid Al-Kahfi",
   qrisImage: "https://placehold.co/400x400/ffffff/064e3b?text=QRIS+AL-KAHFI",
 };
 
