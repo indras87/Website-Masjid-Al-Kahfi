@@ -89,10 +89,10 @@ Semua halaman baru memakai gaya visual yang sudah ada (emerald/gold, `globals.cs
 - Halaman baru "Akun Saya". Bekerja di balik `ProtectedLayout` (butuh sesi).
 - Dua kartu/form:
 
-  **Ubah Kata Sandi**
-  - Field: sandi saat ini, sandi baru, konfirmasi.
-  - Submit → `authClient.changePassword({ currentPassword, newPassword })`.
-  - Sukses → tampilkan toast/pesan; sarankan login ulang bila sesi terpengaruh.
+  **Ubah Kata Sandi** (tanpa sandi saat ini)
+  - Field: sandi baru + konfirmasi (tidak meminta sandi lama).
+  - Submit → POST `/api/account/password` `{ newPassword }`. Route memanggil method server-side better-auth `auth.api.setPassword({ body: { newPassword }, headers })` — menyetel sandi baru tanpa verifikasi sandi lama, tapi mewajibkan sesi aktif (token sesi di headers). Opsi `revokeOtherSessions` untuk memaksa login ulang.
+  - Sukses → tampilkan pesan; saran login ulang.
 
   **Ubah Email**
   - Tampilkan email saat ini (read-only).
@@ -119,7 +119,7 @@ Semua halaman baru memakai gaya visual yang sudah ada (emerald/gold, `globals.cs
 
 - **Anti enumerasi email:** forgot-password selalu respons sukses generik.
 - **Token:** dibuat, disimpan di tabel `verification`, dan diekspos/divalidasi oleh better-auth dengan expiry bawaan (default ~1 jam). Token invalid/expired menghasilkan `?error=INVALID_TOKEN`.
-- **Kepemilikan:** `changePassword` mewajibkan `currentPassword`.
+- **Ubah sandi tanpa sandi saat ini:** memakai `auth.api.setPassword` (server-side, butuh sesi aktif). Konsekuensi: siapa pun dengan sesi aktif (mis. browser tak terkunci) dapat mengganti sandi. Diterima karena ini panel admin internal; mitigasi: logout manual + expiry sesi 7 hari yang sudah berlaku.
 - **Revoke sesi:** setelah `resetPassword` (dan idealnya `changePassword`), sesi lain di-revoke sehingga memaksa login ulang. Verifikasi perilaku bawaan better-auth saat implementasi; tambahkan revoke eksplisit bila belum otomatis.
 - **Rate limit:** endpoint auth better-auth punya rate-limit bawaan — pastikan aktif (default).
 - **Validasi input:** panjang & kompleksitas sandi, format email, kesesuaian konfirmasi — di sisi klien dan andal di sisi server via better-auth.
@@ -145,13 +145,14 @@ Semua halaman baru memakai gaya visual yang sudah ada (emerald/gold, `globals.cs
 - `app/admin/forgot-password/page.tsx`
 - `app/admin/reset-password/page.tsx`
 - `app/admin/(protected)/akun/page.tsx`
+- `app/api/account/password/route.ts` — ubah sandi tanpa current password via `auth.api.setPassword`.
 
 ## Testing
 
 - Unit/integration (mengikuti pola `test/` yang sudah ada, memakai mock Resend):
   - forgot-password selalu 200 bahkan untuk email tak terdaftar.
   - reset-password sukses dengan token valid; gagal dengan token invalid/expired.
-  - change-password menolak `currentPassword` salah; sukses dengan benar.
+  - change-password memvalidasi panjang sandi baru; sukses memperbarui kredensial lewat `auth.api.setPassword`; menolak sandi terlalu pendek/panjang.
   - change-email memicu `sendVerificationEmail` ke email baru; email baru aktif setelah `verifyEmail`.
 - Manual: alur penuh end-to-end dengan Resend dev (`onboarding@resend.dev`) ke mailbox nyata.
 
