@@ -6,6 +6,16 @@ import bcrypt from "bcryptjs";
 import { sendEmail } from "./email";
 import { renderResetPasswordEmail, renderVerificationEmail } from "./email-templates";
 
+/** Hash kata sandi dengan bcrypt cost 10 (sama dengan yang dipakai seed). */
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10);
+}
+
+/** Verifikasi kata sandi terhadap hash bcrypt. */
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(password, hash);
+}
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -17,12 +27,8 @@ export const auth = betterAuth({
     // Configure bcrypt for password hashing and verification
     // to match the hashes created in the seed script
     password: {
-      hash: async (password) => {
-        return await bcrypt.hash(password, 10);
-      },
-      verify: async ({ hash, password }) => {
-        return await bcrypt.compare(password, hash);
-      },
+      hash: hashPassword,
+      verify: ({ hash, password }) => verifyPassword(password, hash),
     },
     sendResetPassword: async ({ user, token }) => {
       const appUrl = process.env.APP_URL || "http://localhost:3000";

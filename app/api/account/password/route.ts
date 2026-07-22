@@ -1,13 +1,23 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { auth } from '@/lib/auth';
+import { eq, and } from 'drizzle-orm';
+import { auth, hashPassword } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { account } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_LENGTH = 128;
 
-/** Mengubah kata sandi admin yang sedang login tanpa kata sandi saat ini. */
+/**
+ * Mengubah kata sandi admin yang sedang login tanpa kata sandi saat ini.
+ *
+ * Catatan: `auth.api.setPassword` hanya untuk set password pertama kali
+ * (menolak bila credential account sudah punya password). Karena itu kita
+ * mengganti langsung password pada credential account, sama seperti internal
+ * changePassword better-auth, memakai hasher yang sama (hashPassword).
+ */
 export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -28,10 +38,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Kata sandi terlalu panjang' }, { status: 400 });
     }
 
-    await auth.api.setPassword({
-      body: { newPassword },
-      headers: await headers(),
-    });
+    const hashedPassword = await hashPassword(newPassword);
+
+    const updated = await db
+      .update(account)
+      .set({ password: hashedPassword, updatedAt: new Date() })
+      .where(and(eq(account.userId, session.user.id), eq(account.providerId, 'credential')))
+      .returning({ id: account.id });
+
+    if (updated.length === 0) {
+      return NextResponse.json(
+        { error: 'Akun kredensial tidak ditemukan untuk pengguna ini' },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ ok: true });
   } catch (error: any) {
