@@ -18,6 +18,7 @@ import {
   HandCoins,
   Users,
   Settings,
+  UserCog,
 } from "lucide-react";
 
 interface User {
@@ -46,6 +47,7 @@ export default function Sidebar({ user }: SidebarProps) {
     { href: "/admin/tentang", label: "Tentang", icon: Info },
     { href: "/admin/kontak-donasi", label: "Kontak & Donasi", icon: HandCoins },
     { href: "/admin/pengaturan", label: "Pengaturan", icon: Settings },
+    { href: "/admin/akun", label: "Akun Saya", icon: UserCog },
     ...(isSuperadmin
       ? [{ href: "/admin/users", label: "Manajemen User", icon: Users }]
       : []),
