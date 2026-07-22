@@ -3,6 +3,8 @@ import { db } from "./db";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import * as schema from "./db/schema";
 import bcrypt from "bcryptjs";
+import { sendEmail } from "./email";
+import { renderResetPasswordEmail, renderVerificationEmail } from "./email-templates";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -22,6 +24,15 @@ export const auth = betterAuth({
         return await bcrypt.compare(password, hash);
       },
     },
+    sendResetPassword: async ({ user, token }) => {
+      const appUrl = process.env.APP_URL || "http://localhost:3000";
+      const resetUrl = `${appUrl}/admin/reset-password?token=${token}`;
+      await sendEmail({
+        to: user.email,
+        subject: "Atur Ulang Kata Sandi — Masjid Al-Kahfi",
+        html: renderResetPasswordEmail({ name: user.name, url: resetUrl }),
+      });
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -35,6 +46,18 @@ export const auth = betterAuth({
         required: false,
         input: false, // Users cannot set their own role
       },
+    },
+    changeEmail: {
+      enabled: true,
+    },
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Verifikasi Email Baru — Masjid Al-Kahfi",
+        html: renderVerificationEmail({ name: user.name, url }),
+      });
     },
   },
 });
