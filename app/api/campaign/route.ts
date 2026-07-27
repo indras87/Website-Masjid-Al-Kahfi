@@ -133,13 +133,11 @@ export async function GET(request: Request) {
     let query = db
       .select()
       .from(campaign)
-      .where(
-        sql`${campaign.status} in ${sql.raw(`('${campaignStatusEnum.enumValues.aktif}', '${campaignStatusEnum.enumValues.tercapai}')`)}`
-      );
+      .where(and(eq(campaign.status, "aktif")));
 
     if (kategori) {
       query = query.where(and(
-        sql`${campaign.status} in ${sql.raw(`('${campaignStatusEnum.enumValues.aktif}', '${campaignStatusEnum.enumValues.tercapai}')`)}`,
+        eq(campaign.status, "aktif"),
         eq(campaign.kategori, kategori as any)
       )) as typeof query;
     }
