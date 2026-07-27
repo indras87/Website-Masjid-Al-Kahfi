@@ -1,4 +1,10 @@
-import type ContactSettings from "./constants";
+export type ContactSettings = {
+  alamat: string;
+  hotline: string;
+  email: string;
+  jamOperasional: string;
+  googleMapsUrl: string;
+};
 
 export const DEFAULT_CONTACT_SETTINGS: ContactSettings = {
   alamat: '',

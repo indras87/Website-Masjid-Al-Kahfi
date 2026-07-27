@@ -313,7 +313,7 @@ export default function CampaignDetailAdminPage() {
             {campaign.progres && rupiah(campaign.progres.terkumpul)}
           </div>
           <div className="text-xs text-gray-500">
-            {campaign.progres && campaign.progres.persentase}% • {campaign.progres.jumlahDonatur} donatur
+            {campaign.progres?.persentase ?? 0}% • {campaign.progres?.jumlahDonatur ?? 0} donatur
           </div>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">

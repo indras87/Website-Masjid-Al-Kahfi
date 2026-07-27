@@ -129,20 +129,17 @@ export async function GET(request: Request) {
       return NextResponse.json(withProgress);
     }
 
-    // Publik: hanya aktif & tercapai, filter kategori opsional
-    let query = db
-      .select()
-      .from(campaign)
-      .where(and(eq(campaign.status, "aktif")));
-
+    // Publik: hanya aktif, filter kategori opsional
+    const conditions = [eq(campaign.status, "aktif")];
     if (kategori) {
-      query = query.where(and(
-        eq(campaign.status, "aktif"),
-        eq(campaign.kategori, kategori as any)
-      )) as typeof query;
+      conditions.push(eq(campaign.kategori, kategori as any));
     }
 
-    const rows = await query.orderBy(desc(campaign.featured), desc(campaign.createdAt));
+    const rows = await db
+      .select()
+      .from(campaign)
+      .where(and(...conditions))
+      .orderBy(desc(campaign.featured), desc(campaign.createdAt));
 
     // Hitung progress untuk setiap campaign
     const withProgress = await Promise.all(
