@@ -1,10 +1,33 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { campaign, campaignStatusEnum } from "@/lib/db/schema";
+import { campaign, campaignDonasi, campaignStatusEnum } from "@/lib/db/schema";
 import { getActor } from "@/lib/audit";
 import { computeUniqueSlug } from "@/lib/slug";
-import { getCampaignProgress, withPersentase } from "@/lib/cms/settings";
+
+/** Hitung progres campaign: terkumpul dari donasi terverifikasi. */
+async function getCampaignProgress(campaignId: number) {
+  const rows = await db
+    .select({
+      total: sql<string | null>`coalesce(sum(${campaignDonasi.nominal}), 0)`,
+      jumlah: sql<number>`count(*)`,
+    })
+    .from(campaignDonasi)
+    .where(
+      and(
+        eq(campaignDonasi.campaignId, campaignId),
+        eq(campaignDonasi.status, "terverifikasi")
+      )
+    );
+  const terkumpul = parseInt(rows[0]?.total ?? "0", 10) || 0;
+  const jumlahDonatur = Number(rows[0]?.jumlah ?? 0);
+  return { terkumpul, jumlahDonatur };
+}
+
+/** Persentase progress untuk TAMPILAN bar. */
+function withPersentase(target: number, terkumpul: number) {
+  return target > 0 ? Math.min(100, Math.round((terkumpul / target) * 100)) : 0;
+}
 
 export const dynamic = "force-dynamic";
 
