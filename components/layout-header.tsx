@@ -79,7 +79,9 @@ export function LayoutHeader({
     { id: "kegiatan", label: "Kegiatan" },
     { id: "berita", label: "Berita" },
     { id: "galeri", label: "Galeri" },
+    { id: "campaign", label: "Campaign" },
     { id: "kontak", label: "Kontak" },
+    { id: "donatur-tetap", label: "Donatur Tetap" },
   ];
 
   return (

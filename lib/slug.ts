@@ -29,3 +29,26 @@ export function uniqueSlug(base: string, existing: string[]): string {
   while (taken.has(`${base}-${n}`)) n++;
   return `${base}-${n}`;
 }
+
+/**
+ * Helper untuk menghitung slug unik dengan query database.
+ * prefix digunakan untuk filter LIKE query (mis. "campaign" -> WHERE slug LIKE 'campaign-%').
+ * Untuk tabel tanpa prefix, kirim string kosong "".
+ */
+export async function computeUniqueSlug(title: string, prefix: string = ""): Promise<string> {
+  const base = slugify(title);
+  const { db } = await import("@/lib/db");
+  const { campaign, berita } = await import("@/lib/db/schema");
+  const { like } = await import("drizzle-orm");
+
+  // Pilih tabel berdasarkan prefix
+  const table = prefix === "campaign" ? campaign : berita;
+  const column = table.slug;
+
+  const conflicts = await db
+    .select({ slug: column })
+    .from(table)
+    .where(like(column, `${base}%`));
+
+  return uniqueSlug(base, conflicts.map((c) => c.slug).filter(Boolean) as string[]);
+}
