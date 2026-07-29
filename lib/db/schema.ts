@@ -206,3 +206,127 @@ export const pengaturan = pgTable("pengaturan", {
   updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// === Donatur Tetap Operasional ===
+
+export const jenisKelaminEnum = pgEnum("jenis_kelamin", ["laki-laki", "perempuan"]);
+
+export const metodePembayaranEnum = pgEnum("metode_pembayaran", [
+  "transfer_bank",
+  "qris",
+  "tunai_sekretariat",
+]);
+
+export const donaturTetapStatusEnum = pgEnum("donatur_tetap_status", [
+  "baru",
+  "terkonfirmasi",
+  "aktif",
+  "berhenti",
+]);
+
+export const donaturTetap = pgTable("donatur_tetap", {
+  id: serial("id").primaryKey(),
+  nama: text("nama").notNull(),
+  jenisKelamin: jenisKelaminEnum("jenis_kelamin").notNull(),
+  whatsapp: text("whatsapp").notNull(),
+  alamat: text("alamat"),
+  email: text("email"),
+  nominalBulanan: integer("nominal_bulanan").notNull(),
+  nominalLainnya: boolean("nominal_lainnya").default(false).notNull(),
+  tanggalPembayaran: text("tanggal_pembayaran").notNull(),
+  metodePembayaran: metodePembayaranEnum("metode_pembayaran").notNull(),
+  persetujuanDonatur: boolean("persetujuan_donatur").default(false).notNull(),
+  persetujuanPengingatWa: boolean("persetujuan_pengingat_wa").default(false).notNull(),
+  persetujuanLaporan: boolean("persetujuan_laporan").default(false).notNull(),
+  status: donaturTetapStatusEnum("status").default("baru").notNull(),
+  catatanAdmin: text("catatan_admin"),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// === Campaign Donasi (kitabisa-style) ===
+
+// Kategori campaign (untuk filter publik)
+export const campaignKategoriEnum = pgEnum("campaign_kategori", [
+  "zakat",
+  "sedekah",
+  "wakaf",
+  "bencana_alam",
+  "pembangunan",
+  "yatim_dhuafa",
+  "kemanusiaan",
+  "pendidikan",
+  "operasional",
+  "lainnya",
+]);
+
+// Status campaign (kontrol admin)
+export const campaignStatusEnum = pgEnum("campaign_status", [
+  "draft",       // belum tampil di publik
+  "aktif",       // tampil & menerima donasi
+  "tercapai",    // target tercapai (manual)
+  "berakhir",    // deadline lewat / ditutup
+  "dibatalkan",  // dibatalkan
+]);
+
+// Status verifikasi donasi
+export const donasiStatusEnum = pgEnum("donasi_status", [
+  "menunggu",      // baru submit, belum dibayar/diverifikasi
+  "terverifikasi", // admin konfirmasi pembayaran -> masuk hitungan progress
+  "ditolak",       // ditolak / tidak valid
+]);
+
+export const campaign = pgTable("campaign", {
+  id: serial("id").primaryKey(),
+  judul: text("judul").notNull(),
+  slug: text("slug"), // generated via slugify + uniqueSlug
+  kategori: campaignKategoriEnum("kategori").notNull(),
+  deskripsiSingkat: text("deskripsi_singkat").notNull(), // preview kartu (max ~160 char)
+  cerita: text("cerita"), // cerita lengkap (boleh multi-paragraf)
+  img: text("img").notNull(), // URL foto sampul (via /api/upload)
+  targetNominal: integer("target_nominal").notNull(), // rupiah, > 0
+  tanggalMulai: timestamp("tanggal_mulai", { withTimezone: true }).defaultNow().notNull(),
+  tanggalBerakhir: timestamp("tanggal_berakhir", { withTimezone: true }), // OPSIONAL; NULL = tanpa batas waktu (open-ended)
+  status: campaignStatusEnum("status").default("draft").notNull(),
+  featured: boolean("featured").default(false).notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const campaignDonasi = pgTable("campaign_donasi", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id")
+    .references(() => campaign.id, { onDelete: "cascade" })
+    .notNull(),
+  namaDonatur: text("nama_donatur").notNull(),
+  anonim: boolean("anonim").default(false).notNull(), // true -> wall tampil "Hamba Allah"
+  whatsapp: text("whatsapp"), // ternormalisasi "62xxx"; NULL bila input manual admin tanpa WA
+  nominal: integer("nominal").notNull(), // rupiah, > 0
+  pesan: text("pesan"), // pesan/doa baik di wall (opsional, max 300 char)
+  buktiPembayaran: text("bukti_pembayaran"), // URL bukti transfer (via /api/upload); wajib untuk donasi publik
+  metodePembayaran: metodePembayaranEnum("metode_pembayaran").notNull(), // reuse enum yang ada
+  status: donasiStatusEnum("status").default("menunggu").notNull(),
+  catatanAdmin: text("catatan_admin"), // catatan internal admin (nullable)
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const campaignUpdate = pgTable("campaign_update", {
+  id: serial("id").primaryKey(),
+  campaignId: integer("campaign_id")
+    .references(() => campaign.id, { onDelete: "cascade" })
+    .notNull(),
+  judul: text("judul").notNull(),
+  isi: text("isi").notNull(),
+  img: text("img"), // opsional, URL via /api/upload
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

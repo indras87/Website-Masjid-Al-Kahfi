@@ -13,7 +13,9 @@ const navLinks = [
   { id: "kegiatan", label: "Kegiatan" },
   { id: "berita", label: "Berita" },
   { id: "galeri", label: "Galeri" },
+  { id: "campaign", label: "Campaign" },
   { id: "kontak", label: "Kontak" },
+  { id: "donatur-tetap", label: "Donatur Tetap" },
 ];
 
 /** Kerangka utama situs publik yang menyusun header, footer, dan pengaturan tema. */
@@ -34,6 +36,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       router.push("/beranda");
     } else if (tab === "donasi") {
       router.push("/donasi");
+    } else if (tab === "donatur-tetap") {
+      router.push("/donatur-tetap");
+    } else if (tab === "campaign") {
+      router.push("/campaign");
     } else {
       router.push(`/${tab}`);
     }
