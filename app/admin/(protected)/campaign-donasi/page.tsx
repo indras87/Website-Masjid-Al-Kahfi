@@ -68,9 +68,11 @@ export default function CampaignDonasiAdminPage() {
     anonim: false,
     nominal: "",
     metodePembayaran: "transfer_bank" as "transfer_bank" | "qris" | "tunai_sekretariat",
+    buktiPembayaran: "",
     pesan: "",
     status: "terverifikasi" as "menunggu" | "terverifikasi",
   });
+  const [uploadingBukti, setUploadingBukti] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -168,7 +170,27 @@ export default function CampaignDonasiAdminPage() {
     window.open(`https://wa.me/${selected.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
+  const handleUploadBukti = async (file: File) => {
+    setUploadingBukti(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload gagal");
+      const data = await res.json();
+      setInputForm((f) => ({ ...f, buktiPembayaran: data.url as string }));
+    } catch {
+      alert("Gagal mengunggah bukti pembayaran.");
+    } finally {
+      setUploadingBukti(false);
+    }
+  };
+
   const handleSubmitInputManual = async () => {
+    if (!inputForm.buktiPembayaran) {
+      alert("Bukti pembayaran wajib diunggah untuk semua metode pembayaran.");
+      return;
+    }
     setSaving(true);
     try {
       const res = await fetch("/api/campaign-donasi", {
@@ -180,6 +202,7 @@ export default function CampaignDonasiAdminPage() {
           anonim: inputForm.anonim,
           nominal: Number(inputForm.nominal),
           metodePembayaran: inputForm.metodePembayaran,
+          buktiPembayaran: inputForm.buktiPembayaran,
           pesan: inputForm.pesan.trim() || null,
           status: inputForm.status,
         }),
@@ -193,6 +216,7 @@ export default function CampaignDonasiAdminPage() {
           anonim: false,
           nominal: "",
           metodePembayaran: "transfer_bank",
+          buktiPembayaran: "",
           pesan: "",
           status: "terverifikasi",
         });
@@ -456,7 +480,7 @@ export default function CampaignDonasiAdminPage() {
       {/* Input Manual Modal */}
       {inputManualModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
               <h2 className="text-lg font-bold text-gray-900">Input Manual Donasi</h2>
               <button
@@ -466,7 +490,7 @@ export default function CampaignDonasiAdminPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 overflow-y-auto">
               <div>
                 <label className="text-sm font-medium text-gray-700">Campaign *</label>
                 <select
@@ -524,6 +548,29 @@ export default function CampaignDonasiAdminPage() {
                 </select>
               </div>
               <div>
+                <label className="text-sm font-medium text-gray-700">Bukti Pembayaran *</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUploadBukti(file);
+                  }}
+                  className="w-full text-sm text-gray-600 mt-1"
+                />
+                {uploadingBukti && (
+                  <p className="text-xs text-gray-500 mt-1">Mengunggah...</p>
+                )}
+                {inputForm.buktiPembayaran && (
+                  <img
+                    src={inputForm.buktiPembayaran}
+                    alt="Bukti pembayaran"
+                    className="mt-2 w-32 h-32 object-cover rounded-lg border border-gray-200"
+                  />
+                )}
+                <p className="text-xs text-gray-500 mt-1">Wajib untuk semua metode pembayaran</p>
+              </div>
+              <div>
                 <label className="text-sm font-medium text-gray-700">Pesan/Doa (opsional)</label>
                 <textarea
                   value={inputForm.pesan}
@@ -546,7 +593,7 @@ export default function CampaignDonasiAdminPage() {
                 <p className="text-xs text-gray-500 mt-1">Input manual biasanya langsung terverifikasi</p>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 shrink-0">
               <button
                 onClick={() => setInputManualModal(false)}
                 className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"

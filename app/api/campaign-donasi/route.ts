@@ -153,7 +153,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Metode pembayaran tidak valid" }, { status: 400 });
     }
 
-    // Bukti pembayaran: wajib untuk publik, opsional untuk admin input manual
+    // Bukti pembayaran: wajib untuk semua metode (publik & admin input manual)
     let buktiPembayaran: string | null = null;
     if (buktiPembayaranRaw) {
       if (!/^(\/uploads\/.+|https?:\/\/.+)/.test(buktiPembayaranRaw)) {
@@ -161,8 +161,8 @@ export async function POST(request: Request) {
       }
       buktiPembayaran = buktiPembayaranRaw;
     }
-    if (!isAdmin && !buktiPembayaran) {
-      return NextResponse.json({ error: "Bukti pembayaran wajib diunggah" }, { status: 400 });
+    if (!buktiPembayaran) {
+      return NextResponse.json({ error: "Bukti pembayaran wajib diunggah untuk semua metode" }, { status: 400 });
     }
 
     if (!["menunggu", "terverifikasi", "ditolak"].includes(status)) {
