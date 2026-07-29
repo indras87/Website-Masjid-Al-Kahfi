@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { user } from "@/lib/db/schema";
+import { user, account } from "@/lib/db/schema";
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 /** Mengambil detail satu pengguna berdasarkan ID (GET, superadmin only). */
 export async function GET(
@@ -83,10 +83,6 @@ export async function PUT(
       role,
     };
 
-    if (password) {
-      updateData.password = await bcrypt.hash(password, 10);
-    }
-
     const updated = await db
       .update(user)
       .set(updateData)
@@ -95,6 +91,30 @@ export async function PUT(
 
     if (!updated[0]) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Reset password: tulis ke `account.password` (sumber kebenaran Better Auth).
+    // Jika user lama belum punya baris credential (dibuat sebelum fix ini),
+    // buatkan barisnya supaya login bisa langsung jalan.
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const existingAccount = await db.query.account.findFirst({
+        where: and(eq(account.userId, id), eq(account.providerId, "credential")),
+      });
+      if (existingAccount) {
+        await db
+          .update(account)
+          .set({ password: hashedPassword, updatedAt: new Date() })
+          .where(eq(account.id, existingAccount.id));
+      } else {
+        await db.insert(account).values({
+          id: `${id}-credential`,
+          accountId: updated[0].email,
+          providerId: "credential",
+          userId: id,
+          password: hashedPassword,
+        });
+      }
     }
 
     // Return only the fields we want to expose
