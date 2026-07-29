@@ -307,6 +307,7 @@ export const campaignDonasi = pgTable("campaign_donasi", {
   whatsapp: text("whatsapp"), // ternormalisasi "62xxx"; NULL bila input manual admin tanpa WA
   nominal: integer("nominal").notNull(), // rupiah, > 0
   pesan: text("pesan"), // pesan/doa baik di wall (opsional, max 300 char)
+  buktiPembayaran: text("bukti_pembayaran"), // URL bukti transfer (via /api/upload); wajib untuk donasi publik
   metodePembayaran: metodePembayaranEnum("metode_pembayaran").notNull(), // reuse enum yang ada
   status: donasiStatusEnum("status").default("menunggu").notNull(),
   catatanAdmin: text("catatan_admin"), // catatan internal admin (nullable)

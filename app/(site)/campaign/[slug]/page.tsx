@@ -10,8 +10,11 @@ import {
   BadgeCheck,
   MessageCircle,
   Share2,
+  Copy,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
+import ImageUpload from "@/app/admin/components/ImageUpload";
 
 const rupiah = (n: number) =>
   new Intl.NumberFormat("id-ID", {
@@ -56,6 +59,13 @@ type Donatur = {
   createdAt: string;
 };
 
+type DonasiInfo = {
+  namaRekening: string;
+  nomorRekening: string;
+  atasNamaRekening: string;
+  qrisImage: string;
+};
+
 type FormState = {
   nominalPreset: number | null;
   nominalLainnya: string;
@@ -63,14 +73,14 @@ type FormState = {
   anonim: boolean;
   whatsapp: string;
   pesan: string;
-  metodePembayaran: "transfer_bank" | "qris" | "tunai_sekretariat" | "";
+  metodePembayaran: "transfer_bank" | "qris" | "";
+  buktiPembayaran: string;
 };
 
 const PRESET = [10000, 25000, 50000, 100000, 200000, 500000, 1000000];
 const METODE_VALID = [
   { value: "transfer_bank", label: "Transfer Bank" },
   { value: "qris", label: "QRIS" },
-  { value: "tunai_sekretariat", label: "Tunai Sekretariat" },
 ];
 
 export default function CampaignDetailPage() {
@@ -83,6 +93,7 @@ export default function CampaignDetailPage() {
   const [donatur, setDonatur] = useState<Donatur[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [donasiInfo, setDonasiInfo] = useState<DonasiInfo | null>(null);
 
   // Form state
   const [form, setForm] = useState<FormState>({
@@ -93,6 +104,7 @@ export default function CampaignDetailPage() {
     whatsapp: "",
     pesan: "",
     metodePembayaran: "",
+    buktiPembayaran: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [sukses, setSukses] = useState(false);
@@ -125,6 +137,16 @@ export default function CampaignDetailPage() {
     fetchCampaign();
   }, [slug]);
 
+  // Ambil info rekening & gambar QRIS dari pengaturan donasi
+  useEffect(() => {
+    fetch("/api/donasi")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setDonasiInfo(data as DonasiInfo);
+      })
+      .catch(() => {});
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
@@ -132,6 +154,11 @@ export default function CampaignDetailPage() {
     // Validasi client
     if (!form.namaDonatur.trim() || !form.whatsapp.trim() || !form.metodePembayaran) {
       setFormError("Mohon lengkapi semua field wajib.");
+      return;
+    }
+
+    if (!form.buktiPembayaran) {
+      setFormError("Bukti pembayaran wajib diunggah.");
       return;
     }
 
@@ -174,6 +201,7 @@ export default function CampaignDetailPage() {
           nominal,
           pesan: form.pesan.trim() || null,
           metodePembayaran: form.metodePembayaran,
+          buktiPembayaran: form.buktiPembayaran,
         }),
       });
 
@@ -228,7 +256,8 @@ export default function CampaignDetailPage() {
   }
 
   const sisaHari = hitungSisaHari(campaign.tanggalBerakhir);
-  const isBerakhir = sisaHari !== null && sisaHari < 0;
+  const isBerakhir = (sisaHari !== null && sisaHari < 0) || campaign.status === "berakhir";
+  const isTercapai = campaign.status === "tercapai";
 
   // State sukses: tampilkan pesan
   if (sukses) {
@@ -243,9 +272,8 @@ export default function CampaignDetailPage() {
               Jazakumullahu Khairan
             </h2>
             <p className="text-gray-700 leading-relaxed mb-6">
-              Donasi Anda telah kami catat. Silakan transfer ke rekening/QRIS yang
-              tertera pada halaman donasi. Tim Masjid Al-Kahfi akan menghubungi Anda
-              via WhatsApp untuk verifikasi, dan nominal donasi Bapak/Ibu akan masuk
+              Donasi dan bukti pembayaran Anda telah kami catat. Tim Masjid Al-Kahfi
+              akan memverifikasi pembayaran Bapak/Ibu, dan nominal donasi akan masuk
               ke progress campaign setelah terverifikasi.
             </p>
             <blockquote className="bg-gold-50 border-l-4 border-gold-500 p-6 mb-8 text-left italic text-gray-800">
@@ -255,7 +283,19 @@ export default function CampaignDetailPage() {
             </blockquote>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => setSukses(false)}
+                onClick={() => {
+                  setForm({
+                    nominalPreset: null,
+                    nominalLainnya: "",
+                    namaDonatur: "",
+                    anonim: false,
+                    whatsapp: "",
+                    pesan: "",
+                    metodePembayaran: "",
+                    buktiPembayaran: "",
+                  });
+                  setSukses(false);
+                }}
                 className="bg-emerald-900 text-white hover:bg-emerald-800 font-bold px-6 py-3 rounded-lg transition"
               >
                 Donasi Lagi
@@ -276,22 +316,33 @@ export default function CampaignDetailPage() {
   return (
     <div className="pb-16">
       {/* Header Hero */}
-      <div className="bg-emerald-900 text-white py-12 text-center relative overflow-hidden border-b-4 border-gold-500">
+      <div className="bg-emerald-900 text-white py-16 text-center relative overflow-hidden border-b-4 border-gold-500">
+        {campaign.img && (
+          <img src={campaign.img} alt={campaign.judul} className="absolute inset-0 w-full h-full object-cover" />
+        )}
+        <div className="absolute inset-0 bg-emerald-900/80"></div>
         <div className="absolute inset-0 opacity-15 islamic-pattern"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-center gap-3 mb-3">
             <span className="bg-gold-500/20 text-gold-300 px-3 py-1 rounded-full text-sm font-semibold uppercase">
               {campaign.kategori.replace(/_/g, " ")}
             </span>
-            {sisaHari !== null && !isBerakhir && (
+            {isBerakhir ? (
+              <span className="bg-gray-500/30 text-gray-100 px-3 py-1 rounded-full text-sm font-semibold">
+                ⏱ Berakhir
+              </span>
+            ) : isTercapai ? (
+              <span className="bg-emerald-500/30 text-emerald-100 px-3 py-1 rounded-full text-sm font-semibold">
+                🏆 Tercapai
+              </span>
+            ) : sisaHari !== null ? (
               <span className="flex items-center gap-1 text-gold-300 text-sm">
                 <Clock className="w-4 h-4" />
                 {sisaHari <= 7
                   ? `${sisaHari} hari lagi`
                   : sisaHari}
               </span>
-            )}
-            {sisaHari === null && (
+            ) : (
               <span className="text-gold-300 text-sm">Tanpa batas waktu</span>
             )}
           </div>
@@ -310,6 +361,13 @@ export default function CampaignDetailPage() {
               <h2 className="font-serif text-xl font-bold text-emerald-950 mb-4">
                 Tentang Campaign Ini
               </h2>
+              {campaign.img && (
+                <img
+                  src={campaign.img}
+                  alt={campaign.judul}
+                  className="w-full max-h-[420px] object-contain rounded-xl mb-4 bg-gray-50 border border-gold-100"
+                />
+              )}
               {campaign.cerita ? (
                 <div className="prose prose-emerald max-w-none text-gray-700">
                   {campaign.cerita.split("\n\n").map((par, i) => (
@@ -340,6 +398,13 @@ export default function CampaignDetailPage() {
                           year: "numeric",
                         })}
                       </p>
+                      {u.img && (
+                        <img
+                          src={u.img}
+                          alt={u.judul}
+                          className="w-full max-h-80 object-contain rounded-lg mb-2 bg-gray-50 border border-gray-100"
+                        />
+                      )}
                       <p className="text-gray-700 text-sm line-clamp-3">{u.isi}</p>
                     </div>
                   ))}
@@ -567,6 +632,81 @@ export default function CampaignDetailPage() {
                       ))}
                     </select>
                   </div>
+
+                  {/* Info pembayaran dinamis sesuai metode */}
+                  {form.metodePembayaran === "transfer_bank" && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 space-y-1">
+                      <p className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
+                        Transfer ke Rekening
+                      </p>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm text-gray-500">
+                            {donasiInfo?.namaRekening || "—"}
+                          </p>
+                          <p className="text-xl font-bold tracking-wider text-emerald-900 font-mono break-all">
+                            {donasiInfo?.nomorRekening || "—"}
+                          </p>
+                          <p className="text-sm text-gray-700">
+                            a.n. {donasiInfo?.atasNamaRekening || "—"}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigator.clipboard?.writeText(
+                              donasiInfo?.nomorRekening || ""
+                            )
+                          }
+                          className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 border border-emerald-300 hover:border-emerald-500 rounded-md px-2 py-1"
+                        >
+                          <Copy className="w-3.5 h-3.5" /> Salin
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 pt-1">
+                        Transfer sesuai nominal, lalu unggah bukti di bawah.
+                      </p>
+                    </div>
+                  )}
+
+                  {form.metodePembayaran === "qris" && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center space-y-2">
+                      <p className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
+                        Scan QRIS
+                      </p>
+                      {donasiInfo?.qrisImage ? (
+                        <div className="space-y-2">
+                          <img
+                            src={donasiInfo.qrisImage}
+                            alt="QRIS Masjid Al-Kahfi"
+                            className="mx-auto w-48 h-48 object-contain bg-white rounded-lg border border-emerald-100"
+                          />
+                          <a
+                            href={donasiInfo.qrisImage}
+                            download
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900"
+                          >
+                            <Download className="w-3.5 h-3.5" /> Unduh QRIS
+                          </a>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          Gambar QRIS belum diset admin.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Upload bukti pembayaran (wajib) */}
+                  {form.metodePembayaran && (
+                    <ImageUpload
+                      value={form.buktiPembayaran}
+                      onChange={(url) =>
+                        setForm({ ...form, buktiPembayaran: url })
+                      }
+                      label="Unggah Bukti Pembayaran * (wajib, maks 2MB)"
+                    />
+                  )}
 
                   {formError && (
                     <div className="bg-red-50 border-l-4 border-red-500 p-3 text-sm text-red-700">

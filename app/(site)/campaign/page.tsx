@@ -96,8 +96,9 @@ export default function CampaignPage() {
 
   const CampaignCard = ({ campaign }: { campaign: Campaign }) => {
     const sisaHari = hitungSisaHari(campaign.tanggalBerakhir);
-    const isBerakhir = sisaHari !== null && sisaHari < 0;
-    const urgent = sisaHari !== null && sisaHari <= 7 && sisaHari >= 0;
+    const isBerakhir = (sisaHari !== null && sisaHari < 0) || campaign.status === "berakhir";
+    const isTercapai = campaign.status === "tercapai" || campaign.progres.persentase >= 100;
+    const urgent = sisaHari !== null && sisaHari <= 7 && sisaHari >= 0 && campaign.status === "aktif";
 
     return (
       <Link href={`/campaign/${campaign.slug}`}>
@@ -115,11 +116,15 @@ export default function CampaignPage() {
                 Unggulan
               </div>
             )}
-            {campaign.progres.persentase >= 100 && (
+            {isBerakhir ? (
+              <div className="absolute bottom-3 right-3 bg-gray-600 text-white px-3 py-1 rounded-full text-xs font-bold">
+                ⏱ Berakhir
+              </div>
+            ) : isTercapai ? (
               <div className="absolute bottom-3 right-3 bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-bold">
                 🏆 Tercapai
               </div>
-            )}
+            ) : null}
             <div className="absolute top-3 left-3">
               <BadgeKategori kategori={campaign.kategori} />
             </div>
@@ -161,10 +166,10 @@ export default function CampaignPage() {
                 {campaign.progres.jumlahDonatur} donatur
               </span>
               <span className="flex items-center gap-1">
-                {sisaHari === null ? (
-                  "Tanpa batas waktu"
-                ) : isBerakhir ? (
+                {isBerakhir ? (
                   <span className="text-gray-400 font-medium">⏱ Berakhir</span>
+                ) : sisaHari === null ? (
+                  "Tanpa batas waktu"
                 ) : (
                   <span className={urgent ? "text-red-600 font-semibold" : ""}>
                     ⏱ {sisaHari} hari lagi

@@ -12,6 +12,7 @@ type CampaignDonasi = {
   whatsapp: string | null;
   nominal: number;
   pesan: string | null;
+  buktiPembayaran: string | null;
   metodePembayaran: "transfer_bank" | "qris" | "tunai_sekretariat";
   status: "menunggu" | "terverifikasi" | "ditolak";
   catatanAdmin: string | null;
@@ -57,6 +58,7 @@ export default function CampaignDonasiAdminPage() {
   const [selected, setSelected] = useState<CampaignDonasi | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [campaigns, setCampaigns] = useState<{ id: number; judul: string }[]>([]);
 
   // Input manual modal
   const [inputManualModal, setInputManualModal] = useState(false);
@@ -72,6 +74,16 @@ export default function CampaignDonasiAdminPage() {
 
   useEffect(() => {
     fetchData();
+  }, []);
+
+  // Daftar campaign untuk dropdown input manual
+  useEffect(() => {
+    fetch("/api/campaign?admin=1")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) =>
+        setCampaigns((rows || []).map((c: any) => ({ id: c.id, judul: c.judul })))
+      )
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -308,8 +320,8 @@ export default function CampaignDonasiAdminPage() {
       {/* Detail Modal */}
       {selected && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center shrink-0">
               <h2 className="text-lg font-bold text-gray-900">Detail Donasi</h2>
               <button
                 onClick={() => setSelected(null)}
@@ -318,7 +330,7 @@ export default function CampaignDonasiAdminPage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="text-sm font-medium text-gray-700">Nama</label>
                 <div className="text-gray-900">{selected.namaDonatur}</div>
@@ -344,6 +356,32 @@ export default function CampaignDonasiAdminPage() {
               <div>
                 <label className="text-sm font-medium text-gray-700">Metode</label>
                 <div className="text-gray-900">{METODE_LABEL[selected.metodePembayaran]}</div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Bukti Pembayaran</label>
+                {selected.buktiPembayaran ? (
+                  <a
+                    href={selected.buktiPembayaran}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block mt-1 relative w-full h-[200px] rounded-lg overflow-hidden border border-gray-200 hover:border-emerald-400 transition group"
+                  >
+                    <img
+                      src={selected.buktiPembayaran}
+                      alt="Bukti Pembayaran"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="text-white text-xs font-semibold bg-black/50 px-3 py-1 rounded">
+                        Klik untuk perbesar
+                      </span>
+                    </div>
+                  </a>
+                ) : (
+                  <div className="text-gray-400 text-sm italic mt-1">
+                    Tidak ada bukti pembayaran
+                  </div>
+                )}
               </div>
               {selected.pesan && (
                 <div>
@@ -388,7 +426,7 @@ export default function CampaignDonasiAdminPage() {
                 </div>
               )}
             </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-between shrink-0">
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg font-semibold flex items-center gap-1"
@@ -431,13 +469,18 @@ export default function CampaignDonasiAdminPage() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700">Campaign *</label>
-                <input
-                  type="number"
+                <select
                   value={inputForm.campaignId}
                   onChange={(e) => setInputForm({ ...inputForm, campaignId: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 mt-1"
-                  placeholder="ID Campaign"
-                />
+                >
+                  <option value="">Pilih campaign...</option>
+                  {campaigns.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.judul}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Nama Donatur *</label>

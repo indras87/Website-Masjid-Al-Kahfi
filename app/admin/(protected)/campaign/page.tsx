@@ -114,7 +114,7 @@ export default function CampaignAdminPage() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch("/api/campaign");
+      const res = await fetch("/api/campaign?admin=1");
       if (res.ok) {
         const json = await res.json();
         setData(json);

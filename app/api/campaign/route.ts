@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { campaign, campaignDonasi, campaignUpdate, campaignStatusEnum } from "@/lib/db/schema";
-import { desc, eq, and, sql } from "drizzle-orm";
+import { desc, eq, and, sql, inArray } from "drizzle-orm";
 import { computeUniqueSlug } from "@/lib/slug";
 import { withActorNames, getActor } from "@/lib/audit";
 import { auth } from "@/lib/auth";
@@ -33,12 +33,17 @@ function withPersentase(target: number, terkumpul: number) {
 
 export const dynamic = "force-dynamic";
 
+// Status yang boleh tayang di publik (abaikan session admin di halaman publik).
+// draft & dibatalkan disembunyikan total; tercapai/berakhir tetap tampil sebagai arsip.
+const PUBLIK_STATUS = ["aktif", "tercapai", "berakhir"] as const;
+
 /** GET dual-mode: publik → list aktif/tercapai + filter kategori; admin → semua. */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get("slug");
     const kategori = searchParams.get("kategori");
+    const adminParam = searchParams.get("admin") === "1";
 
     const session = await auth.api.getSession({ headers: await headers() });
     const isAdmin = !!session;
@@ -57,8 +62,8 @@ export async function GET(request: Request) {
 
       const c = rows[0];
 
-      // Publik tidak bolih akses draft
-      if (!isAdmin && c.status === "draft") {
+      // Publik hanya boleh akses status tayang; admin (login) tetap bisa preview
+      if (!isAdmin && !PUBLIK_STATUS.includes(c.status as (typeof PUBLIK_STATUS)[number])) {
         return NextResponse.json({ error: "Campaign tidak ditemukan" }, { status: 404 });
       }
 
@@ -73,10 +78,9 @@ export async function GET(request: Request) {
         .where(eq(campaignUpdate.campaignId, c.id))
         .orderBy(desc(campaignUpdate.createdAt));
 
-      // Ambil donatur terverifikasi untuk wall (masking anonim)
-      const donatur = isAdmin
-        ? [] // Admin pakai endpoint lain untuk donasi mentah
-        : await db
+      // Ambil donatur terverifikasi untuk wall publik (masking anonim).
+      // Wall selalu tampil terverifikasi tanpa peduli session; admin lihat donasi mentah via /api/campaign-donasi.
+      const donatur = await db
             .select({
               id: campaignDonasi.id,
               namaDonatur: campaignDonasi.namaDonatur,
@@ -112,8 +116,9 @@ export async function GET(request: Request) {
     }
 
     // List campaign
-    if (isAdmin) {
-      // Admin: semua campaign
+    const lihatSemua = adminParam && isAdmin;
+    if (lihatSemua) {
+      // Admin (via ?admin=1 + session): semua campaign
       const rows = await db.select().from(campaign).orderBy(desc(campaign.createdAt));
       const enriched = await withActorNames(rows);
 
@@ -129,8 +134,9 @@ export async function GET(request: Request) {
       return NextResponse.json(withProgress);
     }
 
-    // Publik: hanya aktif, filter kategori opsional
-    const conditions = [eq(campaign.status, "aktif")];
+    // Publik: hanya status tayang (aktif/tercapai/berakhir), abaikan session.
+    // draft & dibatalkan disembunyikan; tercapai/berakhir tampil sebagai arsip.
+    const conditions = [inArray(campaign.status, [...PUBLIK_STATUS])];
     if (kategori) {
       conditions.push(eq(campaign.kategori, kategori as any));
     }
@@ -139,7 +145,12 @@ export async function GET(request: Request) {
       .select()
       .from(campaign)
       .where(and(...conditions))
-      .orderBy(desc(campaign.featured), desc(campaign.createdAt));
+      .orderBy(
+        desc(campaign.featured),
+        // aktif di atas, lalu tercapai, lalu berakhir
+        sql`case ${campaign.status} when 'aktif' then 0 when 'tercapai' then 1 when 'berakhir' then 2 else 3 end`,
+        desc(campaign.createdAt)
+      );
 
     // Hitung progress untuk setiap campaign
     const withProgress = await Promise.all(

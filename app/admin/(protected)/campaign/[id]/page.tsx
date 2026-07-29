@@ -80,7 +80,7 @@ export default function CampaignDetailAdminPage() {
 
   // Update form state
   const [updateForm, setUpdateForm] = useState({
-    mode: "create" as "create" | "edit" | null,
+    mode: null as "create" | "edit" | null,
     data: null as Update | null,
     judul: "",
     isi: "",
@@ -464,8 +464,8 @@ export default function CampaignDetailAdminPage() {
                   Foto (opsional)
                 </label>
                 {updateForm.img && (
-                  <div className="relative w-full h-32 rounded-lg overflow-hidden border border-gray-200 mb-2">
-                    <img src={updateForm.img} alt="Preview" className="w-full h-full object-cover" />
+                  <div className="w-full rounded-lg overflow-hidden border border-gray-200 mb-2 bg-gray-50">
+                    <img src={updateForm.img} alt="Preview" className="w-full max-h-72 object-contain" />
                   </div>
                 )}
                 <input
