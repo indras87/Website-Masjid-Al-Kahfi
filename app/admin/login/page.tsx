@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "@/lib/auth-client";
-import { Lock, LogIn, AlertCircle, Mail } from "lucide-react";
+import { Lock, LogIn, AlertCircle, Mail, CheckCircle } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 /** Halaman login admin dengan formulir kredensial email dan kata sandi. */
 export default function LoginPage() {
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [notice, setNotice] = useState("");
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -21,6 +23,16 @@ export default function LoginPage() {
       router.push("/admin");
     }
   }, [session, router]);
+
+  // Tampilkan notifikasi bila datang dari reset password
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("reset") === "1") {
+        setNotice("Kata sandi berhasil diubah. Silakan login dengan sandi baru.");
+      }
+    }
+  }, []);
 
   /** Menangani submit formulir login, mengautentikasi pengguna, dan mengarahkan ke dashboard. */
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,6 +78,13 @@ export default function LoginPage() {
           <h2 className="font-serif text-2xl font-bold text-emerald-950 mt-4">Panel Kontrol DKM</h2>
           <p className="text-sm text-gray-500 max-w-xs mx-auto">Login untuk mengakses sistem manajemen konten.</p>
         </div>
+
+        {notice && (
+          <div className="bg-emerald-50 text-emerald-700 p-3 rounded-xl border border-emerald-100 flex gap-2.5 items-start text-xs leading-relaxed">
+            <CheckCircle size={16} className="shrink-0 mt-0.5" />
+            <span>{notice}</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="space-y-1">
@@ -125,7 +144,10 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="text-center border-t border-gray-100 pt-4">
+        <div className="text-center border-t border-gray-100 pt-4 space-y-2">
+          <Link href="/admin/forgot-password" className="text-xs text-emerald-700 hover:text-emerald-900 font-medium">
+            Lupa kata sandi?
+          </Link>
           <p className="text-[10px] text-gray-400">
             Gunakan akun superadmin yang telah dibuat untuk login.
           </p>

@@ -9,3 +9,8 @@ public/uploads/
 tsconfig.tsbuildinfo
 # Seed data (local only, not shared via repo)
 lib/db/seed.ts
+
+# Tooling lokal (Claude Code, Playwright MCP)
+.claude/
+.claude-flow/
+.playwright-mcp/

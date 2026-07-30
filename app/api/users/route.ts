@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { user } from "@/lib/db/schema";
+import { user, account } from "@/lib/db/schema";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 
@@ -75,11 +75,21 @@ export async function POST(request: NextRequest) {
       .values({
         id: userId,
         email,
-        password: hashedPassword,
         name,
         role,
       })
       .returning();
+
+    // Better Auth credential login memverifikasi password dari tabel `account`
+    // (providerId = "credential"), bukan dari `user.password`. Tanpa baris ini
+    // user baru tidak bisa login. Lihat lib/db/seed.ts & lib/auth.ts.
+    await db.insert(account).values({
+      id: `${userId}-credential`,
+      accountId: email,
+      providerId: "credential",
+      userId,
+      password: hashedPassword,
+    });
 
     const newUser = inserted[0];
     return NextResponse.json({

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test, after, beforeEach } from 'node:test';
-import { auth } from '../../lib/auth';
+import { auth, verifyPassword } from '../../lib/auth';
 import { GET, POST } from '../../app/api/users/route';
 import { GET as GET_ID, PUT, DELETE } from '../../app/api/users/[id]/route';
 import { reset, closeDb, user, account, db } from '../helpers/db';
@@ -56,7 +56,7 @@ test('POST /api/users duplicate email -> 400', async () => {
   assert.equal(body.error, 'Email already exists');
 });
 
-test('POST /api/users valid -> 201, sanitized (no password), persisted', async () => {
+test('POST /api/users valid -> 201, sanitized (no password), persisted, login works', async () => {
   const { status, body } = await call(POST, { method: 'POST', body: { email: 'new@y.com', password: 'secret123', name: 'New', role: 'admin' } });
   assert.equal(status, 201);
   assert.equal(body.email, 'new@y.com');
@@ -64,6 +64,11 @@ test('POST /api/users valid -> 201, sanitized (no password), persisted', async (
   assert.equal('password' in body, false);
   const found = await db.select().from(user).where(eq(user.email, 'new@y.com'));
   assert.equal(found.length, 1);
+  // Better Auth membaca password login dari baris credential pada tabel `account`.
+  const [acct] = await db.select().from(account).where(eq(account.userId, found[0].id));
+  assert.ok(acct, 'credential account row created');
+  assert.equal(acct.providerId, 'credential');
+  assert.ok(await verifyPassword('secret123', acct.password), 'stored hash verifies the password');
 });
 
 test('GET /api/users/[id] found / not found', async () => {
@@ -82,12 +87,15 @@ test('PUT /api/users/[id] valid without password -> 200', async () => {
   assert.equal(body.name, 'P2');
 });
 
-test('PUT /api/users/[id] with password -> re-hashes', async () => {
+test('PUT /api/users/[id] with password -> re-hashes into credential account', async () => {
   await db.insert(user).values({ id: 'put2', email: 'pw@y.com', name: 'P', role: 'admin', password: 'old' });
   await call(PUT, { method: 'PUT', params: { id: 'put2' }, body: { email: 'pw@y.com', name: 'P', role: 'admin', password: 'newpass' } });
-  const [row] = await db.select().from(user).where(eq(user.id, 'put2'));
-  assert.notEqual(row.password, 'old');
-  assert.ok(row.password && row.password.length > 10, 'hashed password stored');
+  // Password reset harus menulis ke `account.password`; jika baris credential
+  // belum ada (user lama), harus dibuatkan.
+  const [acct] = await db.select().from(account).where(eq(account.userId, 'put2'));
+  assert.ok(acct, 'credential account created on reset');
+  assert.equal(acct.providerId, 'credential');
+  assert.ok(await verifyPassword('newpass', acct.password), 'new password verifies');
 });
 
 test('PUT /api/users/[id] changing own role away from superadmin -> 400', async () => {
