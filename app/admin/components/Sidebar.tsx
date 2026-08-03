@@ -21,6 +21,7 @@ import {
   HeartHandshake,
   Megaphone,
   BadgeCheck,
+  Wallet,
   PanelLeftClose,
   PanelLeftOpen,
   ChevronDown,
@@ -121,6 +122,7 @@ export default function Sidebar({ user }: SidebarProps) {
     { href: "/admin/galeri", label: "Galeri", icon: ImageIcon },
     { href: "/admin/tentang", label: "Tentang", icon: Info },
     { href: "/admin/kontak-donasi", label: "Kontak & Donasi", icon: HandCoins },
+    { href: "/admin/akuntansi", label: "Akuntansi", icon: Wallet },
     {
       label: "Donasi",
       icon: HeartHandshake,

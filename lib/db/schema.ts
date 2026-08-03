@@ -330,3 +330,54 @@ export const campaignUpdate = pgTable("campaign_update", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// === Akuntansi / Kas DKM ===
+
+export const akuntansiJenisEnum = pgEnum("akuntansi_jenis", ["pemasukan", "pengeluaran"]);
+
+// Master data akun kas (CASH/Kotak Amal, Rekening Infaq, dst) — dinamis, dikelola admin.
+export const akunKas = pgTable("akun_kas", {
+  id: serial("id").primaryKey(),
+  nama: text("nama").notNull(),
+  keterangan: text("keterangan"),
+  aktif: boolean("aktif").default(true).notNull(),
+  urutan: integer("urutan").default(0).notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Master kategori transaksi (Operasional, Konsumsi, Pembangunan, Kapalah/Honor, dst).
+export const akuntansiKategori = pgTable("akuntansi_kategori", {
+  id: serial("id").primaryKey(),
+  nama: text("nama").notNull(),
+  jenis: akuntansiJenisEnum("jenis").notNull(), // kategori spesifik ke pemasukan ATAU pengeluaran
+  aktif: boolean("aktif").default(true).notNull(),
+  urutan: integer("urutan").default(0).notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Transaksi kas (baris "buku kas" — satu baris = satu pemasukan/pengeluaran).
+export const akuntansiTransaksi = pgTable("akuntansi_transaksi", {
+  id: serial("id").primaryKey(),
+  tanggal: timestamp("tanggal", { withTimezone: true }).notNull(),
+  akunKasId: integer("akun_kas_id")
+    .references(() => akunKas.id, { onDelete: "restrict" })
+    .notNull(),
+  kategoriId: integer("kategori_id").references(() => akuntansiKategori.id, { onDelete: "set null" }),
+  keterangan: text("keterangan").notNull(),
+  jenis: akuntansiJenisEnum("jenis").notNull(),
+  jumlah: integer("jumlah").notNull(), // rupiah, > 0
+  buktiUrl: text("bukti_url"), // opsional, foto nota/bukti transfer via /api/upload
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("akuntansi_transaksi_tanggal_idx").on(table.tanggal),
+  index("akuntansi_transaksi_akun_kas_idx").on(table.akunKasId),
+]);
