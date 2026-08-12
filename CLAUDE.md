@@ -26,3 +26,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Notes
 - Always use `.env.local` for local environment configuration.
 - Database access is via port `5433` if using the provided `docker-compose.yml`.
+- should work on production build, see the dockerfile as reference

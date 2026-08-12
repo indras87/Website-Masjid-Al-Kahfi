@@ -3,6 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
+import MasjidNightAnimation, {
+  type HeroMode,
+} from "@/components/masjid-night-animation";
+import { Moon, Sun } from "lucide-react";
 import { usePrayerTimes } from "@/hooks/use-prayer-times";
 import { computeNextPrayer, computeCurrentPrayer } from "@/lib/prayer-times";
 import {
@@ -272,6 +276,7 @@ export default function BerandaPage() {
   const [countdownText, setCountdownText] = useState("Menghitung mundur...");
   const [iqomahTime, setIqomahTime] = useState("00:00");
   const [dbLoading, setDbLoading] = useState(true);
+  const [heroMode, setHeroMode] = useState<HeroMode>("malam");
 
   useEffect(() => {
     /** Memuat data beranda (berita, kegiatan, galeri) dari API dengan fallback bila gagal. */
@@ -395,29 +400,70 @@ export default function BerandaPage() {
     <div className="pb-16">
       {/* Hero */}
       <div className="relative min-h-[550px] lg:min-h-[650px] flex items-center text-white overflow-hidden border-b-4 border-gold-500">
-        <Image
-          src="https://images.unsplash.com/photo-1759167633056-75c9c63ebc22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1920&q=80"
-          alt="Hero"
-          fill
-          sizes="100vw"
-          className="object-cover"
-          referrerPolicy="no-referrer"
-          priority
-        />
-        <div className="absolute inset-0 bg-emerald-950/80 mix-blend-multiply z-0"></div>
+        <div className="absolute inset-0 z-0">
+          <MasjidNightAnimation mode={heroMode} />
+        </div>
+        <div
+          className={`absolute inset-0 z-0 ${
+            heroMode === "pagi"
+              ? "bg-gradient-to-b from-black/50 via-black/35 to-black/60"
+              : "bg-gradient-to-b from-black/50 via-black/30 to-black/70"
+          }`}
+        ></div>
         <div className="absolute inset-0 opacity-10 islamic-pattern z-10"></div>
+
+        {/* Saklar Malam/Pagi — layer paling atas agar tidak tertutup overlay */}
+        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center gap-2">
+          <span
+            className={`text-[10px] font-bold uppercase tracking-widest transition ${
+              heroMode === "pagi" ? "text-gold-300" : "text-white/60"
+            }`}
+          >
+            <Sun size={14} className="inline mb-0.5" /> Pagi
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={heroMode === "pagi"}
+            aria-label={`Ganti nuansa hero ke ${
+              heroMode === "malam" ? "Pagi" : "Malam"
+            }`}
+            onClick={() =>
+              setHeroMode((m) => (m === "malam" ? "pagi" : "malam"))
+            }
+            className="relative w-11 h-20 rounded-full bg-emerald-950/70 backdrop-blur-sm border border-gold-500/40 shadow-lg flex items-center justify-center overflow-hidden cursor-pointer hover:border-gold-400 transition"
+          >
+            <span className="absolute inset-y-2 left-1/2 -translate-x-1/2 w-0.5 bg-gold-500/30 rounded-full" />
+            <span
+              className={`absolute left-1/2 -translate-x-1/2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ease-out ${
+                heroMode === "pagi"
+                  ? "top-1 bg-gold-400 text-emerald-950 shadow-[0_0_12px_2px_rgba(250,204,21,0.6)]"
+                  : "bottom-1 bg-emerald-800 text-gold-200"
+              }`}
+            >
+              {heroMode === "pagi" ? <Sun size={15} /> : <Moon size={15} />}
+            </span>
+          </button>
+          <span
+            className={`text-[10px] font-bold uppercase tracking-widest transition ${
+              heroMode === "malam" ? "text-gold-300" : "text-white/60"
+            }`}
+          >
+            <Moon size={14} className="inline mb-0.5" /> Malam
+          </span>
+        </div>
         <div className="relative z-20 max-w-7xl mx-auto px-4 py-20 flex flex-col items-center text-center">
           <div className="w-16 h-1 bg-gold-500 mb-6"></div>
-          <p className="text-gold-300 font-serif italic text-lg sm:text-xl mb-3 tracking-widest">
+          <p className="text-gold-300 font-serif italic text-lg sm:text-xl mb-3 tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
           </p>
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6">
+          <h2 className="font-serif text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 drop-shadow-[0_3px_8px_rgba(0,0,0,0.95)]">
             Selamat Datang di <br />
-            <span className="text-gold-400">
+            <span className="text-gold-400 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
               Masjid Al-Kahfi Cikoneng
             </span>
           </h2>
-          <p className="text-base sm:text-lg md:text-xl text-emerald-50 max-w-3xl mx-auto mb-10 leading-relaxed font-light">
+          <p className="text-base sm:text-lg md:text-xl text-emerald-50 max-w-3xl mx-auto mb-10 leading-relaxed font-light drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
             Pusat Pembinaan Keimanan, Pemberdayaan Sosial Ekonomi Umat,
             dan Pendidikan Karakter Islami di Wilayah Cikoneng,
             Kabupaten Bandung.
@@ -425,7 +471,7 @@ export default function BerandaPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md">
             <a
               href="/jadwal-sholat"
-              className="bg-gold-500 hover:bg-gold-600 text-emerald-950 font-bold px-8 py-3.5 rounded-lg shadow-lg transition flex items-center justify-center gap-2"
+              className="bg-transparent border-2 border-gold-500 text-gold-300 hover:bg-gold-500 hover:text-emerald-950 font-semibold px-8 py-3.5 rounded-lg transition flex items-center justify-center gap-2"
             >
               <Clock size={18} /> Jadwal Sholat Hari Ini
             </a>
