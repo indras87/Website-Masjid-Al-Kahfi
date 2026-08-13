@@ -11,6 +11,9 @@ import {
   pengaturan,
   user,
   account,
+  akunKas,
+  akuntansiKategori,
+  akuntansiTransaksi,
 } from "./schema";
 import { DEFAULT_RUNNING_TEXT } from "../cms/settings";
 import { slugify, uniqueSlug } from "../slug";
@@ -275,6 +278,32 @@ const DEFAULT_GALERI = [
   },
 ];
 
+// Master akun kas DKM (sesuai Laporan Keuangan Masjid — Google Sheets)
+const DEFAULT_AKUN_KAS = [
+  { nama: "CASH/Kotak Amal", urutan: 1 },
+  { nama: "Al Kahfi Care", urutan: 2 },
+  { nama: "Rekening Infaq", urutan: 3 },
+  { nama: "Rekening Waqaf", urutan: 4 },
+  { nama: "QRIS INFAQ", urutan: 5 },
+  { nama: "QRIS WAQAF", urutan: 6 },
+];
+
+const DEFAULT_AKUNTANSI_KATEGORI: Array<{
+  nama: string;
+  jenis: "pemasukan" | "pengeluaran";
+  urutan: number;
+}> = [
+  { nama: "Infaq", jenis: "pemasukan", urutan: 1 },
+  { nama: "Wakaf", jenis: "pemasukan", urutan: 2 },
+  { nama: "Donasi Lainnya", jenis: "pemasukan", urutan: 3 },
+  { nama: "Operasional", jenis: "pengeluaran", urutan: 1 },
+  { nama: "Konsumsi", jenis: "pengeluaran", urutan: 2 },
+  { nama: "Kapalah/Honor", jenis: "pengeluaran", urutan: 3 },
+  { nama: "Pembangunan", jenis: "pengeluaran", urutan: 4 },
+  { nama: "Administrasi Bank", jenis: "pengeluaran", urutan: 5 },
+  { nama: "Lainnya", jenis: "pengeluaran", urutan: 6 },
+];
+
 const SUPERADMIN_USER = {
   id: "superadmin-001",
   email: "superadmin@masjidalkahfi.test",
@@ -302,6 +331,9 @@ async function main() {
   await db.delete(kontak);
   await db.delete(donasi);
   await db.delete(pengaturan);
+  await db.delete(akuntansiTransaksi); // Clean transaksi before akun_kas/kategori (foreign key constraint)
+  await db.delete(akuntansiKategori);
+  await db.delete(akunKas);
   await db.delete(account); // Clean account before user (foreign key constraint)
   await db.delete(user);
 
@@ -378,6 +410,13 @@ async function main() {
     key: "running_text",
     value: DEFAULT_RUNNING_TEXT,
   });
+
+  // Insert Akun Kas & Kategori Akuntansi
+  console.log("Seeding akun kas...");
+  await db.insert(akunKas).values(DEFAULT_AKUN_KAS);
+
+  console.log("Seeding kategori akuntansi...");
+  await db.insert(akuntansiKategori).values(DEFAULT_AKUNTANSI_KATEGORI);
 
   console.log("Database seeded successfully!");
   process.exit(0);
