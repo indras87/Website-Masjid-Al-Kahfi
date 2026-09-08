@@ -26,6 +26,7 @@ import {
   PanelLeftOpen,
   ChevronDown,
   ChevronRight,
+  PiggyBank,
   type LucideIcon,
 } from "lucide-react";
 
@@ -131,6 +132,7 @@ export default function Sidebar({ user }: SidebarProps) {
         { href: "/admin/campaign", label: "Campaign Donasi", icon: Megaphone },
         { href: "/admin/campaign-donasi", label: "Verifikasi Donasi", icon: BadgeCheck },
         { href: "/admin/donatur-tetap", label: "Donatur Tetap", icon: HeartHandshake },
+        { href: "/admin/tabungan-qurban", label: "Tabungan Qurban", icon: PiggyBank },
       ],
     },
     { href: "/admin/pengaturan", label: "Pengaturan", icon: Settings },

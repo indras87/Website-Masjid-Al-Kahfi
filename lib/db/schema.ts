@@ -381,3 +381,68 @@ export const akuntansiTransaksi = pgTable("akuntansi_transaksi", {
   index("akuntansi_transaksi_tanggal_idx").on(table.tanggal),
   index("akuntansi_transaksi_akun_kas_idx").on(table.akunKasId),
 ]);
+
+// === Tabungan Qurban ===
+
+export const qurbanPesertaStatusEnum = pgEnum("qurban_peserta_status", [
+  "baru",     // daftar via publik, menunggu verifikasi admin
+  "aktif",    // terverifikasi, tabungan berjalan
+  "selesai",  // dana dicairkan / dipakai untuk qurban
+  "berhenti", // dibatalkan / mengundurkan diri
+]);
+
+export const qurbanPeserta = pgTable("qurban_peserta", {
+  id: serial("id").primaryKey(),
+  namaPeserta: text("nama_peserta").notNull(),
+  alamat: text("alamat").notNull(),
+  whatsapp: text("whatsapp").notNull(), // dinormalisasi "62xxx"
+  namaBank: text("nama_bank").notNull(),
+  nomorRekening: text("nomor_rekening").notNull(),
+  namaPemilikRekening: text("nama_pemilik_rekening").notNull(),
+  periode: text("periode").notNull(), // tahun target qurban, mis. "2027"
+  status: qurbanPesertaStatusEnum("status").default("baru").notNull(),
+  catatanAdmin: text("catatan_admin"), // catatan internal DKM
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("qurban_peserta_periode_idx").on(table.periode),
+  index("qurban_peserta_status_idx").on(table.status),
+]);
+
+// Shohibul qurban (muqorib) yang ditabungkan — 1 peserta bisa banyak shohibul.
+export const qurbanShohibul = pgTable("qurban_shohibul", {
+  id: serial("id").primaryKey(),
+  pesertaId: integer("peserta_id")
+    .references(() => qurbanPeserta.id, { onDelete: "cascade" })
+    .notNull(),
+  nama: text("nama").notNull(), // 3–100 karakter
+  urutan: integer("urutan").default(0).notNull(),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("qurban_shohibul_peserta_idx").on(table.pesertaId),
+]);
+
+// Riwayat setoran tabungan qurban (satu baris = satu setoran).
+// Saldo peserta = SUM(jumlah) gabungan seluruh shohibul — dihitung on-the-fly.
+export const qurbanSetoran = pgTable("qurban_setoran", {
+  id: serial("id").primaryKey(),
+  pesertaId: integer("peserta_id")
+    .references(() => qurbanPeserta.id, { onDelete: "cascade" })
+    .notNull(),
+  tanggal: timestamp("tanggal", { withTimezone: true }).notNull(),
+  jumlah: integer("jumlah").notNull(), // rupiah, > 0
+  metodePembayaran: metodePembayaranEnum("metode_pembayaran").notNull(), // reuse enum
+  keterangan: text("keterangan"),
+  createdById: text("created_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedById: text("updated_by_id").references(() => user.id, { onDelete: "set null" }),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("qurban_setoran_peserta_idx").on(table.pesertaId),
+  index("qurban_setoran_tanggal_idx").on(table.tanggal),
+]);
