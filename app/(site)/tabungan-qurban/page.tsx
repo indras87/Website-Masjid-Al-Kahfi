@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { PiggyBank, User, Users, MapPin, Phone, Landmark, CreditCard, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { Coins, User, Users, MapPin, Phone, Landmark, CreditCard, CheckCircle2, Plus, Trash2 } from "lucide-react";
 
 type FormState = {
   namaPeserta: string;
@@ -109,7 +109,7 @@ export default function TabunganQurbanPage() {
       <section className="bg-emerald-900 text-white py-16">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-400/20 mb-4">
-            <PiggyBank className="w-8 h-8 text-amber-300" />
+            <Coins className="w-8 h-8 text-amber-300" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold mb-3">Tabungan Qurban</h1>
           <p className="text-emerald-100 max-w-2xl mx-auto">

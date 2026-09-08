@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Filter, MessageCircle, Trash2, Save, X, Plus, PiggyBank, UserPlus, Users } from "lucide-react";
+import { Search, Filter, MessageCircle, Trash2, Save, X, Plus, Coins, UserPlus, Users } from "lucide-react";
 
 const rupiah = (n: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(n);
@@ -377,7 +377,7 @@ export default function TabunganQurbanAdminPage() {
           <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-emerald-950 flex items-center gap-2">
-                <PiggyBank className="w-5 h-5 text-emerald-700" /> Detail Peserta — Saldo {rupiah(detail.saldo)}
+                <Coins className="w-5 h-5 text-emerald-700" /> Detail Peserta — Saldo {rupiah(detail.saldo)}
               </h2>
               <button onClick={() => setDetail(null)} className="text-gray-400 hover:text-gray-600"><X size={24} /></button>
             </div>
