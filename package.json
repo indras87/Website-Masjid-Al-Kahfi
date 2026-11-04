@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test --import ./test/helpers/register-mocks.ts \"test/**/*.test.ts\"",
+    "test": "tsx --test --test-concurrency=1 --import ./test/helpers/register-mocks.ts \"test/**/*.test.ts\"",
     "lint": "eslint .",
     "clean": "next clean",
     "db:push": "drizzle-kit push",

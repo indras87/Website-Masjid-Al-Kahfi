@@ -20,14 +20,15 @@ export async function GET() {
 /** Menambahkan foto ke galeri baru (POST). */
 export async function POST(request: Request) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await request.json();
     const { title, img } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
-
-    const actor = await getActor();
 
     const defaultImages = [
       'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300',

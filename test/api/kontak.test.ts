@@ -1,12 +1,21 @@
 import assert from 'node:assert/strict';
 import { test, after, beforeEach } from 'node:test';
 import { GET, PUT, DELETE } from '../../app/api/kontak/route';
-import { reset, closeDb, kontak, db } from '../helpers/db';
+import { reset, closeDb, kontak, db, user } from '../helpers/db';
 import { getDefaultContactSettings } from '../../lib/cms/settings';
+import { auth } from '../../lib/auth';
 import { call } from '../helpers/request';
 
+// Control the session returned by auth.api.getSession (headers() is stubbed globally).
+let currentSession: any = null;
+(auth.api as any).getSession = async () => currentSession;
+
 after(closeDb);
-beforeEach(async () => { await reset(kontak); });
+beforeEach(async () => {
+  currentSession = { user: { id: 'kt1', name: 'Sekretaris' } };
+  await reset(kontak, user);
+  await db.insert(user).values({ id: 'kt1', email: 'sekretaris.kontak@test.local', name: 'Sekretaris', role: 'admin' });
+});
 
 const valid = {
   alamat: 'Jl. X',
@@ -53,4 +62,17 @@ test('DELETE /api/kontak -> ok true, table empty', async () => {
   assert.equal(status, 200);
   assert.equal(body.ok, true);
   assert.equal((await db.select().from(kontak)).length, 0);
+});
+
+test('PUT /api/kontak without session -> 401', async () => {
+  currentSession = null;
+  const { status, body } = await call(PUT, { method: 'PUT', body: valid });
+  assert.equal(status, 401);
+  assert.equal(body.error, 'Unauthorized');
+});
+
+test('DELETE /api/kontak without session -> 401', async () => {
+  currentSession = null;
+  const { status } = await call(DELETE, { method: 'DELETE' });
+  assert.equal(status, 401);
 });

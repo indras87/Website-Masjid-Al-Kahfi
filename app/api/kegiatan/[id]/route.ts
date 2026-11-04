@@ -10,6 +10,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
     const body = await request.json();
     const { title, type, time, ust, status, desc, note, icon, color, img, featured } = body;
@@ -18,8 +21,6 @@ export async function PUT(
     if (isNaN(numericId)) {
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
     }
-
-    const actor = await getActor();
 
     const result = await db.update(kegiatan)
       .set({
@@ -57,6 +58,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {

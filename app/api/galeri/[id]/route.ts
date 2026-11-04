@@ -2,13 +2,17 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { galeri } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { getActor } from '@/lib/audit';
 
-/** Menghapus foto galeri berdasarkan ID (DELETE). */
+/** Menghapus foto galeri berdasarkan ID (DELETE, butuh sesi login). */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {

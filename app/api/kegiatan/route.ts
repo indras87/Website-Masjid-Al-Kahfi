@@ -20,14 +20,15 @@ export async function GET() {
 /** Menambahkan kegiatan masjid baru (POST). */
 export async function POST(request: Request) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await request.json();
     const { title, type, time, ust, status, desc, note, icon, color, img, featured } = body;
 
     if (!title || !type || !time || !ust) {
       return NextResponse.json({ error: 'Title, type, time, and ust are required' }, { status: 400 });
     }
-
-    const actor = await getActor();
 
     const defaultIcons: Record<string, string> = {
       'Harian': 'CircleUser',

@@ -2,8 +2,13 @@ import assert from 'node:assert/strict';
 import { test, after, beforeEach } from 'node:test';
 import { GET, POST } from '../../app/api/galeri/route';
 import { DELETE } from '../../app/api/galeri/[id]/route';
-import { reset, closeDb, galeri, db } from '../helpers/db';
+import { reset, closeDb, galeri, db, user } from '../helpers/db';
+import { auth } from '../../lib/auth';
 import { call } from '../helpers/request';
+
+// Control the session returned by auth.api.getSession (headers() is stubbed globally).
+let currentSession: any = null;
+(auth.api as any).getSession = async () => currentSession;
 
 const DEFAULT_IMAGES = [
   'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=300',
@@ -12,7 +17,11 @@ const DEFAULT_IMAGES = [
 ];
 
 after(closeDb);
-beforeEach(async () => { await reset(galeri); });
+beforeEach(async () => {
+  currentSession = { user: { id: 'g1', name: 'Editor' } };
+  await reset(galeri, user);
+  await db.insert(user).values({ id: 'g1', email: 'editor.galeri@test.local', name: 'Editor', role: 'admin' });
+});
 
 test('GET /api/galeri empty -> 200 []', async () => {
   const { status, body } = await call(GET);
@@ -59,4 +68,17 @@ test('DELETE /api/galeri/[id] non-numeric -> 400', async () => {
 test('DELETE /api/galeri/[id] missing -> 404', async () => {
   const { status } = await call(DELETE, { method: 'DELETE', params: { id: '999999' } });
   assert.equal(status, 404);
+});
+
+test('POST /api/galeri without session -> 401', async () => {
+  currentSession = null;
+  const { status, body } = await call(POST, { method: 'POST', body: { title: 'G' } });
+  assert.equal(status, 401);
+  assert.equal(body.error, 'Unauthorized');
+});
+
+test('DELETE /api/galeri/[id] without session -> 401', async () => {
+  currentSession = null;
+  const { status } = await call(DELETE, { method: 'DELETE', params: { id: '1' } });
+  assert.equal(status, 401);
 });

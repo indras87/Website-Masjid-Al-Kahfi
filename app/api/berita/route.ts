@@ -34,14 +34,15 @@ async function computeUniqueSlug(title: string): Promise<string> {
 /** Membuat berita baru beserta slug uniknya (POST). */
 export async function POST(request: Request) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await request.json();
     const { title, tag, author, img, desc: description, date, content } = body;
 
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
     }
-
-    const actor = await getActor();
 
     const options = { day: 'numeric', month: 'long', year: 'numeric' } as const;
     const formattedDate = date || new Date().toLocaleDateString('id-ID', options);

@@ -22,14 +22,15 @@ export async function GET() {
 /** Membuat atau memperbarui data kontak masjid (PUT). */
 export async function PUT(request: Request) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await request.json();
     const { alamat, hotline, email, jamOperasional, googleMapsUrl } = body;
 
     if (!alamat || !hotline || !email || !jamOperasional || !googleMapsUrl) {
       return NextResponse.json({ error: 'Semua field kontak wajib diisi' }, { status: 400 });
     }
-
-    const actor = await getActor();
 
     const existing = await db.select().from(kontak).limit(1);
 
@@ -64,9 +65,12 @@ export async function PUT(request: Request) {
   }
 }
 
-/** Menghapus seluruh data kontak (DELETE). */
+/** Menghapus seluruh data kontak (DELETE, butuh sesi login). */
 export async function DELETE() {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     await db.delete(kontak);
     return NextResponse.json({ ok: true });
   } catch (error: any) {

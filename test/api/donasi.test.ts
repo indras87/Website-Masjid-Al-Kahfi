@@ -1,12 +1,21 @@
 import assert from 'node:assert/strict';
 import { test, after, beforeEach } from 'node:test';
 import { GET, PUT, DELETE } from '../../app/api/donasi/route';
-import { reset, closeDb, donasi, db } from '../helpers/db';
+import { reset, closeDb, donasi, db, user } from '../helpers/db';
 import { getDefaultDonationSettings } from '../../lib/cms/settings';
+import { auth } from '../../lib/auth';
 import { call } from '../helpers/request';
 
+// Control the session returned by auth.api.getSession (headers() is stubbed globally).
+let currentSession: any = null;
+(auth.api as any).getSession = async () => currentSession;
+
 after(closeDb);
-beforeEach(async () => { await reset(donasi); });
+beforeEach(async () => {
+  currentSession = { user: { id: 'd1', name: 'Bendahara' } };
+  await reset(donasi, user);
+  await db.insert(user).values({ id: 'd1', email: 'bendahara.donasi@test.local', name: 'Bendahara', role: 'admin' });
+});
 
 const valid = {
   namaRekening: 'BSI',
@@ -46,4 +55,17 @@ test('DELETE /api/donasi -> ok true, table empty', async () => {
   assert.equal(status, 200);
   assert.equal(body.ok, true);
   assert.equal((await db.select().from(donasi)).length, 0);
+});
+
+test('PUT /api/donasi without session -> 401', async () => {
+  currentSession = null;
+  const { status, body } = await call(PUT, { method: 'PUT', body: valid });
+  assert.equal(status, 401);
+  assert.equal(body.error, 'Unauthorized');
+});
+
+test('DELETE /api/donasi without session -> 401', async () => {
+  currentSession = null;
+  const { status } = await call(DELETE, { method: 'DELETE' });
+  assert.equal(status, 401);
 });

@@ -2,11 +2,20 @@ import assert from 'node:assert/strict';
 import { test, after, beforeEach } from 'node:test';
 import { GET, POST } from '../../app/api/kegiatan/route';
 import { PUT, DELETE } from '../../app/api/kegiatan/[id]/route';
-import { reset, closeDb, kegiatan, db } from '../helpers/db';
+import { reset, closeDb, kegiatan, db, user } from '../helpers/db';
+import { auth } from '../../lib/auth';
 import { call } from '../helpers/request';
 
+// Control the session returned by auth.api.getSession (headers() is stubbed globally).
+let currentSession: any = null;
+(auth.api as any).getSession = async () => currentSession;
+
 after(closeDb);
-beforeEach(async () => { await reset(kegiatan); });
+beforeEach(async () => {
+  currentSession = { user: { id: 'k1', name: 'Editor' } };
+  await reset(kegiatan, user);
+  await db.insert(user).values({ id: 'k1', email: 'editor.kegiatan@test.local', name: 'Editor', role: 'admin' });
+});
 
 const base = { title: 'Tahsin', type: 'Harian', time: 'Bada Subuh', ust: 'Ust. S' } as const;
 
@@ -75,4 +84,23 @@ test('DELETE /api/kegiatan/[id] existing -> 200', async () => {
 test('DELETE /api/kegiatan/[id] missing -> 404', async () => {
   const { status } = await call(DELETE, { method: 'DELETE', params: { id: '999999' } });
   assert.equal(status, 404);
+});
+
+test('POST /api/kegiatan without session -> 401', async () => {
+  currentSession = null;
+  const { status, body } = await call(POST, { method: 'POST', body: base });
+  assert.equal(status, 401);
+  assert.equal(body.error, 'Unauthorized');
+});
+
+test('PUT /api/kegiatan/[id] without session -> 401', async () => {
+  currentSession = null;
+  const { status } = await call(PUT, { method: 'PUT', params: { id: '1' }, body: base });
+  assert.equal(status, 401);
+});
+
+test('DELETE /api/kegiatan/[id] without session -> 401', async () => {
+  currentSession = null;
+  const { status } = await call(DELETE, { method: 'DELETE', params: { id: '1' } });
+  assert.equal(status, 401);
 });

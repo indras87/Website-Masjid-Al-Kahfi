@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { getActor } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
-/** Mengunggah file gambar ke folder public/uploads (POST). */
+/** Mengunggah file gambar ke folder public/uploads (POST, butuh sesi login). */
 export async function POST(request: NextRequest) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
 

@@ -1,9 +1,16 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { test, after, afterEach, before } from 'node:test';
+import { test, after, afterEach, before, beforeEach } from 'node:test';
 import { POST } from '../../app/api/upload/route';
+import { auth } from '../../lib/auth';
 import { call } from '../helpers/request';
+
+// Control the session returned by auth.api.getSession (headers() is stubbed globally).
+let currentSession: any = null;
+(auth.api as any).getSession = async () => currentSession;
+
+beforeEach(() => { currentSession = { user: { id: 'up1', name: 'Uploader' } }; });
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
 
@@ -86,4 +93,13 @@ test('POST /api/upload valid PNG -> 200, file on disk, sanitized name', async ()
   // special characters sanitized to underscores
   assert.match(filename, /my_pic/);
   assert.equal(/[^a-zA-Z0-9._-]/.test(filename.replace(/my_pic/, '')), false);
+});
+
+test('POST /api/upload without session -> 401', async () => {
+  snapshot = listDir();
+  currentSession = null;
+  const fd = formDataWith({ buf: PNG_1x1, name: 'x.png', type: 'image/png' });
+  const { status, body } = await call(POST, { method: 'POST', rawBody: fd });
+  assert.equal(status, 401);
+  assert.equal(body.error, 'Unauthorized');
 });

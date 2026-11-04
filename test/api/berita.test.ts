@@ -2,11 +2,20 @@ import assert from 'node:assert/strict';
 import { test, after, beforeEach } from 'node:test';
 import { GET, POST } from '../../app/api/berita/route';
 import { GET as GET_ID, PUT, DELETE } from '../../app/api/berita/[id]/route';
-import { reset, closeDb, berita, db } from '../helpers/db';
+import { reset, closeDb, berita, db, user } from '../helpers/db';
+import { auth } from '../../lib/auth';
 import { call } from '../helpers/request';
 
+// Control the session returned by auth.api.getSession (headers() is stubbed globally).
+let currentSession: any = null;
+(auth.api as any).getSession = async () => currentSession;
+
 after(closeDb);
-beforeEach(async () => { await reset(berita); });
+beforeEach(async () => {
+  currentSession = { user: { id: 'b1', name: 'Editor' } };
+  await reset(berita, user);
+  await db.insert(user).values({ id: 'b1', email: 'editor.berita@test.local', name: 'Editor', role: 'admin' });
+});
 
 const validBody = { title: 'Kajian Akbar', tag: 'Tarbiyah', author: 'Ust. X', desc: 'desc', content: 'c' };
 
@@ -29,6 +38,25 @@ test('POST /api/berita missing title+desc -> 400', async () => {
   const { status, body } = await call(POST, { method: 'POST', body: { tag: 'X' } });
   assert.equal(status, 400);
   assert.ok(body.error);
+});
+
+test('POST /api/berita without session -> 401', async () => {
+  currentSession = null;
+  const { status, body } = await call(POST, { method: 'POST', body: validBody });
+  assert.equal(status, 401);
+  assert.equal(body.error, 'Unauthorized');
+});
+
+test('PUT /api/berita/[id] without session -> 401', async () => {
+  currentSession = null;
+  const { status } = await call(PUT, { method: 'PUT', params: { id: '1' }, body: validBody });
+  assert.equal(status, 401);
+});
+
+test('DELETE /api/berita/[id] without session -> 401', async () => {
+  currentSession = null;
+  const { status } = await call(DELETE, { method: 'DELETE', params: { id: '1' } });
+  assert.equal(status, 401);
 });
 
 test('POST /api/berita valid -> 201 with unique slug', async () => {

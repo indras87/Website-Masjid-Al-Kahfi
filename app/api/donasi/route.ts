@@ -22,14 +22,15 @@ export async function GET() {
 /** Membuat atau memperbarui data donasi (PUT). */
 export async function PUT(request: Request) {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await request.json();
     const { namaRekening, nomorRekening, atasNamaRekening, qrisImage } = body;
 
     if (!namaRekening || !nomorRekening || !atasNamaRekening || !qrisImage) {
       return NextResponse.json({ error: 'Semua field donasi wajib diisi' }, { status: 400 });
     }
-
-    const actor = await getActor();
 
     const existing = await db.select().from(donasi).limit(1);
 
@@ -62,9 +63,12 @@ export async function PUT(request: Request) {
   }
 }
 
-/** Menghapus seluruh data donasi (DELETE). */
+/** Menghapus seluruh data donasi (DELETE, butuh sesi login). */
 export async function DELETE() {
   try {
+    const actor = await getActor();
+    if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     await db.delete(donasi);
     return NextResponse.json({ ok: true });
   } catch (error: any) {
