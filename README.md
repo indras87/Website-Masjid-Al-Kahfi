@@ -19,7 +19,6 @@ Antarmuka dirancang modern, responsif, dan interaktif untuk memberikan pengalama
 - [Konvensi Penamaan File](#konvensi-penamaan-file)
 - [Fitur](#fitur)
 - [Schema Database](#schema-database)
-- [API / Route Handler](#api--route-handler)
 - [Setup Project](#setup-project)
 - [Menjalankan Aplikasi](#menjalankan-aplikasi)
 - [Testing](#testing)
@@ -109,7 +108,7 @@ website_masjid_alkahfi/
 │   │       ├── users/           # Manajemen pengguna + _components/
 │   │       ├── layout.tsx       # Verifikasi sesi server-side + shell admin
 │   │       └── page.tsx         # Dashboard (statistik & aktivitas terbaru)
-│   ├── api/                     # Route Handler REST (lihat seksi API)
+│   ├── api/                     # Route Handler REST
 │   │   ├── auth/[...all]/       # Handler Better Auth
 │   │   ├── berita/, kegiatan/, galeri/, pengurus/, fasilitas/
 │   │   ├── profil/, kontak/, donasi/, pengaturan/
@@ -235,29 +234,6 @@ Skema didefinisikan di `lib/db/schema.ts` dengan Drizzle ORM (PostgreSQL). Terda
 | `pengaturan` | `key` (PK), `value` | Key-value settings lintas situs |
 
 **Konvensi:** tabel konten mencatat `createdById`, `updatedById` (FK → `user.id`, `onDelete: SET NULL`) dan `updatedAt`/`createdAt`. Dua enum didefinisikan: `user_role` dan `pengurus_tingkat`.
-
----
-
-## API / Route Handler
-
-Seluruh endpoint berbasis REST di `app/api/*`, mengembalikan JSON. Endpoint item memakai `[id]`. Sebagian besar endpoint menambahkan field `createdByName`/`updatedByName` via `withActorNames`.
-
-| Entitas | Collection | Item (`[id]`) |
-|---|---|---|
-| Berita | `GET /api/berita`, `POST /api/berita` | `GET`, `PUT`, `DELETE /api/berita/[id]` |
-| Kegiatan | `GET`, `POST /api/kegiatan` | `PUT`, `DELETE /api/kegiatan/[id]` |
-| Galeri | `GET`, `POST /api/galeri` | `DELETE /api/galeri/[id]` |
-| Pengurus | `GET`, `POST /api/pengurus` | `PUT`, `DELETE /api/pengurus/[id]` |
-| Fasilitas | `GET`, `POST /api/fasilitas` | `PUT`, `DELETE /api/fasilitas/[id]` |
-| Profil | `GET`, `PUT /api/profil` | — (resource tunggal) |
-| Kontak | `GET`, `PUT`, `DELETE /api/kontak` | — |
-| Donasi | `GET`, `PUT`, `DELETE /api/donasi` | — |
-| Pengaturan | `GET`, `PUT /api/pengaturan` | — (key-value) |
-| Users | `GET`, `POST /api/users` | `GET`, `PUT`, `DELETE /api/users/[id]` |
-| Upload | `POST /api/upload` (multipart/form-data, max 2 MB, JPG/PNG/WEBP/GIF) | — |
-| Auth | `ALL /api/auth/[...all]` (handler Better Auth: login, logout, signup, session) | — |
-
-**Catatan implementasi:** endpoint membaca/menulis langsung via Drizzle; `POST` berita membuat `slug` unik (cek bentrok dengan sufiks numerik). Endpoint `dynamic = "force-dynamic"` agar selalu dievaluasi saat request.
 
 ---
 
